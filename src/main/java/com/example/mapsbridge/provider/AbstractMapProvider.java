@@ -66,8 +66,8 @@ public abstract class AbstractMapProvider implements MapProvider {
         return urlPattern.matcher(url).matches();
     }
 
-
-    public Coordinate extractCoordinatesWithRedirects(String url) {
+    @Override
+    public Coordinate extractCoordinates(String url) {
         if (StringUtils.isBlank(url)) {
             return null;
         }
@@ -85,11 +85,6 @@ public abstract class AbstractMapProvider implements MapProvider {
         }
 
         return null;
-    }
-
-    @Override
-    public Coordinate extractCoordinates(String url) {
-        return parseCoordinates(url);
     }
 
     @Nullable

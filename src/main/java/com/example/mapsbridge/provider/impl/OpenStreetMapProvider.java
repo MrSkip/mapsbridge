@@ -40,8 +40,4 @@ public class OpenStreetMapProvider extends AbstractMapProvider {
         return MapType.OPENSTREETMAP;
     }
 
-    @Override
-    public Coordinate extractCoordinates(String url) {
-        return extractCoordinatesWithRedirects(url);
-    }
 }

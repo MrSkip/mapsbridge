@@ -40,9 +40,4 @@ public class BingMapProvider extends AbstractMapProvider {
     public MapType getType() {
         return MapType.BING;
     }
-
-    @Override
-    public Coordinate extractCoordinates(String url) {
-        return extractCoordinatesWithRedirects(url);
-    }
 }

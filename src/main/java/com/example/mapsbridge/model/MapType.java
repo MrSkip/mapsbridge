@@ -11,7 +11,8 @@ public enum MapType {
     APPLE("apple"),
     BING("bing"),
     OPENSTREETMAP("osm"),
-    WAZE("waze");
+    WAZE("waze"),
+    KOMOOT("komoot");
 
     private final String name;
 

@@ -37,25 +37,4 @@ public class AppleMapProvider extends AbstractMapProvider {
     public MapType getType() {
         return MapType.APPLE;
     }
-
-    @Override
-    public Coordinate extractCoordinates(String url) {
-        if (StringUtils.isBlank(url)) {
-            return null;
-        }
-
-        // First, try to extract coordinates from the URL directly
-        Coordinate coordinate = super.extractCoordinates(url);
-        if (coordinate != null) {
-            return coordinate;
-        }
-
-        // If not found, follow redirects and try again
-        String finalUrl = followRedirects(url);
-        if (!url.equals(finalUrl)) {
-            return super.extractCoordinates(finalUrl);
-        }
-
-        return null;
-    }
 }

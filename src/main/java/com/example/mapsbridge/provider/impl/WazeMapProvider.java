@@ -41,9 +41,4 @@ public class WazeMapProvider extends AbstractMapProvider {
     public MapType getType() {
         return MapType.WAZE;
     }
-
-    @Override
-    public Coordinate extractCoordinates(String url) {
-        return extractCoordinatesWithRedirects(url);
-    }
 }
