@@ -37,6 +37,8 @@ Thumbs.db
 **/application-*.yml
 !**/application-prod.properties
 !**/application-prod.yml
+!**/application.yml
+!**/application.properties
 
 # Ignore test files
 **/src/test/

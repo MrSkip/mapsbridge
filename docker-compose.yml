@@ -11,16 +11,13 @@ services:
       - "8080:8080"
     env_file:
       - docker-secrets/.env
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - JAVA_OPTS=-Xms256m -Xmx512m
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 20s
     volumes:
       - mapsbridge-logs:/app/logs
 

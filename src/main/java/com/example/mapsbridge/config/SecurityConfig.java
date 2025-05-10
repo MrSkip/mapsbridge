@@ -35,7 +35,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Define API endpoints that are always public
         String[] alwaysPublicPaths = {
-            "/api/convert"
+            "/api/convert",
+            "/actuator/health"
         };
 
         // Determine which paths should be public based on active profiles
