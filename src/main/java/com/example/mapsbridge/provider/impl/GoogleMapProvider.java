@@ -166,6 +166,7 @@ public class GoogleMapProvider extends AbstractMapProvider {
     }
 
     protected String findPlaceId(String url) {
+        // First, check for place_id= parameter
         Pattern placeIdPattern = Pattern.compile("place_id=([\\w\\-]+)");
         Matcher placeIdMatcher = placeIdPattern.matcher(url);
         if (placeIdMatcher.find()) {
@@ -173,6 +174,25 @@ public class GoogleMapProvider extends AbstractMapProvider {
             log.debug("Extracted place_id: {}", placeId);
             return placeId;
         }
+
+        // Then, check for !1s pattern (common in Google Maps URLs)
+        Pattern placeIdPattern2 = Pattern.compile("!1s([\\w\\-:]+)");
+        Matcher placeIdMatcher2 = placeIdPattern2.matcher(url);
+        if (placeIdMatcher2.find()) {
+            String placeId = placeIdMatcher2.group(1);
+            log.debug("Extracted place_id from !1s pattern: {}", placeId);
+            return placeId;
+        }
+
+        // Finally, check for !3m5!1s pattern (another common format)
+        Pattern placeIdPattern3 = Pattern.compile("!3m\\d+!1s([\\w\\-:]+)");
+        Matcher placeIdMatcher3 = placeIdPattern3.matcher(url);
+        if (placeIdMatcher3.find()) {
+            String placeId = placeIdMatcher3.group(1);
+            log.debug("Extracted place_id from !3m!1s pattern: {}", placeId);
+            return placeId;
+        }
+
         return null;
     }
 }
