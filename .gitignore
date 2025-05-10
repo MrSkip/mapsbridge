@@ -51,3 +51,5 @@ logs/
 ### OS specific files ###
 .DS_Store
 Thumbs.db
+
+**/application-dev.properties
