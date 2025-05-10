@@ -18,6 +18,10 @@ import com.example.mapsbridge.model.ConvertResponse;
 import com.example.mapsbridge.model.MapType;
 import com.example.mapsbridge.provider.MapProvider;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+
 @ExtendWith(MockitoExtension.class)
 class MapConverterServiceTest {
 
@@ -31,6 +35,10 @@ class MapConverterServiceTest {
 
     private MapType googleMapType;
     private MapType appleMapType;
+
+    private MeterRegistry meterRegistry;
+    private Counter.Builder inputTypeCounterBuilder;
+    private Counter.Builder mapProviderUrlCounterBuilder;
 
     @BeforeEach
     void setUp() {
@@ -52,8 +60,18 @@ class MapConverterServiceTest {
         lenient().when(appleProvider.generateUrl(any(Coordinate.class)))
             .thenAnswer(i -> "https://maps.apple.com/?ll=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
 
-        // Initialize service with mock providers
-        service = new MapConverterService(List.of(googleProvider, appleProvider));
+        // Initialize Micrometer components
+        meterRegistry = new SimpleMeterRegistry();
+        inputTypeCounterBuilder = Counter.builder("maps.input.type")
+                .description("Number of times each input type is used (coordinates vs URL)");
+        mapProviderUrlCounterBuilder = Counter.builder("maps.provider.url.usage")
+                .description("Number of times URLs from each map provider are used as input");
+
+        // Initialize service with mock providers and Micrometer components
+        service = new MapConverterService(List.of(googleProvider, appleProvider), 
+                                         inputTypeCounterBuilder, 
+                                         mapProviderUrlCounterBuilder, 
+                                         meterRegistry);
     }
 
     @Test
@@ -71,6 +89,11 @@ class MapConverterServiceTest {
         assertEquals(2, response.getLinks().size());
         assertEquals("https://www.google.com/maps?q=40.6892,-74.0445", response.getLinks().get(googleMapType));
         assertEquals("https://maps.apple.com/?ll=40.6892,-74.0445", response.getLinks().get(appleMapType));
+
+        // Verify metrics
+        assertEquals(1, meterRegistry.get("maps.input.type")
+                .tag("type", "coordinates")
+                .counter().count());
     }
 
     @Test
@@ -88,6 +111,14 @@ class MapConverterServiceTest {
         assertEquals(2, response.getLinks().size());
         assertEquals("https://www.google.com/maps?q=40.6892,-74.0445", response.getLinks().get(googleMapType));
         assertEquals("https://maps.apple.com/?ll=40.6892,-74.0445", response.getLinks().get(appleMapType));
+
+        // Verify metrics
+        assertEquals(1, meterRegistry.get("maps.input.type")
+                .tag("type", "url")
+                .counter().count());
+        assertEquals(1, meterRegistry.get("maps.provider.url.usage")
+                .tag("provider", "google")
+                .counter().count());
     }
 
     @Test

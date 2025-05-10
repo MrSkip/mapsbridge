@@ -37,4 +37,30 @@ public class MetricsConfig {
         return Counter.builder("maps.geocoding.extractor.success")
                 .description("Number of successful matches in GeocodingApiFallbackExtractor");
     }
+
+    /**
+     * Creates a counter for tracking input types (coordinates vs URL).
+     * This will count how many times users request conversion using plain coordinates vs URLs.
+     *
+     * @param registry the meter registry
+     * @return a counter builder for input type tracking
+     */
+    @Bean
+    public Counter.Builder inputTypeCounterBuilder(MeterRegistry registry) {
+        return Counter.builder("maps.input.type")
+                .description("Number of times each input type is used (coordinates vs URL)");
+    }
+
+    /**
+     * Creates a counter for tracking which map provider URLs are used as input.
+     * This will count how many times URLs from each provider are submitted for conversion.
+     *
+     * @param registry the meter registry
+     * @return a counter builder for map provider URL tracking
+     */
+    @Bean
+    public Counter.Builder mapProviderUrlCounterBuilder(MeterRegistry registry) {
+        return Counter.builder("maps.provider.url.usage")
+                .description("Number of times URLs from each map provider are used as input");
+    }
 }

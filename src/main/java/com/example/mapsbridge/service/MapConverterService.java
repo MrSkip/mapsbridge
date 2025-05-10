@@ -11,6 +11,7 @@ import com.example.mapsbridge.exception.InvalidInputException;
 import com.example.mapsbridge.model.Coordinate;
 import com.example.mapsbridge.model.ConvertRequest;
 import com.example.mapsbridge.model.ConvertResponse;
+import com.example.mapsbridge.model.MapType;
 import com.example.mapsbridge.provider.MapProvider;
 
 import io.micrometer.core.instrument.Counter;
@@ -32,6 +33,9 @@ public class MapConverterService {
     private static final Pattern URL_PATTERN = Pattern.compile("^https?://.*");
 
     private final List<MapProvider> mapProviders;
+    private final Counter.Builder inputTypeCounterBuilder;
+    private final Counter.Builder mapProviderUrlCounterBuilder;
+    private final MeterRegistry meterRegistry;
 
     /**
      * Convert a map URL or coordinates to links for all supported map providers.
@@ -48,12 +52,14 @@ public class MapConverterService {
 
         if (COORDINATE_PATTERN.matcher(input).matches()) {
             // Input is coordinates
+            trackUnknownProvider(inputTypeCounterBuilder, "type", "coordinates");
             coordinate = Coordinate.fromString(input);
             if (!coordinate.isValid()) {
                 throw new InvalidCoordinateException("Invalid coordinates: " + input);
             }
         } else if (URL_PATTERN.matcher(input).matches()) {
             // Input is a URL
+            trackUnknownProvider(inputTypeCounterBuilder, "type", "url");
             coordinate = extractCoordinatesFromUrl(input);
             if (coordinate == null) {
                 throw new CoordinateExtractionException("Could not extract coordinates from URL: " + input);
@@ -88,6 +94,8 @@ public class MapConverterService {
         // Try each provider to see if it can extract coordinates
         for (MapProvider provider : mapProviders) {
             if (provider.isProviderUrl(url)) {
+                trackKnownProvider(provider);
+
                 Coordinate coordinate = provider.extractCoordinates(url);
                 if (coordinate != null && coordinate.isValid()) {
                     return coordinate;
@@ -95,14 +103,23 @@ public class MapConverterService {
             }
         }
 
-        // If no provider could extract coordinates, try all providers as a fallback
-        for (MapProvider provider : mapProviders) {
-            Coordinate coordinate = provider.extractCoordinates(url);
-            if (coordinate != null && coordinate.isValid()) {
-                return coordinate;
-            }
-        }
+        // If no provider could extract coordinates, track as unknown
+        trackUnknownProvider(mapProviderUrlCounterBuilder, "provider", "unknown");
+
+        log.info("Could not extract coordinates from URL: {}", url);
 
         return null;
+    }
+
+    private void trackUnknownProvider(Counter.Builder mapProviderUrlCounterBuilder, String provider, String unknown) {
+        mapProviderUrlCounterBuilder
+            .tag(provider, unknown)
+            .register(meterRegistry)
+            .increment();
+    }
+
+    private void trackKnownProvider(MapProvider provider) {
+        // Track which map provider URL was used
+        trackUnknownProvider(mapProviderUrlCounterBuilder, "provider", provider.getType().getName());
     }
 }
