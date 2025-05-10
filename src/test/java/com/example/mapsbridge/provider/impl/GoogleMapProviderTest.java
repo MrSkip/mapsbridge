@@ -4,6 +4,8 @@ import com.example.mapsbridge.model.Coordinate;
 import com.example.mapsbridge.model.MapType;
 import com.example.mapsbridge.provider.extractor.impl.*;
 import com.example.mapsbridge.service.GoogleGeocodingService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,9 +30,19 @@ class GoogleMapProviderTest {
     @Mock
     private OkHttpClient mockHttpClient;
 
+    @Mock
+    private Counter.Builder mockCounterBuilder;
+
+    @Mock
+    private MeterRegistry mockMeterRegistry;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        // Configure mock counter builder
+        lenient().when(mockCounterBuilder.tag(anyString(), anyString())).thenReturn(mockCounterBuilder);
+        lenient().when(mockCounterBuilder.register(mockMeterRegistry)).thenReturn(mock(Counter.class));
 
         lenient().when(mockGeocodingService.isApiEnabled()).thenReturn(false);
 
@@ -52,7 +64,9 @@ class GoogleMapProviderTest {
                     qParameterExtractor,
                     searchPatternExtractor,
                     geocodingExtractor
-                ));
+                ),
+                mockCounterBuilder,
+                mockMeterRegistry);
     }
 
     @Test

@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import com.example.mapsbridge.provider.extractor.CoordinateExtractor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,8 @@ public class GoogleMapProvider extends AbstractMapProvider {
     );
 
     private final List<CoordinateExtractor> extractors;
+    private final Counter.Builder googleMapsExtractorCounterBuilder;
+    private final MeterRegistry meterRegistry;
 
     /**
      * Constructor with dependency injection.
@@ -45,9 +49,13 @@ public class GoogleMapProvider extends AbstractMapProvider {
     public GoogleMapProvider(
             OkHttpClient httpClient,
             @Value("${maps.google.url:https://www.google.com/maps?q={lat},{lon}}") String urlTemplate,
-            List<CoordinateExtractor> extractors) {
+            List<CoordinateExtractor> extractors,
+            Counter.Builder googleMapsExtractorCounterBuilder,
+            MeterRegistry meterRegistry) {
         super(httpClient, urlTemplate, URL_PATTERN, COORDINATE_PATTERN);
         this.extractors = extractors;
+        this.googleMapsExtractorCounterBuilder = googleMapsExtractorCounterBuilder;
+        this.meterRegistry = meterRegistry;
     }
 
     @Override
@@ -67,8 +75,12 @@ public class GoogleMapProvider extends AbstractMapProvider {
         for (CoordinateExtractor extractor : extractors) {
             Coordinate coordinate = extractor.extract(finalUrl);
             if (coordinate != null) {
+                String extractorName = extractor.getClass().getSimpleName();
                 log.debug("Extracted coordinates using {}: {},{}", 
-                    extractor.getClass().getSimpleName(), coordinate.getLat(), coordinate.getLon());
+                    extractorName, coordinate.getLat(), coordinate.getLon());
+
+                trackUsage(extractorName);
+
                 return coordinate;
             }
         }
@@ -84,6 +96,14 @@ public class GoogleMapProvider extends AbstractMapProvider {
             }
         }
         return url;
+    }
+
+    private void trackUsage(String extractorName) {
+        // Track which extractor was used with metrics
+        googleMapsExtractorCounterBuilder
+                .tag("extractor", extractorName)
+                .register(meterRegistry)
+                .increment();
     }
 
 }

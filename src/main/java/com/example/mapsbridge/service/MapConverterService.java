@@ -13,6 +13,8 @@ import com.example.mapsbridge.model.ConvertRequest;
 import com.example.mapsbridge.model.ConvertResponse;
 import com.example.mapsbridge.provider.MapProvider;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,14 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class MapConverterService {
-
-    private final List<MapProvider> mapProviders;
-
     // Pattern to match coordinates in the format "lat,lon"
     private static final Pattern COORDINATE_PATTERN = Pattern.compile("^-?\\d+\\.?\\d*,-?\\d+\\.?\\d*$");
 
     // Pattern to match URLs
     private static final Pattern URL_PATTERN = Pattern.compile("^https?://.*");
+
+    private final List<MapProvider> mapProviders;
 
     /**
      * Convert a map URL or coordinates to links for all supported map providers.
