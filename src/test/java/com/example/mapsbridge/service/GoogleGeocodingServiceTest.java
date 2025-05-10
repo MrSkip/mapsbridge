@@ -1,16 +1,20 @@
 package com.example.mapsbridge.service;
 
 import com.example.mapsbridge.model.Coordinate;
+import com.google.maps.GeoApiContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class GoogleGeocodingServiceTest {
+
+    @Mock
+    private GeoApiContext mockGeoApiContext;
 
     private GoogleGeocodingService geocodingService;
     private GoogleGeocodingService disabledService;
@@ -18,10 +22,10 @@ class GoogleGeocodingServiceTest {
     @BeforeEach
     void setUp() {
         // Create service with API enabled
-        geocodingService = new GoogleGeocodingService("test-api-key");
+        geocodingService = new GoogleGeocodingService(mockGeoApiContext, true);
 
         // Create service with API disabled
-        disabledService = new GoogleGeocodingService("");
+        disabledService = new GoogleGeocodingService(mockGeoApiContext, false);
     }
 
     @Test

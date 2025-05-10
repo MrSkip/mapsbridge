@@ -10,6 +10,7 @@ import com.google.maps.model.PlaceDetails;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,18 +27,20 @@ public class GoogleGeocodingService {
 
     /**
      * Constructor with dependency injection.
-     * 
-     * @param googleApiKey The Google API key from configuration
+     *
+     * @param geoApiContext The GeoApiContext bean from configuration
+     * @param apiEnabled Flag indicating if Google API is enabled
      */
-    public GoogleGeocodingService(@Value("${google.api.key:}") String googleApiKey) {
-        // Initialize Google API context if key is provided
-        this.apiEnabled = googleApiKey != null && !googleApiKey.isEmpty();
-        this.geoApiContext = apiEnabled ? new GeoApiContext.Builder().apiKey(googleApiKey).build() : null;
+    @Autowired
+    public GoogleGeocodingService(GeoApiContext geoApiContext,
+                                 @Value("${google.api.enabled:true}") boolean apiEnabled) {
+        this.geoApiContext = geoApiContext;
+        this.apiEnabled = apiEnabled;
     }
 
     /**
      * Geocode a query string to coordinates.
-     * 
+     *
      * @param query The query string to geocode
      * @return Coordinate object if successful, null otherwise
      */
@@ -50,8 +53,8 @@ public class GoogleGeocodingService {
             // Call Google Geocoding API
             GeocodingResult[] results = GeocodingApi.geocode(geoApiContext, query).await();
 
-            if (results != null && results.length > 0 && results[0].geometry != null && 
-                results[0].geometry.location != null) {
+            if (results != null && results.length > 0 && results[0].geometry != null &&
+                    results[0].geometry.location != null) {
                 LatLng location = results[0].geometry.location;
                 log.debug("Geocoded query to coordinates: {},{}", location.lat, location.lng);
                 return new Coordinate(location.lat, location.lng);
@@ -59,13 +62,13 @@ public class GoogleGeocodingService {
         } catch (Exception e) {
             log.error("Error geocoding query: {}", query, e);
         }
-        
+
         return null;
     }
 
     /**
      * Get coordinates for a place ID.
-     * 
+     *
      * @param placeId The Google Place ID
      * @return Coordinate object if successful, null otherwise
      */
@@ -86,7 +89,7 @@ public class GoogleGeocodingService {
         } catch (Exception e) {
             log.error("Error getting coordinates for place ID: {}", placeId, e);
         }
-        
+
         return null;
     }
 }

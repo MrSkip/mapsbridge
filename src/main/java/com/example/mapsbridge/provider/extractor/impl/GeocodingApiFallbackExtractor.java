@@ -42,22 +42,22 @@ public class GeocodingApiFallbackExtractor implements CoordinateExtractor {
         }
 
         try {
+            // try to extract address query (it is less expensive than place_id)
+            String address = findAddress(url);
+            if (address != null) {
+                Coordinate coordinate = geocodingService.geocodeQuery(address);
+                if (coordinate != null) {
+                    log.debug("Extracted coordinates from address query: {}", address);
+                    return coordinate;
+                }
+            }
+
             // First try to extract place ID
             String placeId = findPlaceId(url);
             if (placeId != null) {
                 Coordinate coordinate = geocodingService.getPlaceCoordinates(placeId);
                 if (coordinate != null) {
                     log.debug("Extracted coordinates from place ID: {}", placeId);
-                    return coordinate;
-                }
-            }
-
-            // Then try to extract address query
-            String address = findAddress(url);
-            if (address != null) {
-                Coordinate coordinate = geocodingService.geocodeQuery(address);
-                if (coordinate != null) {
-                    log.debug("Extracted coordinates from address query: {}", address);
                     return coordinate;
                 }
             }

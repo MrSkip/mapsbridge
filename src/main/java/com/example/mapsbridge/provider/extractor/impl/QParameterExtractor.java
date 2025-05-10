@@ -19,7 +19,8 @@ import java.util.regex.Pattern;
 @Slf4j
 public class QParameterExtractor implements CoordinateExtractor {
 
-    private static final Pattern COORDINATE_PATTERN = Pattern.compile("q=(?<lat>-?\\d+\\.?\\d*),(?<lon>-?\\d+\\.?\\d*)");
+    // Pattern to match both standard decimal format (40.7128,-74.0060) and European format (40,7128,-74,0060)
+    private static final Pattern COORDINATE_PATTERN = Pattern.compile("q=(?<lat>-?\\d+[.,]?\\d*),(?<lon>-?\\d+[.,]?\\d*)");
 
     @Override
     public Coordinate extract(String url) {
@@ -48,7 +49,7 @@ public class QParameterExtractor implements CoordinateExtractor {
 
                 double lat = Double.parseDouble(latStr);
                 double lon = Double.parseDouble(lonStr);
-                
+
                 log.debug("Extracted coordinates from q parameter: {},{}", lat, lon);
                 return new Coordinate(lat, lon);
             } catch (NumberFormatException e) {

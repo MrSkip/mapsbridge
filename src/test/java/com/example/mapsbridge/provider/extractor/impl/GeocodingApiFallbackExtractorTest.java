@@ -94,11 +94,11 @@ class GeocodingApiFallbackExtractorTest {
         // given
         when(mockGeocodingService.isApiEnabled()).thenReturn(true);
 
-        String urlWithQuery = "https://www.google.com/maps?q=New+York";
+        String urlWithQuery = "https://www.google.com/maps?q=Dadawan+Arnhem,+Gele+Rijders+Plein+15,+6811+AV+Arnhem,+Netherlands&ftid=0x47c7a5b4f24fd10d:0x5504aeecbebfaee7&entry=gps&lucs=,94224825,94227247,94227248,94231188,47071704,47069508,94218641,94203019,47084304,94208458,94208447&g_ep=CAISEjI1LjE2LjEuNzQ3NTI2NjMwMBgAIIgnKmMsOTQyMjQ4MjUsOTQyMjcyNDcsOTQyMjcyNDgsOTQyMzExODgsNDcwNzE3MDQsNDcwNjk1MDgsOTQyMTg2NDEsOTQyMDMwMTksNDcwODQzMDQsOTQyMDg0NTgsOTQyMDg0NDdCAlVB&skid=350b2cbc-3afa-497d-b0aa-179a46f9c011&g_st=com.google.maps.preview.copy&ucbcb=1";
         Coordinate expectedCoordinate = new Coordinate(40.7128, -74.0060);
 
         // Configure mock to return coordinates for the query
-        when(mockGeocodingService.geocodeQuery("New York")).thenReturn(expectedCoordinate);
+        when(mockGeocodingService.geocodeQuery("Dadawan Arnhem, Gele Rijders Plein 15, 6811 AV Arnhem, Netherlands")).thenReturn(expectedCoordinate);
 
         // when
         Coordinate result = extractor.extract(urlWithQuery);
@@ -107,9 +107,6 @@ class GeocodingApiFallbackExtractorTest {
         assertNotNull(result);
         assertEquals(expectedCoordinate.getLat(), result.getLat());
         assertEquals(expectedCoordinate.getLon(), result.getLon());
-
-        // Verify the service was called
-        verify(mockGeocodingService).geocodeQuery("New York");
     }
 
     @Test
