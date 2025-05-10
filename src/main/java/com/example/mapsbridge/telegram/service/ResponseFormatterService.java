@@ -68,8 +68,6 @@ public class ResponseFormatterService {
             return "No valid map links found in your message.";
         }
 
-        context.put("intro", "📍 Available Map Links:");
-
         StringWriter writer = new StringWriter();
         mustacheTemplate.execute(writer, context);
         return writer.toString();
