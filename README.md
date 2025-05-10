@@ -194,6 +194,33 @@ MapsBridge can be deployed to AWS via:
 
 Environment variables must be set via EB environment settings, EC2 config scripts, or container environment variables.
 
+### GitHub Actions CI/CD Pipeline
+
+The project includes a GitHub Actions workflow for automated CI/CD deployment to AWS EC2:
+
+```yaml
+# .github/workflows/ci-cd.yml
+name: CI/CD to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+```
+
+The pipeline automatically:
+1. Builds the application with Gradle
+2. Creates a Docker image
+3. Deploys the image to an EC2 instance
+
+To use this pipeline, you need to configure the following GitHub secrets:
+- `EC2_HOST`: Your EC2 instance hostname or IP
+- `EC2_USER`: SSH username for your EC2 instance
+- `EC2_SSH_KEY`: Private SSH key for EC2 access
+- `BOT_TOKEN`: Telegram bot token
+
+For more details, see the [GitHub Actions documentation](.github/README.md).
+
 ---
 
 ## 📄 License
