@@ -33,7 +33,7 @@ public class GoogleGeocodingService {
      */
     @Autowired
     public GoogleGeocodingService(GeoApiContext geoApiContext,
-                                 @Value("${google.api.enabled:true}") boolean apiEnabled) {
+                                 @Value("${google.api.enabled}") boolean apiEnabled) {
         this.geoApiContext = geoApiContext;
         this.apiEnabled = apiEnabled;
     }

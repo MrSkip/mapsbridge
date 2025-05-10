@@ -114,7 +114,7 @@ jobs:
             docker run -d --name mapsbridge-container -p 8080:8080 \
               -e TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
               -e TELEGRAM_BOT_USERNAME="${{ secrets.TELEGRAM_BOT_USERNAME }}" \
-              -e API_SECURITY_TOKEN="${{ secrets.API_SECURITY_TOKEN }}" \
+              -e GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \
               -e GOOGLE_API_ENABLED=true \
               -e SPRING_PROFILES_ACTIVE="prod" \
               mapsbridge:latest
