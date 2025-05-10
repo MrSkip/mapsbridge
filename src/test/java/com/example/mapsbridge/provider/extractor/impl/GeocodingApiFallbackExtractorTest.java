@@ -2,6 +2,8 @@ package com.example.mapsbridge.provider.extractor.impl;
 
 import com.example.mapsbridge.model.Coordinate;
 import com.example.mapsbridge.service.GoogleGeocodingService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,9 +21,22 @@ class GeocodingApiFallbackExtractorTest {
     @Mock
     private GoogleGeocodingService mockGeocodingService;
 
+    @Mock
+    private Counter.Builder mockCounterBuilder;
+
+    @Mock
+    private MeterRegistry mockMeterRegistry;
+
+    @Mock
+    private Counter mockCounter;
+
     @BeforeEach
     void setUp() {
-        extractor = new GeocodingApiFallbackExtractor(mockGeocodingService);
+        // Configure the mock Counter.Builder to return a mock Counter when register() is called
+        when(mockCounterBuilder.tag(anyString(), anyString())).thenReturn(mockCounterBuilder);
+        when(mockCounterBuilder.register(mockMeterRegistry)).thenReturn(mockCounter);
+
+        extractor = new GeocodingApiFallbackExtractor(mockGeocodingService, mockCounterBuilder, mockMeterRegistry);
     }
 
     @Test

@@ -3,6 +3,8 @@ package com.example.mapsbridge.provider.extractor.impl;
 import com.example.mapsbridge.model.Coordinate;
 import com.example.mapsbridge.provider.extractor.CoordinateExtractor;
 import com.example.mapsbridge.service.GoogleGeocodingService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -23,6 +25,10 @@ import java.util.regex.Pattern;
 public class GeocodingApiFallbackExtractor implements CoordinateExtractor {
 
     private final GoogleGeocodingService geocodingService;
+    private final Counter findAddressSuccessCounter;
+    private final Counter placeIdMatcherSuccessCounter;
+    private final Counter placeIdMatcher2SuccessCounter;
+    private final Counter placeIdMatcher3SuccessCounter;
 
     // Patterns for finding place IDs and addresses
     private static final Pattern PLACE_ID_PATTERN = Pattern.compile("place_id=([\\w\\-]+)");
@@ -31,8 +37,28 @@ public class GeocodingApiFallbackExtractor implements CoordinateExtractor {
     private static final Pattern QUERY_PATTERN = Pattern.compile("q=([^&]+)");
 
     @Autowired
-    public GeocodingApiFallbackExtractor(GoogleGeocodingService geocodingService) {
+    public GeocodingApiFallbackExtractor(
+            GoogleGeocodingService geocodingService,
+            Counter.Builder geocodingExtractorSuccessCounterBuilder,
+            MeterRegistry meterRegistry) {
         this.geocodingService = geocodingService;
+
+        // Initialize counters for each method/pattern
+        this.findAddressSuccessCounter = geocodingExtractorSuccessCounterBuilder
+                .tag("method", "findAddress")
+                .register(meterRegistry);
+
+        this.placeIdMatcherSuccessCounter = geocodingExtractorSuccessCounterBuilder
+                .tag("method", "placeIdMatcher")
+                .register(meterRegistry);
+
+        this.placeIdMatcher2SuccessCounter = geocodingExtractorSuccessCounterBuilder
+                .tag("method", "placeIdMatcher2")
+                .register(meterRegistry);
+
+        this.placeIdMatcher3SuccessCounter = geocodingExtractorSuccessCounterBuilder
+                .tag("method", "placeIdMatcher3")
+                .register(meterRegistry);
     }
 
     @Override
@@ -80,6 +106,7 @@ public class GeocodingApiFallbackExtractor implements CoordinateExtractor {
         if (placeIdMatcher.find()) {
             String placeId = placeIdMatcher.group(1);
             log.debug("Extracted place_id: {}", placeId);
+            placeIdMatcherSuccessCounter.increment();
             return placeId;
         }
 
@@ -88,6 +115,7 @@ public class GeocodingApiFallbackExtractor implements CoordinateExtractor {
         if (placeIdMatcher2.find()) {
             String placeId = placeIdMatcher2.group(1);
             log.debug("Extracted place_id from !1s pattern: {}", placeId);
+            placeIdMatcher2SuccessCounter.increment();
             return placeId;
         }
 
@@ -96,6 +124,7 @@ public class GeocodingApiFallbackExtractor implements CoordinateExtractor {
         if (placeIdMatcher3.find()) {
             String placeId = placeIdMatcher3.group(1);
             log.debug("Extracted place_id from !3m!1s pattern: {}", placeId);
+            placeIdMatcher3SuccessCounter.increment();
             return placeId;
         }
 
@@ -116,11 +145,13 @@ public class GeocodingApiFallbackExtractor implements CoordinateExtractor {
                 // Use URLDecoder instead of manual replacement
                 query = URLDecoder.decode(query, StandardCharsets.UTF_8);
                 log.debug("Extracted query: {}", query);
+                findAddressSuccessCounter.increment();
                 return query;
             } catch (Exception e) {
                 log.warn("Error decoding query: {}", query, e);
                 // Fallback to manual replacement if decoding fails
                 query = query.replace("+", " ");
+                findAddressSuccessCounter.increment();
                 return query;
             }
         }

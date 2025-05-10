@@ -13,19 +13,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 public class MetricsConfig {
 
     /**
-     * Creates a counter builder for tracking map provider usage.
-     * This will be used to count how many times each provider is requested by users.
-     *
-     * @param registry the meter registry
-     * @return a counter builder for provider usage
-     */
-    @Bean
-    public Counter.Builder providerUsageCounterBuilder(MeterRegistry registry) {
-        return Counter.builder("maps.provider.usage")
-                .description("Number of times each map provider is requested");
-    }
-
-    /**
      * Creates a counter builder for tracking which Google Maps extractor is used.
      * This will count how many times each extractor is used to fetch coordinates from Google Maps URLs.
      *
@@ -36,5 +23,18 @@ public class MetricsConfig {
     public Counter.Builder googleMapsExtractorCounterBuilder(MeterRegistry registry) {
         return Counter.builder("maps.google.extractor.usage")
                 .description("Number of times each extractor is used for Google Maps");
+    }
+
+    /**
+     * Creates a counter builder for tracking successful matches in GeocodingApiFallbackExtractor.
+     * This will count how many times each method or pattern successfully finds what it's looking for.
+     *
+     * @param registry the meter registry
+     * @return a counter builder for GeocodingApiFallbackExtractor success rates
+     */
+    @Bean
+    public Counter.Builder geocodingExtractorSuccessCounterBuilder(MeterRegistry registry) {
+        return Counter.builder("maps.geocoding.extractor.success")
+                .description("Number of successful matches in GeocodingApiFallbackExtractor");
     }
 }

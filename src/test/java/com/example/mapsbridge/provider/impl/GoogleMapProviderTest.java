@@ -52,7 +52,7 @@ class GoogleMapProviderTest {
         AtSymbolExtractor atSymbolExtractor = new AtSymbolExtractor();
         QParameterExtractor qParameterExtractor = new QParameterExtractor();
         SearchPatternExtractor searchPatternExtractor = new SearchPatternExtractor();
-        GeocodingApiFallbackExtractor geocodingExtractor = new GeocodingApiFallbackExtractor(mockGeocodingService);
+        GeocodingApiFallbackExtractor geocodingExtractor = new GeocodingApiFallbackExtractor(mockGeocodingService, mockCounterBuilder, mockMeterRegistry);
 
         // Provider with mock geocoding service and extractors
         target = new GoogleMapProvider(
