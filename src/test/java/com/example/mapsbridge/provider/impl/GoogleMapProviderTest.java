@@ -2,6 +2,7 @@ package com.example.mapsbridge.provider.impl;
 
 import com.example.mapsbridge.model.Coordinate;
 import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.provider.extractor.impl.*;
 import com.example.mapsbridge.service.GoogleGeocodingService;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -22,15 +25,34 @@ class GoogleMapProviderTest {
     @Mock
     private GoogleGeocodingService mockGeocodingService;
 
+    @Mock
+    private OkHttpClient mockHttpClient;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
         lenient().when(mockGeocodingService.isApiEnabled()).thenReturn(false);
 
-        // Provider with mock geocoding service
-        target = new GoogleMapProvider(new OkHttpClient.Builder().build(),
-                "https://www.google.com/maps?q={lat},{lon}", mockGeocodingService);
+        // Create mock extractors
+        OkHttpClient httpClient = new OkHttpClient.Builder().build();
+        LatLon3d4dExtractor latLon3d4dExtractor = new LatLon3d4dExtractor();
+        AtSymbolExtractor atSymbolExtractor = new AtSymbolExtractor();
+        QParameterExtractor qParameterExtractor = new QParameterExtractor();
+        SearchPatternExtractor searchPatternExtractor = new SearchPatternExtractor();
+        GeocodingApiFallbackExtractor geocodingExtractor = new GeocodingApiFallbackExtractor(mockGeocodingService);
+
+        // Provider with mock geocoding service and extractors
+        target = new GoogleMapProvider(
+                httpClient,
+                "https://www.google.com/maps?q={lat},{lon}",
+                Arrays.asList(
+                    latLon3d4dExtractor,
+                    atSymbolExtractor,
+                    qParameterExtractor,
+                    searchPatternExtractor,
+                    geocodingExtractor
+                ));
     }
 
     @Test
@@ -145,21 +167,6 @@ class GoogleMapProviderTest {
         assertEquals(10.8898249, coordinate.getLon());
     }
 
-    // Note: API-dependent tests are commented out because they're hard to mock correctly
-    // These features are tested manually or with integration tests
-
-    /*
-    @Test
-    void testExtractCoordinatesFromQueryWithApi() throws Exception {
-        // This test requires a real API key and network access
-    }
-
-    @Test
-    void testExtractCoordinatesFromPlaceIdWithApi() throws Exception {
-        // This test requires a real API key and network access
-    }
-    */
-
     @Test
     void shouldReturnNullWhenExtractingCoordinatesFromInvalidUrl() {
         // given
@@ -223,9 +230,10 @@ class GoogleMapProviderTest {
         // given
         // Test the first pattern: place_id= parameter
         String urlWithPlaceIdParameter = "https://www.google.com/maps/place/New+York+City,+NY,+USA/@40.7127753,-74.0059728,12z/data=!3m1!4b1!4m6!3m5!1s0x89c24fa5d33f083b:0xc80b8f06e177fe62!8m2!3d40.7127753!4d-74.0059728!16zL20vMDJfMjg2?entry=ttu&place_id=ChIJOwg_06VPwokRYv534QaPC8g";
+        GeocodingApiFallbackExtractor extractor = new GeocodingApiFallbackExtractor(mockGeocodingService);
 
         // when
-        String placeId = target.findPlaceId(urlWithPlaceIdParameter);
+        String placeId = extractor.findPlaceId(urlWithPlaceIdParameter);
 
         // then
         assertNotNull(placeId);
@@ -237,9 +245,10 @@ class GoogleMapProviderTest {
         // given
         // Test the second pattern: !1s pattern
         String urlWith1sPattern = "https://www.google.com/maps/place/New+York+City/@40.7127753,-74.0059728,12z/data=!1sChIJOwg_06VPwokRYv534QaPC8g!2m1!3m1!1s0x89c24fa5d33f083b:0xc80b8f06e177fe62";
+        GeocodingApiFallbackExtractor extractor = new GeocodingApiFallbackExtractor(mockGeocodingService);
 
         // when
-        String placeId = target.findPlaceId(urlWith1sPattern);
+        String placeId = extractor.findPlaceId(urlWith1sPattern);
 
         // then
         assertNotNull(placeId);
@@ -251,9 +260,10 @@ class GoogleMapProviderTest {
         // given
         // Test the third pattern: !3m\d+!1s
         String urlWith3m1sPattern = "https://www.google.com/maps/place/Statue+of+Liberty/data=!4m6!3m5!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004!16s%2Fm%2F072p8";
+        GeocodingApiFallbackExtractor extractor = new GeocodingApiFallbackExtractor(mockGeocodingService);
 
         // when
-        String placeId = target.findPlaceId(urlWith3m1sPattern);
+        String placeId = extractor.findPlaceId(urlWith3m1sPattern);
 
         // then
         assertNotNull(placeId);
