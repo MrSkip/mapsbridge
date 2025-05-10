@@ -129,13 +129,11 @@ public abstract class AbstractMapProvider implements MapProvider {
      * @return The final URL after following redirects, or the original URL if no redirects
      */
     protected String followRedirects(String shortUrl) {
-        OkHttpClient client = new OkHttpClient();
-
         Request request = new Request.Builder()
                 .url(shortUrl)
                 .build();
 
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = httpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
                 return response.request().url().toString();
             }

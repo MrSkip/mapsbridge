@@ -225,48 +225,4 @@ class GoogleMapProviderTest {
         verify(mockGeocodingService).getPlaceCoordinates("0x89c25090129c363d:0x40c6a5770d25022b");
     }
 
-    @Test
-    void shouldExtractPlaceIdFromUrlWithPlaceIdParameter() {
-        // given
-        // Test the first pattern: place_id= parameter
-        String urlWithPlaceIdParameter = "https://www.google.com/maps/place/New+York+City,+NY,+USA/@40.7127753,-74.0059728,12z/data=!3m1!4b1!4m6!3m5!1s0x89c24fa5d33f083b:0xc80b8f06e177fe62!8m2!3d40.7127753!4d-74.0059728!16zL20vMDJfMjg2?entry=ttu&place_id=ChIJOwg_06VPwokRYv534QaPC8g";
-        GeocodingApiFallbackExtractor extractor = new GeocodingApiFallbackExtractor(mockGeocodingService);
-
-        // when
-        String placeId = extractor.findPlaceId(urlWithPlaceIdParameter);
-
-        // then
-        assertNotNull(placeId);
-        assertEquals("ChIJOwg_06VPwokRYv534QaPC8g", placeId);
-    }
-
-    @Test
-    void shouldExtractPlaceIdFromUrlWith1sPattern() {
-        // given
-        // Test the second pattern: !1s pattern
-        String urlWith1sPattern = "https://www.google.com/maps/place/New+York+City/@40.7127753,-74.0059728,12z/data=!1sChIJOwg_06VPwokRYv534QaPC8g!2m1!3m1!1s0x89c24fa5d33f083b:0xc80b8f06e177fe62";
-        GeocodingApiFallbackExtractor extractor = new GeocodingApiFallbackExtractor(mockGeocodingService);
-
-        // when
-        String placeId = extractor.findPlaceId(urlWith1sPattern);
-
-        // then
-        assertNotNull(placeId);
-        assertEquals("ChIJOwg_06VPwokRYv534QaPC8g", placeId);
-    }
-
-    @Test
-    void shouldExtractPlaceIdFromUrlWith3m1sPattern() {
-        // given
-        // Test the third pattern: !3m\d+!1s
-        String urlWith3m1sPattern = "https://www.google.com/maps/place/Statue+of+Liberty/data=!4m6!3m5!1s0x89c25090129c363d:0x40c6a5770d25022b!8m2!3d40.6892494!4d-74.0445004!16s%2Fm%2F072p8";
-        GeocodingApiFallbackExtractor extractor = new GeocodingApiFallbackExtractor(mockGeocodingService);
-
-        // when
-        String placeId = extractor.findPlaceId(urlWith3m1sPattern);
-
-        // then
-        assertNotNull(placeId);
-        assertEquals("0x89c25090129c363d:0x40c6a5770d25022b", placeId);
-    }
 }

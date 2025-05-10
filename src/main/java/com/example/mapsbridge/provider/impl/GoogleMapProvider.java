@@ -1,11 +1,13 @@
 package com.example.mapsbridge.provider.impl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import com.example.mapsbridge.provider.extractor.CoordinateExtractor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,11 @@ public class GoogleMapProvider extends AbstractMapProvider {
 
     private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.)?google\\.com/maps.*|https?://maps\\.app\\.goo\\.gl/.*|https?://goo\\.gl/maps/.*");
     private static final Pattern COORDINATE_PATTERN = Pattern.compile("q=(?<lat>-?\\d+\\.?\\d*),(?<lon>-?\\d+\\.?\\d*)");
+
+    private static final List<String> SHORTENED_URL_PREFIXES = Arrays.asList(
+            "https://maps.app.goo.gl/",
+            "https://goo.gl/maps/"
+    );
 
     private final List<CoordinateExtractor> extractors;
 
@@ -50,7 +57,7 @@ public class GoogleMapProvider extends AbstractMapProvider {
 
     @Override
     public Coordinate extractCoordinates(String url) {
-        if (url == null || url.trim().isEmpty()) {
+        if (StringUtils.isBlank(url)) {
             return null;
         }
 
@@ -70,10 +77,11 @@ public class GoogleMapProvider extends AbstractMapProvider {
     }
 
     private String getResolvedUrlOrDefault(String url) {
-        if (url.startsWith("https://maps.app.goo.gl/") ||
-                url.startsWith("https://goo.gl/maps/")) {
-            log.debug("Resolving shortened URL: {}", url);
-            return followRedirects(url);
+        for (String prefix : SHORTENED_URL_PREFIXES) {
+            if (url.startsWith(prefix)) {
+                log.debug("Resolving shortened URL: {}", url);
+                return followRedirects(url);
+            }
         }
         return url;
     }
