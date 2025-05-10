@@ -35,3 +35,19 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Docker ###
+docker-secrets/.env
+
+### Environment Files ###
+.env
+.env.*
+!.env.template
+
+### Logs ###
+logs/
+*.log
+
+### OS specific files ###
+.DS_Store
+Thumbs.db

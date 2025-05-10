@@ -12,7 +12,7 @@ This is the backend component of the MapsBridge web service, designed to help us
 - Parses location data from Google, Apple, Bing, OSM, and Waze
 - Uses Google Geocoding/Place Details API as a fallback
 - Returns provider-specific map links
-- Built with Java 17 + Spring Boot
+- Built with Java 21 + Spring Boot
 - RESTful API with OpenAPI docs
 - Supports logging and rate limiting
 
@@ -111,12 +111,88 @@ Includes:
 
 ## 🚀 Deployment
 
+### Docker Deployment
+
+The project includes a Dockerfile for containerized deployment:
+
+```bash
+# Build the Docker image
+docker build -t mapsbridge:latest .
+
+# Run the container
+docker run -p 8080:8080 \
+  -e GOOGLE_API_KEY=your_google_api_key \
+  -e API_SECURITY_TOKEN=your_secure_token \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  mapsbridge:latest
+```
+
+#### Using Docker Compose
+
+For easier deployment, you can use Docker Compose:
+
+```bash
+# Start the application
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the application
+docker-compose down
+```
+
+The docker-compose.yml file includes:
+- Automatic building of the Docker image
+- Environment variable configuration via docker-secrets/.env
+- Health checks for the application
+- Volume mounting for persistent logs
+
+#### Environment Variables for Docker
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `GOOGLE_API_KEY` | Google API key for geocoding | (empty) |
+| `GOOGLE_API_ENABLED` | Enable/disable Google API | false |
+| `API_SECURITY_TOKEN` | Security token for API authentication | default-secure-token |
+| `SPRING_PROFILES_ACTIVE` | Spring active profile | prod |
+| `JAVA_OPTS` | JVM options | -Xms256m -Xmx512m |
+
+#### Docker Secrets Management
+
+For better security, the project includes a structured approach to manage secrets:
+
+1. Use the provided template in the `docker-secrets` directory:
+   ```bash
+   cp docker-secrets/.env.template docker-secrets/.env
+   ```
+
+2. Edit the `.env` file with your actual secrets and configuration:
+   ```bash
+   nano docker-secrets/.env
+   ```
+
+3. Run the container with the environment file:
+   ```bash
+   docker run -p 8080:8080 --env-file ./docker-secrets/.env mapsbridge:latest
+   ```
+
+   Or when using Docker Compose (the env_file is already configured in docker-compose.yml):
+   ```bash
+   docker-compose up -d
+   ```
+
+This approach keeps your secrets separate from the Docker image and prevents them from being committed to version control. For more advanced secret management options (Docker Swarm secrets, Kubernetes secrets), see the README in the `docker-secrets` directory.
+
+### Cloud Deployment
+
 MapsBridge can be deployed to AWS via:
 
 - **Elastic Beanstalk** for managed backend deployment
 - **EC2** for full manual control
+- **ECS/EKS** for containerized deployment using the provided Dockerfile
 
-Environment variables must be set via EB environment settings or EC2 config scripts.
+Environment variables must be set via EB environment settings, EC2 config scripts, or container environment variables.
 
 ---
 

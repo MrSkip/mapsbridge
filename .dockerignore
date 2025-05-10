@@ -1,0 +1,52 @@
+# Ignore version control files
+.git
+.gitignore
+
+# Ignore build files and directories
+build/
+.gradle/
+bin/
+out/
+target/
+
+# Ignore IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+.vscode/
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db
+
+# Ignore application secrets and local configurations
+*.env
+.env
+.env.*
+!.env.template
+!docker-secrets/.env.template
+**/application-*.properties
+**/application-*.yml
+!**/application-prod.properties
+!**/application-prod.yml
+
+# Ignore test files
+**/src/test/
+
+# Ignore documentation
+README.md
+HELP.md
+LICENSE
+*.md
+!docker-secrets/README.md
+
+# Ignore Docker related files with secrets
+docker-secrets/.env
