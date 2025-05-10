@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Service for converting map URLs and coordinates.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MapConverterService {
 
     private final List<MapProvider> mapProviders;
