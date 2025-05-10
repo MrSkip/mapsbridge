@@ -22,6 +22,9 @@ import com.example.mapsbridge.model.MapType;
 @Slf4j
 public class GoogleMapProvider extends AbstractMapProvider {
 
+    private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.)?google\\.com/maps.*|https?://maps\\.app\\.goo\\.gl/.*|https?://goo\\.gl/maps/.*");
+    private static final Pattern COORDINATE_PATTERN = Pattern.compile("q=(?<lat>-?\\d+\\.?\\d*),(?<lon>-?\\d+\\.?\\d*)");
+
     private final List<CoordinateExtractor> extractors;
 
     /**
@@ -36,14 +39,7 @@ public class GoogleMapProvider extends AbstractMapProvider {
             OkHttpClient httpClient,
             @Value("${maps.google.url:https://www.google.com/maps?q={lat},{lon}}") String urlTemplate,
             List<CoordinateExtractor> extractors) {
-        super(httpClient, urlTemplate);
-
-        // Initialize URL patterns
-        this.urlPattern = Pattern.compile("https?://(www\\.)?google\\.com/maps.*|https?://maps\\.app\\.goo\\.gl/.*|https?://goo\\.gl/maps/.*");
-
-        // Pattern for q=lat,lon format
-        this.coordinatePattern = Pattern.compile("q=(?<lat>-?\\d+\\.?\\d*),(?<lon>-?\\d+\\.?\\d*)");
-
+        super(httpClient, urlTemplate, URL_PATTERN, COORDINATE_PATTERN);
         this.extractors = extractors;
     }
 

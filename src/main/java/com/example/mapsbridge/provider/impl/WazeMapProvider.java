@@ -20,6 +20,10 @@ import com.example.mapsbridge.model.MapType;
 @Service
 public class WazeMapProvider extends AbstractMapProvider {
 
+    private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.|ul\\.)?waze\\.com/.*");
+    // Handle both standard "ll=" format and live-map "ll." format, plus URL-encoded commas (%2C)
+    private static final Pattern COORDINATE_PATTERN = Pattern.compile("ll[=.](?<lat>-?\\d+\\.?\\d*)(?:[,]|%2C)(?<lon>-?\\d+\\.?\\d*)");
+
     /**
      * Constructor with dependency injection.
      * 
@@ -29,12 +33,7 @@ public class WazeMapProvider extends AbstractMapProvider {
     public WazeMapProvider(
             OkHttpClient webClient,
             @Value("${maps.waze.url:https://waze.com/ul?ll={lat},{lon}&navigate=yes}") String urlTemplate) {
-        super(webClient, urlTemplate);
-
-        // Initialize URL patterns
-        this.urlPattern = Pattern.compile("https?://(www\\.|ul\\.)?waze\\.com/.*");
-        // Handle both standard "ll=" format and live-map "ll." format, plus URL-encoded commas (%2C)
-        this.coordinatePattern = Pattern.compile("ll[=.](?<lat>-?\\d+\\.?\\d*)(?:[,]|%2C)(?<lon>-?\\d+\\.?\\d*)");
+        super(webClient, urlTemplate, URL_PATTERN, COORDINATE_PATTERN);
     }
 
     @Override

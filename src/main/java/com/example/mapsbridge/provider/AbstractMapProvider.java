@@ -26,16 +26,6 @@ public abstract class AbstractMapProvider implements MapProvider {
     protected String urlTemplate;
 
     /**
-     * Constructor with OkHttpClient injection.
-     * 
-     * @param httpClient The OkHttpClient to use for HTTP requests
-     */
-    public AbstractMapProvider(OkHttpClient httpClient, String urlTemplate) {
-        this.httpClient = httpClient;
-        this.urlTemplate = urlTemplate;
-    }
-
-    /**
      * Pattern to match URLs from this provider.
      */
     protected Pattern urlPattern;
@@ -45,6 +35,21 @@ public abstract class AbstractMapProvider implements MapProvider {
      * Should have capturing groups for latitude and longitude.
      */
     protected Pattern coordinatePattern;
+
+    /**
+     * Constructor with OkHttpClient injection.
+     * 
+     * @param httpClient The OkHttpClient to use for HTTP requests
+     * @param urlTemplate The URL template for generating map links
+     * @param urlPattern The pattern to match URLs from this provider
+     * @param coordinatePattern The pattern to extract coordinates from URLs
+     */
+    public AbstractMapProvider(OkHttpClient httpClient, String urlTemplate, Pattern urlPattern, Pattern coordinatePattern) {
+        this.httpClient = httpClient;
+        this.urlTemplate = urlTemplate;
+        this.urlPattern = urlPattern;
+        this.coordinatePattern = coordinatePattern;
+    }
 
     @Override
     public String generateUrl(Coordinate coordinate) {

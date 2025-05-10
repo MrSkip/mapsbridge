@@ -17,6 +17,9 @@ import com.example.mapsbridge.model.MapType;
 @Service
 public class AppleMapProvider extends AbstractMapProvider {
 
+    private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.)?maps\\.apple\\.com/.*");
+    private static final Pattern COORDINATE_PATTERN = Pattern.compile("(?:ul\\?ll=|@?|&coordinate=)(?<lat>-?\\d+\\.\\d+),(?<lon>-?\\d+\\.\\d+)");
+
     /**
      * Constructor with dependency injection.
      *
@@ -26,11 +29,7 @@ public class AppleMapProvider extends AbstractMapProvider {
     public AppleMapProvider(
             OkHttpClient httpClient,
             @Value("${maps.apple.url}") String urlTemplate) {
-        super(httpClient, urlTemplate);
-
-        // Initialize URL patterns
-        this.urlPattern = Pattern.compile("https?://(www\\.)?maps\\.apple\\.com/.*");
-        this.coordinatePattern = Pattern.compile("(?:ul\\?ll=|@?|&coordinate=)(?<lat>-?\\d+\\.\\d+),(?<lon>-?\\d+\\.\\d+)");
+        super(httpClient, urlTemplate, URL_PATTERN, COORDINATE_PATTERN);
     }
 
     @Override

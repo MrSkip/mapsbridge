@@ -18,6 +18,12 @@ import com.example.mapsbridge.model.MapType;
 @Service
 public class BingMapProvider extends AbstractMapProvider {
 
+    private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.)?bing\\.com/maps.*");
+    private static final Pattern COORDINATE_PATTERN = Pattern.compile(
+            "q=(?<lat>-?\\d{1,3}[.,]\\d+)[,](?<lon>-?\\d{1,3}[.,]\\d+)" +
+                    "|cp=(?<lat2>-?\\d{1,3}\\.\\d+)~(?<lon2>-?\\d{1,3}\\.\\d+)"
+    );
+
     /**
      * Constructor with dependency injection.
      * 
@@ -27,13 +33,7 @@ public class BingMapProvider extends AbstractMapProvider {
     public BingMapProvider(
             OkHttpClient httpClient,
             @Value("${maps.bing.url:https://www.bing.com/maps?q={lat},{lon}}") String urlTemplate) {
-        super(httpClient, urlTemplate);
-        // Initialize URL patterns
-        this.urlPattern = Pattern.compile("https?://(www\\.)?bing\\.com/maps.*");
-        this.coordinatePattern = Pattern.compile(
-                "q=(?<lat>-?\\d{1,3}[.,]\\d+)[,](?<lon>-?\\d{1,3}[.,]\\d+)" +
-                        "|cp=(?<lat2>-?\\d{1,3}\\.\\d+)~(?<lon2>-?\\d{1,3}\\.\\d+)"
-        );;
+        super(httpClient, urlTemplate, URL_PATTERN, COORDINATE_PATTERN);
     }
 
     @Override

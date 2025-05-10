@@ -16,6 +16,9 @@ import com.example.mapsbridge.model.MapType;
 @Service
 public class KomootMapProvider extends AbstractMapProvider {
 
+    private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.)?komoot\\.com/.*");
+    private static final Pattern COORDINATE_PATTERN = Pattern.compile("@(?<lat>-?\\d+\\.?\\d*),(?<lon>-?\\d+\\.?\\d*)");
+
     /**
      * Constructor with dependency injection.
      * 
@@ -25,12 +28,7 @@ public class KomootMapProvider extends AbstractMapProvider {
     public KomootMapProvider(
             OkHttpClient httpClient,
             @Value("${maps.komoot.url}") String urlTemplate) {
-        super(httpClient, urlTemplate);
-
-        // Initialize URL patterns
-        this.urlPattern = Pattern.compile("https?://(www\\.)?komoot\\.com/.*");
-        // Pattern to extract coordinates from Komoot URLs
-        this.coordinatePattern = Pattern.compile("@(?<lat>-?\\d+\\.?\\d*),(?<lon>-?\\d+\\.?\\d*)");
+        super(httpClient, urlTemplate, URL_PATTERN, COORDINATE_PATTERN);
     }
 
     @Override

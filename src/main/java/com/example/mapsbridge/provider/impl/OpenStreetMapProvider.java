@@ -16,6 +16,12 @@ import com.example.mapsbridge.model.MapType;
 @Service
 public class OpenStreetMapProvider extends AbstractMapProvider {
 
+    private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.)?openstreetmap\\.org/.*");
+    private static final Pattern COORDINATE_PATTERN = Pattern.compile(
+            "mlat=(?<lat>-?\\d+(?:\\.\\d+)?)&mlon=(?<lon>-?\\d+(?:\\.\\d+)?)" +
+                    "|#map=\\d+/(?<lat2>-?\\d+(?:\\.\\d+)?)/(?<lon2>-?\\d+(?:\\.\\d+)?)"
+    );
+
     /**
      * Constructor with dependency injection.
      * 
@@ -25,14 +31,7 @@ public class OpenStreetMapProvider extends AbstractMapProvider {
     public OpenStreetMapProvider(
             OkHttpClient httpClient,
             @Value("${maps.osm.url:https://www.openstreetmap.org/?mlat={lat}&mlon={lon}}") String urlTemplate) {
-        super(httpClient, urlTemplate);
-
-        // Initialize URL patterns
-        this.urlPattern = Pattern.compile("https?://(www\\.)?openstreetmap\\.org/.*");
-        this.coordinatePattern = Pattern.compile(
-                "mlat=(?<lat>-?\\d+(?:\\.\\d+)?)&mlon=(?<lon>-?\\d+(?:\\.\\d+)?)" +
-                        "|#map=\\d+/(?<lat2>-?\\d+(?:\\.\\d+)?)/(?<lon2>-?\\d+(?:\\.\\d+)?)"
-        );
+        super(httpClient, urlTemplate, URL_PATTERN, COORDINATE_PATTERN);
     }
 
     @Override
