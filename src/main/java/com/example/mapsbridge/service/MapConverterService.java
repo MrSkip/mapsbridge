@@ -2,7 +2,6 @@ package com.example.mapsbridge.service;
 
 import java.util.List;
 import java.util.regex.Pattern;
-
 import org.springframework.stereotype.Service;
 
 import com.example.mapsbridge.exception.CoordinateExtractionException;
