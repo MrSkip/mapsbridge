@@ -7,6 +7,7 @@ import com.example.mapsbridge.exception.CoordinateExtractionException;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import com.example.mapsbridge.service.GoogleGeocodingService;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import okhttp3.OkHttpClient;
@@ -125,41 +126,53 @@ public class GoogleMapProvider extends AbstractMapProvider {
         }
 
         // Step 6: Check for q= (search query)
-        if (geocodingService.isApiEnabled()) {
-            try {
-                // Extract query from URL
-                Pattern queryPattern = Pattern.compile("q=([^&]+)");
-                Matcher queryMatcher = queryPattern.matcher(url);
-                if (queryMatcher.find()) {
-                    String query = queryMatcher.group(1);
-                    query = query.replace("+", " ");
-                    log.debug("Extracted query: {}", query);
+        return getCoordinatesFromGeocodingApi(url);
+    }
 
-                    // Call Google Geocoding service
-                    Coordinate geocodedCoordinate = geocodingService.geocodeQuery(query);
-                    if (geocodedCoordinate != null) {
-                        return geocodedCoordinate;
-                    }
-                }
-
-                // Try place_id if query not found
-                Pattern placeIdPattern = Pattern.compile("place_id=([\\w\\-]+)");
-                Matcher placeIdMatcher = placeIdPattern.matcher(url);
-                if (placeIdMatcher.find()) {
-                    String placeId = placeIdMatcher.group(1);
-                    log.debug("Extracted place_id: {}", placeId);
-
-                    // Get place details from Google API service
-                    Coordinate placeCoordinate = geocodingService.getPlaceCoordinates(placeId);
-                    if (placeCoordinate != null) {
-                        return placeCoordinate;
-                    }
-                }
-            } catch (Exception e) {
-                log.error("Error getting coordinates from Google API", e);
+    protected Coordinate getCoordinatesFromGeocodingApi(String url) {
+        if (!geocodingService.isApiEnabled()) {
+            return null;
+        }
+        try {
+            String placeId = findPlaceId(url);
+            if (placeId != null) {
+                // Get place details from Google API service
+                return geocodingService.getPlaceCoordinates(placeId);
             }
+
+            // Extract query from URL
+            String address = findAddress(url);
+
+            if (address != null) {
+                return geocodingService.geocodeQuery(address);
+            }
+        } catch (Exception e) {
+            log.error("Error getting coordinates from Google API", e);
         }
 
+        return null;
+    }
+
+    protected String findAddress(String url) {
+        Pattern queryPattern = Pattern.compile("q=([^&]+)");
+        Matcher queryMatcher = queryPattern.matcher(url);
+        if (queryMatcher.find()) {
+            String query = queryMatcher.group(1);
+            query = query.replace("+", " ");
+            log.debug("Extracted query: {}", query);
+            return query;
+        }
+        return null;
+    }
+
+    protected String findPlaceId(String url) {
+        Pattern placeIdPattern = Pattern.compile("place_id=([\\w\\-]+)");
+        Matcher placeIdMatcher = placeIdPattern.matcher(url);
+        if (placeIdMatcher.find()) {
+            String placeId = placeIdMatcher.group(1);
+            log.debug("Extracted place_id: {}", placeId);
+            return placeId;
+        }
         return null;
     }
 }
