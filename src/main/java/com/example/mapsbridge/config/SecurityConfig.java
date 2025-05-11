@@ -25,6 +25,18 @@ public class SecurityConfig {
     @Value("${api.security.token}")
     private String apiToken;
 
+    @Value("${cors.allowed-origins}")
+    private String corsAllowedOrigins;
+
+    @Value("${cors.allowed-methods}")
+    private String corsAllowedMethods;
+
+    @Value("${cors.allowed-headers}")
+    private String corsAllowedHeaders;
+
+    @Value("${cors.allow-credentials}")
+    private boolean corsAllowCredentials;
+
     private final Environment environment;
 
     public SecurityConfig(Environment environment) {
@@ -52,6 +64,14 @@ public class SecurityConfig {
 
         http
             .csrf(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(request -> {
+                var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                corsConfiguration.setAllowedOrigins(Arrays.asList(corsAllowedOrigins.split(",")));
+                corsConfiguration.setAllowedMethods(Arrays.asList(corsAllowedMethods.split(",")));
+                corsConfiguration.setAllowedHeaders(Arrays.asList(corsAllowedHeaders.split(",")));
+                corsConfiguration.setAllowCredentials(corsAllowCredentials);
+                return corsConfiguration;
+            }))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(authorize -> authorize
