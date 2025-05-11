@@ -112,6 +112,7 @@ jobs:
 
             echo "Running the new Docker container..."
             docker run -d --name mapsbridge-container -p 8080:8080 \
+              -e TELEGRAM_BOT_ENABLED=true \
               -e TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
               -e TELEGRAM_BOT_USERNAME="${{ secrets.TELEGRAM_BOT_USERNAME }}" \
               -e GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \

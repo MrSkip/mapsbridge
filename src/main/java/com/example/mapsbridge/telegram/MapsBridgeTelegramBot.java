@@ -1,6 +1,7 @@
 package com.example.mapsbridge.telegram;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ParseMode;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.example.mapsbridge.telegram.service.ResponseFormatterService;
 
 @Component
+@ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = true)
 public class MapsBridgeTelegramBot extends TelegramLongPollingBot {
 
     private static final Logger logger = LoggerFactory.getLogger(MapsBridgeTelegramBot.class);

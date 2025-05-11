@@ -8,6 +8,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStreamReader;
@@ -21,6 +22,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Service
+@ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = true)
 public class ResponseFormatterService {
 
     private final MapConverterService mapConverterService;
