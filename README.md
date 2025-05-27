@@ -12,6 +12,7 @@ This is the backend component of the MapsBridge web service, designed to help us
 - Parses location data from Google, Apple, Bing, OSM, and Waze
 - Uses Google Geocoding/Place Details API as a fallback
 - Returns provider-specific map links
+- Email notifications using Mailtrap for testing
 - Built with Java 21 + Spring Boot
 - RESTful API with OpenAPI docs
 - Supports logging and rate limiting
@@ -32,6 +33,7 @@ cd mapsbridge-backend
 - Java 21+
 - Gradle
 - Google Cloud API Key (for Places API / Geocoding API)
+- Mailtrap account (for email testing)
 
 ### 3. Configuration
 
@@ -40,6 +42,11 @@ Create a `.env` file or export these environment variables:
 ```env
 GOOGLE_API_KEY=your_google_api_key
 RATE_LIMIT=50  # optional
+
+# Mailtrap configuration
+MAILTRAP_ENABLED=true
+MAILTRAP_SENDER_EMAIL=no-reply@example.com
+MAILTRAP_SENDER_NAME=Maps Bridge
 ```
 
 > Optionally, use an `application.yml` or `application.properties` to manage config more formally.
@@ -157,6 +164,14 @@ The docker-compose.yml file includes:
 | `API_SECURITY_TOKEN` | Security token for API authentication | default-secure-token |
 | `SPRING_PROFILES_ACTIVE` | Spring active profile | prod |
 | `JAVA_OPTS` | JVM options | -Xms256m -Xmx512m |
+| `MAILTRAP_ENABLED` | Enable/disable Mailtrap email service | false |
+| `SPRING_MAIL_HOST` | SMTP host for email service | smtp.mailtrap.io |
+| `SPRING_MAIL_PORT` | SMTP port for email service | 2525 |
+| `SPRING_MAIL_USERNAME` | SMTP username for email service | (empty) |
+| `SPRING_MAIL_PASSWORD` | SMTP password for email service | (empty) |
+| `MAILTRAP_SENDER_EMAIL` | Default sender email address | no-reply@example.com |
+| `MAILTRAP_SENDER_NAME` | Default sender name | Maps Bridge |
+| `MAILTRAP_API_TOKEN` | API token for Mailtrap API service | (empty) |
 
 #### Docker Secrets Management
 
