@@ -177,8 +177,8 @@ jobs:
               echo "✓ Container started successfully!"
               
               # Wait a moment for the container to initialize
-              echo "Waiting 10 seconds for container to initialize..."
-              sleep 10
+              echo "Waiting 30 seconds for container to initialize..."
+              sleep 30
               
               # Check container status
               echo "Container status:"
