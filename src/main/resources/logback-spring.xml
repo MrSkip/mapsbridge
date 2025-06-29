@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="app.name" source="spring.application.name" defaultValue="mapsbridge"/>
+    <springProperty scope="context" name="cloudwatch.log.group" source="cloudwatch.logging.log-group-name" defaultValue="mapsbridge-log-group"/>
+    <springProperty scope="context" name="cloudwatch.log.stream" source="cloudwatch.logging.log-stream-name" defaultValue="mapsbridge-stream"/>
+    <springProperty scope="context" name="cloudwatch.region" source="cloudwatch.logging.region" defaultValue="eu-north-1"/>
+    <springProperty scope="context" name="cloudwatch.enabled" source="cloudwatch.logging.enable" defaultValue="false"/>
+
+    <!-- Console appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Development file appender (logs to local directory) -->
+    <appender name="DEV_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/${app.name}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/${app.name}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Production file appender -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/${app.name}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>/var/log/${app.name}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Development profile -->
+    <springProfile name="dev">
+        <logger name="com.example.mapsbridge" level="DEBUG"/>
+        <logger name="org.springframework.security" level="INFO"/>
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.hibernate.SQL" level="INFO"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="DEV_FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- Test profile -->
+    <springProfile name="test">
+        <logger name="com.example.mapsbridge" level="DEBUG"/>
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+
+        <root level="WARN">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <!-- Production profile with CloudWatch -->
+    <springProfile name="prod">
+        <!-- CloudWatch appender -->
+        <appender name="CLOUDWATCH" class="com.example.mapsbridge.config.CloudWatchLogAppender">
+            <logGroupName>${cloudwatch.log.group}</logGroupName>
+            <logStreamName>${cloudwatch.log.stream}</logStreamName>
+            <region>${cloudwatch.region}</region>
+            <encoder>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <!-- Async wrapper for CloudWatch to improve performance -->
+        <appender name="ASYNC_CLOUDWATCH" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="CLOUDWATCH"/>
+            <queueSize>1000</queueSize>
+            <discardingThreshold>0</discardingThreshold>
+            <includeCallerData>false</includeCallerData>
+        </appender>
+
+        <logger name="com.example.mapsbridge" level="INFO"/>
+        <logger name="org.springframework" level="WARN"/>
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="com.zaxxer.hikari" level="WARN"/>
+        <logger name="software.amazon.awssdk" level="WARN"/>
+
+        <root level="INFO">
+            <!-- Always keep file logging as backup -->
+            <appender-ref ref="FILE"/>
+            <!-- Add CloudWatch if enabled -->
+            <if condition='property("cloudwatch.enabled").equals("true")'>
+                <then>
+                    <appender-ref ref="ASYNC_CLOUDWATCH"/>
+                </then>
+            </if>
+        </root>
+    </springProfile>
+
+    <!-- Default fallback (if no profile is specified) -->
+    <springProfile name="!(dev || test || prod)">
+        <logger name="com.example.mapsbridge" level="INFO"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="DEV_FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- Specific loggers that apply to all profiles -->
+    <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="DEBUG"/>
+</configuration>

@@ -26,6 +26,7 @@ repositories {
 dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     compileOnly 'org.projectlombok:lombok'
+    implementation platform('software.amazon.awssdk:bom:2.31.73')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -51,6 +52,10 @@ dependencies {
 
     // PostgreSQL driver
     runtimeOnly 'org.postgresql:postgresql'
+
+    // AWS CloudWatch
+    implementation 'io.micrometer:micrometer-registry-cloudwatch2'
+    implementation 'software.amazon.awssdk:cloudwatchlogs'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'com.h2database:h2'
