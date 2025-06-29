@@ -1,6 +1,6 @@
 package com.example.mapsbridge.provider.extractor;
 
-import com.example.mapsbridge.model.Coordinate;
+import com.example.mapsbridge.dto.Coordinate;
 import org.jetbrains.annotations.Nullable;
 
 /**

@@ -12,9 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.example.mapsbridge.model.ConvertRequest;
-import com.example.mapsbridge.model.ConvertResponse;
-import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.dto.ConvertRequest;
+import com.example.mapsbridge.dto.ConvertResponse;
+import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.service.MapConverterService;
 
 /**

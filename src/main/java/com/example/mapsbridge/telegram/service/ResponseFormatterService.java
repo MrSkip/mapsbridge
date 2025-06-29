@@ -1,8 +1,8 @@
 package com.example.mapsbridge.telegram.service;
 
-import com.example.mapsbridge.model.ConvertRequest;
-import com.example.mapsbridge.model.ConvertResponse;
-import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.dto.ConvertRequest;
+import com.example.mapsbridge.dto.ConvertResponse;
+import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.service.MapConverterService;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;

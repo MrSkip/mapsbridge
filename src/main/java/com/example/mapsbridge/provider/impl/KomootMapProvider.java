@@ -2,13 +2,13 @@ package com.example.mapsbridge.provider.impl;
 
 import java.util.regex.Pattern;
 
-import com.example.mapsbridge.model.Coordinate;
+import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.dto.MapType;
 
 /**
  * Komoot Maps provider implementation.

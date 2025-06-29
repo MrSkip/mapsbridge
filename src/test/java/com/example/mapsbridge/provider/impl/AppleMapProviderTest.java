@@ -1,6 +1,6 @@
 package com.example.mapsbridge.provider.impl;
 
-import com.example.mapsbridge.model.Coordinate;
+import com.example.mapsbridge.dto.Coordinate;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

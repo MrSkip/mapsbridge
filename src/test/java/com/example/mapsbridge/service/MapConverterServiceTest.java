@@ -1,26 +1,24 @@
 package com.example.mapsbridge.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-
+import com.example.mapsbridge.dto.ConvertRequest;
+import com.example.mapsbridge.dto.ConvertResponse;
+import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.exception.InvalidInputException;
+import com.example.mapsbridge.provider.MapProvider;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.example.mapsbridge.exception.InvalidInputException;
-import com.example.mapsbridge.model.Coordinate;
-import com.example.mapsbridge.model.ConvertRequest;
-import com.example.mapsbridge.model.ConvertResponse;
-import com.example.mapsbridge.model.MapType;
-import com.example.mapsbridge.provider.MapProvider;
+import java.util.List;
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class MapConverterServiceTest {
@@ -37,8 +35,6 @@ class MapConverterServiceTest {
     private MapType appleMapType;
 
     private MeterRegistry meterRegistry;
-    private Counter.Builder inputTypeCounterBuilder;
-    private Counter.Builder mapProviderUrlCounterBuilder;
 
     @BeforeEach
     void setUp() {
@@ -48,30 +44,30 @@ class MapConverterServiceTest {
         lenient().when(googleProvider.getType()).thenReturn(googleMapType);
 
         lenient().when(googleProvider.generateUrl(any(Coordinate.class)))
-            .thenAnswer(i -> "https://www.google.com/maps?q=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
+                .thenAnswer(i -> "https://www.google.com/maps?q=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
         lenient().when(googleProvider.isProviderUrl(startsWith("https://maps.google.com"))).thenReturn(true);
         lenient().when(googleProvider.extractCoordinates("https://maps.google.com/?q=Statue+of+Liberty"))
-            .thenReturn(new Coordinate(40.6892, -74.0445));
+                .thenReturn(new Coordinate(40.6892, -74.0445));
 
         appleMapType = mock(MapType.class);
         lenient().when(appleMapType.getName()).thenReturn("apple");
         lenient().when(appleProvider.getType()).thenReturn(appleMapType);
 
         lenient().when(appleProvider.generateUrl(any(Coordinate.class)))
-            .thenAnswer(i -> "https://maps.apple.com/?ll=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
+                .thenAnswer(i -> "https://maps.apple.com/?ll=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
 
         // Initialize Micrometer components
         meterRegistry = new SimpleMeterRegistry();
-        inputTypeCounterBuilder = Counter.builder("maps.input.type")
+        Counter.Builder inputTypeCounterBuilder = Counter.builder("maps.input.type")
                 .description("Number of times each input type is used (coordinates vs URL)");
-        mapProviderUrlCounterBuilder = Counter.builder("maps.provider.url.usage")
+        Counter.Builder mapProviderUrlCounterBuilder = Counter.builder("maps.provider.url.usage")
                 .description("Number of times URLs from each map provider are used as input");
 
         // Initialize service with mock providers and Micrometer components
-        service = new MapConverterService(List.of(googleProvider, appleProvider), 
-                                         inputTypeCounterBuilder, 
-                                         mapProviderUrlCounterBuilder, 
-                                         meterRegistry);
+        service = new MapConverterService(List.of(googleProvider, appleProvider),
+                inputTypeCounterBuilder,
+                mapProviderUrlCounterBuilder,
+                meterRegistry);
     }
 
     @Test
@@ -127,9 +123,7 @@ class MapConverterServiceTest {
         ConvertRequest request = new ConvertRequest("invalid input");
 
         // When/Then
-        Exception exception = assertThrows(InvalidInputException.class, () -> {
-            service.convert(request);
-        });
+        Exception exception = assertThrows(InvalidInputException.class, () -> service.convert(request));
 
         assertTrue(exception.getMessage().contains("Input must be coordinates"));
     }

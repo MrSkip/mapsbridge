@@ -1,6 +1,5 @@
 package com.example.mapsbridge.service;
 
-import com.example.mapsbridge.model.Coordinate;
 import com.google.maps.GeoApiContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

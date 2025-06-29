@@ -253,3 +253,21 @@ Pull requests are welcome! Please open an issue first to discuss proposed change
 ## 🔗 Related Projects
 
 - [MapsBridge Frontend](https://github.com/yourname/mapsbridge-frontend) – Angular frontend that interacts with this API
+
+# Maps Bridge Authentication Flow
+
+The Maps Bridge application implements a secure email-based authentication flow for API key management:
+
+1. **Request API Key**: 
+   - User submits their email address to `/auth/request-key`
+   - System applies rate limiting by IP and email to prevent abuse
+   - A unique confirmation token is generated and stored with an expiration time (default 15 minutes)
+   - A confirmation email with a verification link is sent to the user
+
+2. **Email Verification**:
+   - User clicks the verification link in their email, which contains the token
+   - System validates the token (checks if it exists, hasn't expired, and hasn't been used)
+   - If valid, the token is marked as used and a new API key is generated
+   - The API key is returned to the user and stored in the database linked to their email
+
+The system uses UUID tokens for email verification and generates API keys with the format "maps_live_" followed by random alphanumeric characters. All sensitive operations are protected by rate limiting to prevent abuse.

@@ -1,0 +1,49 @@
+# AI Ignore File
+# Exclude build artifacts and dependencies
+build/
+.gradle/
+gradle/
+out/
+target/
+
+# Exclude binary files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+*.class
+
+# Exclude IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+
+# Exclude logs and temporary files
+logs/
+*.log
+*.tmp
+*.temp
+
+# Exclude generated documentation
+javadoc/
+doc/
+
+# Exclude large data files
+*.csv
+*.json
+*.xml
+*.db
+*.sqlite
+
+# Exclude Docker related files
+docker-secrets/
+
+# Exclude test resources that might be large
+src/test/resources/large-files/

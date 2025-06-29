@@ -1,7 +1,7 @@
 package com.example.mapsbridge.provider;
 
-import com.example.mapsbridge.model.Coordinate;
-import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.MapType;
 
 /**
  * Interface for map providers that can generate location URLs.

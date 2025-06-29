@@ -1,4 +1,4 @@
-package com.example.mapsbridge.model;
+package com.example.mapsbridge.dto;
 
 import java.util.HashMap;
 import java.util.Map;

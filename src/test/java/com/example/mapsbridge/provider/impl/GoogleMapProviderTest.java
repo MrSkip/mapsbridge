@@ -1,7 +1,7 @@
 package com.example.mapsbridge.provider.impl;
 
-import com.example.mapsbridge.model.Coordinate;
-import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.provider.extractor.impl.*;
 import com.example.mapsbridge.service.GoogleGeocodingService;
 import io.micrometer.core.instrument.Counter;

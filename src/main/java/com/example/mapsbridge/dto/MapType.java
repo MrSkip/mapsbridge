@@ -1,4 +1,4 @@
-package com.example.mapsbridge.model;
+package com.example.mapsbridge.dto;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

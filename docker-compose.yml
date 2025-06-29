@@ -20,6 +20,31 @@ services:
       start_period: 20s
     volumes:
       - mapsbridge-logs:/app/logs
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/mapsbridge
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: mapsbridge-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=mapsbridge
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mapsbridge-logs:
+  postgres-data:

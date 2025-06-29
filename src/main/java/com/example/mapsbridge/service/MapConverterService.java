@@ -7,10 +7,9 @@ import org.springframework.stereotype.Service;
 import com.example.mapsbridge.exception.CoordinateExtractionException;
 import com.example.mapsbridge.exception.InvalidCoordinateException;
 import com.example.mapsbridge.exception.InvalidInputException;
-import com.example.mapsbridge.model.Coordinate;
-import com.example.mapsbridge.model.ConvertRequest;
-import com.example.mapsbridge.model.ConvertResponse;
-import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.ConvertRequest;
+import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.provider.MapProvider;
 
 import io.micrometer.core.instrument.Counter;

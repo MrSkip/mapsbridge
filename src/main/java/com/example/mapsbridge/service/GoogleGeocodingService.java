@@ -1,6 +1,6 @@
 package com.example.mapsbridge.service;
 
-import com.example.mapsbridge.model.Coordinate;
+import com.example.mapsbridge.dto.Coordinate;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.PlacesApi;

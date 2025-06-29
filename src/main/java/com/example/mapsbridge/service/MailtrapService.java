@@ -8,16 +8,6 @@ import java.util.Map;
 public interface MailtrapService {
 
     /**
-     * Sends a simple text email using Mailtrap API.
-     *
-     * @param to      recipient email address
-     * @param subject email subject
-     * @param text    email body text
-     * @return true if the email was sent successfully, false otherwise
-     */
-    boolean sendSimpleEmail(String to, String subject, String text);
-
-    /**
      * Sends an HTML email using Mailtrap API.
      *
      * @param to          recipient email address

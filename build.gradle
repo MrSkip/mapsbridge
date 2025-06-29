@@ -33,6 +33,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'io.mailtrap:mailtrap-java:1.0.0'
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
@@ -42,7 +43,17 @@ dependencies {
     implementation 'org.telegram:telegrambots:6.9.7.1'
     implementation 'com.github.spullara.mustache.java:compiler:0.9.14'
 
+    // Resilience4j
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
+    implementation 'io.github.resilience4j:resilience4j-ratelimiter:2.2.0'
+    implementation 'io.github.resilience4j:resilience4j-annotations:2.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // PostgreSQL driver
+    runtimeOnly 'org.postgresql:postgresql'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'com.h2database:h2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

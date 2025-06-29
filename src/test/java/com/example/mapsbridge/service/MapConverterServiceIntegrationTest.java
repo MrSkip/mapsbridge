@@ -6,10 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.example.mapsbridge.model.ConvertRequest;
-import com.example.mapsbridge.model.ConvertResponse;
-import com.example.mapsbridge.model.Coordinate;
-import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.dto.ConvertRequest;
+import com.example.mapsbridge.dto.ConvertResponse;
+import com.example.mapsbridge.dto.MapType;
 
 /**
  * Integration tests for MapConverterService.convert method.

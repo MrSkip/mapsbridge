@@ -15,6 +15,7 @@ import org.thymeleaf.context.Context;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Implementation of the MailtrapService interface using the official Mailtrap Java client.
@@ -23,7 +24,7 @@ import java.util.Map;
 @Service
 public class MailtrapServiceImpl implements MailtrapService {
 
-    private final MailtrapClient mailtrapClient;
+    private final Optional<MailtrapClient> mailtrapClient;
     private final TemplateEngine templateEngine;
 
     @Value("${mailtrap.enabled:false}")
@@ -36,40 +37,14 @@ public class MailtrapServiceImpl implements MailtrapService {
     private String senderName;
 
     @Autowired
-    public MailtrapServiceImpl(MailtrapClient mailtrapClient, TemplateEngine templateEngine) {
-        this.mailtrapClient = mailtrapClient;
+    public MailtrapServiceImpl(@Autowired(required = false) MailtrapClient mailtrapClient, TemplateEngine templateEngine) {
+        this.mailtrapClient = Optional.ofNullable(mailtrapClient);
         this.templateEngine = templateEngine;
     }
 
     @Override
-    public boolean sendSimpleEmail(String to, String subject, String text) {
-        if (!mailtrapEnabled || mailtrapClient == null) {
-            log.info("Mailtrap client is disabled. Would have sent email to: {}", to);
-            return false;
-        }
-
-        try {
-
-            final MailtrapMail mail = MailtrapMail.builder()
-                    .from(new Address(senderEmail))
-                    .to(List.of(new Address(to)))
-                    .subject(subject)
-                    .text(text)
-                    .build();
-
-            log.info("Sending simple email to: {}", to);
-            mailtrapClient.send(mail);
-            log.info("Email sent successfully to: {}", to);
-            return true;
-        } catch (Exception e) {
-            log.error("Failed to send simple email to: {}", to, e);
-            return false;
-        }
-    }
-
-    @Override
     public boolean sendHtmlEmail(String to, String subject, String htmlContent) {
-        if (!mailtrapEnabled || mailtrapClient == null) {
+        if (!mailtrapEnabled || mailtrapClient.isEmpty()) {
             log.info("Mailtrap client is disabled. Would have sent HTML email to: {}", to);
             return false;
         }
@@ -83,7 +58,7 @@ public class MailtrapServiceImpl implements MailtrapService {
                     .build();
 
             log.info("Sending HTML email to: {}", to);
-            mailtrapClient.send(mail);
+            mailtrapClient.get().send(mail);
             log.info("Email sent successfully to: {}", to);
             return true;
         } catch (Exception e) {
@@ -93,22 +68,17 @@ public class MailtrapServiceImpl implements MailtrapService {
     }
 
     @Override
-    public boolean sendTemplateEmail(String to, String subject, String template, Map<String, Object> model) {
-        if (!mailtrapEnabled || mailtrapClient == null) {
-            log.info("Mailtrap client is disabled. Would have sent template email to: {}", to);
-            return false;
-        }
-
+    public boolean sendTemplateEmail(String to, String subject, String templatePath, Map<String, Object> model) {
         try {
             Context context = new Context();
             if (model != null) {
                 model.forEach(context::setVariable);
             }
 
-            String htmlContent = templateEngine.process(template, context);
+            String htmlContent = templateEngine.process(templatePath, context);
             return sendHtmlEmail(to, subject, htmlContent);
         } catch (Exception e) {
-            log.error("Failed to send template email to: {}", to, e);
+            log.error("Failed to send templatePath email to: {}", to, e);
             return false;
         }
     }

@@ -1,34 +1,37 @@
 package com.example.mapsbridge.controller;
 
+import com.example.mapsbridge.dto.ConvertRequest;
+import com.example.mapsbridge.dto.ConvertResponse;
+import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.service.MailtrapService;
+import com.example.mapsbridge.service.MapConverterService;
+import com.example.mapsbridge.setup.TestAuthUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-
-import com.example.mapsbridge.model.Coordinate;
-import com.example.mapsbridge.model.ConvertRequest;
-import com.example.mapsbridge.model.ConvertResponse;
-import com.example.mapsbridge.model.MapType;
-import com.example.mapsbridge.service.MapConverterService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 class MapConverterControllerTest {
 
-    @MockBean
+    @MockitoBean
     private MapConverterService mapConverterService;
 
     @Autowired
@@ -55,8 +58,9 @@ class MapConverterControllerTest {
 
         // When/Then
         mockMvc.perform(post("/api/convert")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .headers(TestAuthUtils.createMasterAuthHeaders())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.coordinates.lat").value(40.6892))
                 .andExpect(jsonPath("$.coordinates.lon").value(-74.0445))
@@ -82,8 +86,9 @@ class MapConverterControllerTest {
 
         // When/Then
         mockMvc.perform(post("/api/convert")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .headers(TestAuthUtils.createMasterAuthHeaders())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.coordinates.lat").value(40.6892))
                 .andExpect(jsonPath("$.coordinates.lon").value(-74.0445))
@@ -97,14 +102,15 @@ class MapConverterControllerTest {
         ConvertRequest request = new ConvertRequest("invalid input");
 
         when(mapConverterService.convert(any(ConvertRequest.class)))
-            .thenThrow(new IllegalArgumentException("Input must be coordinates or a valid URL"));
+                .thenThrow(new IllegalArgumentException("Input must be coordinates or a valid URL"));
 
         // When/Then
         mockMvc.perform(post("/api/convert")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .headers(TestAuthUtils.createMasterAuthHeaders())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Input must be coordinates or a valid URL"));
+                .andExpect(jsonPath("$.message").value("Input must be coordinates or a valid URL"));
     }
 
     @Test
@@ -114,8 +120,9 @@ class MapConverterControllerTest {
 
         // When/Then
         mockMvc.perform(post("/api/convert")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .headers(TestAuthUtils.createMasterAuthHeaders())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 }

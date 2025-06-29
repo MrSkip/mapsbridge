@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import okhttp3.OkHttpClient;
 
-import com.example.mapsbridge.model.Coordinate;
-import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.MapType;
 
 /**
  * Google Maps provider implementation.

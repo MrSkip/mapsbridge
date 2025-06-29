@@ -4,15 +4,10 @@ import java.util.regex.Pattern;
 
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
-import com.example.mapsbridge.model.Coordinate;
-import com.example.mapsbridge.model.MapType;
+import com.example.mapsbridge.dto.MapType;
 
 /**
  * Waze Maps provider implementation.
