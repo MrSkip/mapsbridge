@@ -166,8 +166,6 @@ jobs:
               -e GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \
               -e GOOGLE_API_ENABLED=true \
               -e MAILTRAP_ENABLED=true \
-              -e MAILTRAP_SENDER_EMAIL="${{ secrets.MAILTRAP_SENDER_EMAIL }}" \
-              -e MAILTRAP_SENDER_NAME="${{ secrets.MAILTRAP_SENDER_NAME }}" \
               -e MAILTRAP_API_TOKEN="${{ secrets.MAILTRAP_API_TOKEN }}" \
               -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
               -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
