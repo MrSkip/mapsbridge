@@ -38,7 +38,6 @@ doc/
 # Exclude large data files
 *.csv
 *.json
-*.xml
 *.db
 *.sqlite
 

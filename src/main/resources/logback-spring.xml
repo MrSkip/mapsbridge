@@ -27,20 +27,6 @@
         </encoder>
     </appender>
 
-    <!-- Production file appender -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/${app.name}.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>/var/log/${app.name}.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-            <maxFileSize>10MB</maxFileSize>
-            <maxHistory>30</maxHistory>
-            <totalSizeCap>1GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
     <!-- Development profile -->
     <springProfile name="dev">
         <logger name="com.example.mapsbridge" level="DEBUG"/>
@@ -93,7 +79,7 @@
 
         <root level="INFO">
             <!-- Always keep file logging as backup -->
-            <appender-ref ref="FILE"/>
+            <appender-ref ref="CONSOLE"/>
             <!-- Add CloudWatch if enabled -->
             <if condition='property("cloudwatch.enabled").equals("true")'>
                 <then>
