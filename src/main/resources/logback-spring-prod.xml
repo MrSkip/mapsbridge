@@ -1,6 +1,9 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <springProperty scope="context" name="app.name" source="spring.application.name" defaultValue="mapsbridge"/>
+    <springProperty scope="context" name="app.version" source="app.version" defaultValue="1.0.0"/>
+    <springProperty scope="context" name="app.environment" source="spring.profiles.active" defaultValue="production"/>
     <springProperty scope="context" name="cloudwatch.log.group" source="cloudwatch.logging.log-group-name"
                     defaultValue="mapsbridge-log-group"/>
     <springProperty scope="context" name="cloudwatch.log.stream" source="cloudwatch.logging.log-stream-name"
@@ -15,13 +18,16 @@
         </encoder>
     </appender>
 
-    <!-- CloudWatch appender -->
-    <appender name="CLOUDWATCH" class="com.example.mapsbridge.config.CloudWatchLogAppender">
+    <!-- CloudWatch appender with JSON format -->
+    <appender name="CLOUDWATCH" class="com.example.mapsbridge.config.logging.cloudwatch.CloudWatchLogAppender">
         <logGroupName>${cloudwatch.log.group}</logGroupName>
         <logStreamName>${cloudwatch.log.stream}</logStreamName>
         <region>${cloudwatch.region}</region>
-        <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        <encoder class="com.example.mapsbridge.config.logging.cloudwatch.JsonLogEncoder">
+            <applicationName>${app.name}</applicationName>
+            <environment>${app.environment}</environment>
+            <version>${app.version}</version>
+            <includeLocationInfo>true</includeLocationInfo>
         </encoder>
     </appender>
 
@@ -30,7 +36,7 @@
         <appender-ref ref="CLOUDWATCH"/>
         <queueSize>1000</queueSize>
         <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>false</includeCallerData>
+        <includeCallerData>true</includeCallerData>
     </appender>
 
     <!-- Production-specific loggers - More restrictive -->

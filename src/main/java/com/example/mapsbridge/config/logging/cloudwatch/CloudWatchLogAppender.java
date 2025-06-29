@@ -1,10 +1,9 @@
-package com.example.mapsbridge.config;
+package com.example.mapsbridge.config.logging.cloudwatch;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.Layout;
 import ch.qos.logback.core.encoder.Encoder;
-import lombok.Getter;
 import lombok.Setter;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatchlogs.CloudWatchLogsClient;
@@ -34,10 +33,8 @@ public class CloudWatchLogAppender extends AppenderBase<ILoggingEvent> {
     private volatile ScheduledExecutorService scheduler;
 
     @Setter
-    @Getter
     private volatile Layout<ILoggingEvent> layout;
     @Setter
-    @Getter
     private volatile Encoder<ILoggingEvent> encoder;
 
     @Override

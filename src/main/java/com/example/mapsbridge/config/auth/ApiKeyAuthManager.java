@@ -1,8 +1,9 @@
 package com.example.mapsbridge.config.auth;
 
+import com.example.mapsbridge.config.auth.security.ApiKeyAuthToken;
+import com.example.mapsbridge.config.logging.LoggingContext;
 import com.example.mapsbridge.model.ApiKeyModel;
 import com.example.mapsbridge.repository.ApiKeyRepository;
-import com.example.mapsbridge.config.auth.security.ApiKeyAuthToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -109,6 +110,13 @@ public class ApiKeyAuthManager implements AuthenticationManager {
         if (!apiKey.isActive()) {
             log.warn("API key is not active");
             return false;
+        }
+
+        // Store email in LoggingContext for inclusion in logs
+        String email = apiKey.getEmail();
+        if (email != null && !email.isEmpty()) {
+            LoggingContext.setEmail(email);
+            log.debug("Set email in logging context: {}", email);
         }
 
         updateLastUsedTimestamp(apiKey);
