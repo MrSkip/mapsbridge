@@ -112,20 +112,28 @@ jobs:
 
             echo "Running the new Docker container..."
             docker run -d --name mapsbridge-container -p 8080:8080 \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e API_SECURITY_TOKEN="${{ secrets.API_SECURITY_TOKEN }}" \
+
               -e TELEGRAM_BOT_ENABLED=true \
               -e TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
               -e TELEGRAM_BOT_USERNAME="${{ secrets.TELEGRAM_BOT_USERNAME }}" \
-            
+
               -e GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \
               -e GOOGLE_API_ENABLED=true \
-            
-              -e SPRING_PROFILES_ACTIVE="prod" \
             
               -e MAILTRAP_ENABLED="${{ secrets.MAILTRAP_ENABLED }}" \
               -e MAILTRAP_SENDER_EMAIL="${{ secrets.MAILTRAP_SENDER_EMAIL }}" \
               -e MAILTRAP_SENDER_NAME="${{ secrets.MAILTRAP_SENDER_NAME }}" \
               -e MAILTRAP_API_TOKEN="${{ secrets.MAILTRAP_API_TOKEN }}" \
-            
+
+              -e MAILTRAP_ENABLED=true \
+              -e MAILTRAP_API_TOKEN="${{ secrets.MAILTRAP_API_TOKEN }}" \
+
+              -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
+              -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
+              -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
+
               mapsbridge:latest
 
             echo "Deployment finished successfully!"
