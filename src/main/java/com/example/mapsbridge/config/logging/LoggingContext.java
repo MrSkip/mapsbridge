@@ -1,26 +1,18 @@
 package com.example.mapsbridge.config.logging;
 
 import lombok.experimental.UtilityClass;
+import org.slf4j.MDC;
 
 /**
  * Utility class for storing and retrieving logging context information.
- * This class provides thread-local storage for transaction ID and email
+ * This class uses MDC (Mapped Diagnostic Context) to store transaction ID and email
  * to be included in logs.
  */
 @UtilityClass
 public class LoggingContext {
 
-    private static final ThreadLocal<String> TRANSACTION_ID = new ThreadLocal<>();
-    private static final ThreadLocal<String> EMAIL = new ThreadLocal<>();
-
-    /**
-     * Sets the transaction ID for the current thread.
-     *
-     * @param transactionId the transaction ID to set
-     */
-    public static void setTransactionId(String transactionId) {
-        TRANSACTION_ID.set(transactionId);
-    }
+    private static final String TRANSACTION_ID_KEY = "transactionId";
+    private static final String EMAIL_KEY = "email";
 
     /**
      * Gets the transaction ID for the current thread.
@@ -28,16 +20,16 @@ public class LoggingContext {
      * @return the transaction ID, or null if not set
      */
     public static String getTransactionId() {
-        return TRANSACTION_ID.get();
+        return MDC.get(TRANSACTION_ID_KEY);
     }
 
     /**
-     * Sets the email for the current thread.
+     * Sets the transaction ID for the current thread.
      *
-     * @param email the email to set
+     * @param transactionId the transaction ID to set
      */
-    public static void setEmail(String email) {
-        EMAIL.set(email);
+    public static void setTransactionId(String transactionId) {
+        MDC.put(TRANSACTION_ID_KEY, transactionId);
     }
 
     /**
@@ -46,7 +38,16 @@ public class LoggingContext {
      * @return the email, or null if not set
      */
     public static String getEmail() {
-        return EMAIL.get();
+        return MDC.get(EMAIL_KEY);
+    }
+
+    /**
+     * Sets the email for the current thread.
+     *
+     * @param email the email to set
+     */
+    public static void setEmail(String email) {
+        MDC.put(EMAIL_KEY, email);
     }
 
     /**
@@ -54,7 +55,7 @@ public class LoggingContext {
      * This should be called at the end of request processing to prevent memory leaks.
      */
     public static void clear() {
-        TRANSACTION_ID.remove();
-        EMAIL.remove();
+        MDC.remove(TRANSACTION_ID_KEY);
+        MDC.remove(EMAIL_KEY);
     }
 }
