@@ -100,40 +100,163 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            echo "========================================="
             echo "Start deploying the application..."
-            if [ -f "/home/${{ secrets.EC2_USER }}/mapsbridge.tar" ]; then
-              docker load -i /home/${{ secrets.EC2_USER }}/mapsbridge.tar
+            echo "========================================="
+            
+            # Store the old image ID before loading the new one
+            OLD_IMAGE_ID=$(docker images -q mapsbridge:latest 2>/dev/null || echo "")
+            if [ -n "$OLD_IMAGE_ID" ]; then
+              echo "Found existing mapsbridge image: $OLD_IMAGE_ID"
             else
-              echo "Docker image archive not found. Exiting."
+              echo "No existing mapsbridge image found"
+            fi
+            
+            # Check if Docker image archive exists
+            if [ -f "/home/${{ secrets.EC2_USER }}/mapsbridge.tar" ]; then
+              echo "✓ Docker image archive found"
+              echo "Loading Docker image..."
+              docker load -i /home/${{ secrets.EC2_USER }}/mapsbridge.tar
+              echo "✓ Docker image loaded successfully"
+            else
+              echo "❌ Docker image archive not found. Exiting."
               exit 1
             fi
-            docker stop mapsbridge-container || true
-            docker rm mapsbridge-container || true
-
+            
+            # Get the new image ID
+            NEW_IMAGE_ID=$(docker images -q mapsbridge:latest 2>/dev/null || echo "")
+            echo "New mapsbridge image: $NEW_IMAGE_ID"
+            
+            # Show current Docker images
+            echo "Current Docker images:"
+            docker images | grep mapsbridge || echo "No mapsbridge images found"
+            
+            # Stop and remove existing container
+            echo "Stopping existing container..."
+            docker stop mapsbridge-container || echo "No existing container to stop"
+            docker rm mapsbridge-container || echo "No existing container to remove"
+            
+            # Check if port 8080 is available
+            echo "Checking port 8080 availability..."
+            if netstat -tulpn | grep :8080; then
+              echo "⚠️  Port 8080 is already in use:"
+              netstat -tulpn | grep :8080
+            else
+              echo "✓ Port 8080 is available"
+            fi
+            
+            # Check system resources
+            echo "System resources:"
+            echo "Memory usage:"
+            free -h
+            echo "Disk usage:"
+            df -h
+            
+            echo "========================================="
             echo "Running the new Docker container..."
-            docker run -d --name mapsbridge-container -p 8080:8080 \
+            echo "========================================="
+            
+            # Run the container with proper error handling
+            if docker run -d --name mapsbridge-container -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=prod \
               -e API_SECURITY_TOKEN="${{ secrets.API_SECURITY_TOKEN }}" \
-
               -e TELEGRAM_BOT_ENABLED=true \
               -e TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" \
               -e TELEGRAM_BOT_USERNAME="${{ secrets.TELEGRAM_BOT_USERNAME }}" \
-
               -e GOOGLE_API_KEY="${{ secrets.GOOGLE_API_KEY }}" \
               -e GOOGLE_API_ENABLED=true \
-            
               -e MAILTRAP_ENABLED="${{ secrets.MAILTRAP_ENABLED }}" \
               -e MAILTRAP_SENDER_EMAIL="${{ secrets.MAILTRAP_SENDER_EMAIL }}" \
               -e MAILTRAP_SENDER_NAME="${{ secrets.MAILTRAP_SENDER_NAME }}" \
               -e MAILTRAP_API_TOKEN="${{ secrets.MAILTRAP_API_TOKEN }}" \
-
-              -e MAILTRAP_ENABLED=true \
-              -e MAILTRAP_API_TOKEN="${{ secrets.MAILTRAP_API_TOKEN }}" \
-
               -e SPRING_DATASOURCE_URL="${{ secrets.SPRING_DATASOURCE_URL }}" \
               -e SPRING_DATASOURCE_USERNAME="${{ secrets.SPRING_DATASOURCE_USERNAME }}" \
               -e SPRING_DATASOURCE_PASSWORD="${{ secrets.SPRING_DATASOURCE_PASSWORD }}" \
-
-              mapsbridge:latest
-
-            echo "Deployment finished successfully!"
+              mapsbridge:latest; then
+              
+              echo "✓ Container started successfully!"
+              
+              # Wait a moment for the container to initialize
+              echo "Waiting 10 seconds for container to initialize..."
+              sleep 10
+              
+              # Check container status
+              echo "Container status:"
+              docker ps -a | grep mapsbridge-container
+              
+              # Verify container is actually running
+              if docker ps | grep -q mapsbridge-container; then
+                echo "✓ Container is confirmed to be running"
+                
+                # Check container logs
+                echo "========================================="
+                echo "Container logs (last 50 lines):"
+                echo "========================================="
+                docker logs --tail 50 mapsbridge-container
+                
+                # Check if the application is responding
+                echo "========================================="
+                echo "Testing application health..."
+                echo "========================================="
+                if curl -f http://localhost:8080/actuator/health 2>/dev/null; then
+                  echo "✓ Application is healthy and responding!"
+                else
+                  echo "⚠️  Application health check failed, but container is running"
+                  echo "This might be normal if the app is still starting up"
+                fi
+                
+                # Clean up old Docker image if it exists and is different from the new one
+                echo "========================================="
+                echo "Cleaning up old Docker images..."
+                echo "========================================="
+                if [ -n "$OLD_IMAGE_ID" ] && [ "$OLD_IMAGE_ID" != "$NEW_IMAGE_ID" ]; then
+                  echo "Removing old Docker image: $OLD_IMAGE_ID"
+                  if docker rmi "$OLD_IMAGE_ID" 2>/dev/null; then
+                    echo "✓ Old Docker image removed successfully"
+                  else
+                    echo "⚠️  Could not remove old image (might be in use by other containers)"
+                    # Show which containers might be using the old image
+                    docker ps -a --filter ancestor="$OLD_IMAGE_ID" --format "table {{.Names}}\t{{.Status}}" || true
+                  fi
+                else
+                  echo "No old image to remove (same as new image or no previous image)"
+                fi
+                
+                # Clean up dangling images
+                echo "Removing dangling images..."
+                DANGLING_IMAGES=$(docker images -f "dangling=true" -q)
+                if [ -n "$DANGLING_IMAGES" ]; then
+                  docker rmi $DANGLING_IMAGES 2>/dev/null && echo "✓ Dangling images removed" || echo "⚠️  Some dangling images could not be removed"
+                else
+                  echo "No dangling images to remove"
+                fi
+                
+                # Clean up the tar file
+                echo "Cleaning up deployment files..."
+                rm -f "/home/${{ secrets.EC2_USER }}/mapsbridge.tar" && echo "✓ Deployment tar file removed"
+                
+              else
+                echo "❌ Container failed to start properly!"
+                docker logs mapsbridge-container
+                exit 1
+              fi
+              
+              # Show final status
+              echo "========================================="
+              echo "Final deployment status:"
+              echo "========================================="
+              docker ps | grep mapsbridge-container && echo "✓ Container is running" || echo "❌ Container is not running"
+              
+              # Show disk usage after cleanup
+              echo "Disk usage after cleanup:"
+              df -h
+              
+            else
+              echo "❌ Failed to start container!"
+              echo "Docker run command failed with exit code: $?"
+              exit 1
+            fi
+            
+            echo "========================================="
+            echo "Deployment process completed successfully!"
+            echo "========================================="
