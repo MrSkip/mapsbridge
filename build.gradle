@@ -31,6 +31,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     implementation platform('software.amazon.awssdk:bom:2.31.73')
 
+    implementation 'net.logstash.logback:logstash-logback-encoder:8.1'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'org.springframework.boot:spring-boot-starter-validation'

@@ -17,16 +17,23 @@
         </encoder>
     </appender>
 
-    <!-- CloudWatch appender with JSON format -->
+    <!-- CloudWatch appender with Logstash JSON encoder -->
     <appender name="CLOUDWATCH" class="com.example.mapsbridge.config.logging.cloudwatch.CloudWatchLogAppender">
         <logGroupName>${cloudwatch.log.group}</logGroupName>
         <logStreamName>${cloudwatch.log.stream}</logStreamName>
         <region>${cloudwatch.region}</region>
-        <encoder class="com.example.mapsbridge.config.logging.cloudwatch.JsonLogEncoder">
-            <applicationName>${app.name}</applicationName>
-            <environment>${app.environment}</environment>
-            <version>${app.version}</version>
-            <includeLocationInfo>true</includeLocationInfo>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"application":"${app.name}","environment":"${app.environment}","version":"${app.version}"}
+            </customFields>
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <level>level</level>
+                <logger>logger</logger>
+                <thread>thread</thread>
+                <message>message</message>
+            </fieldNames>
+            <includeContext>true</includeContext>
+            <includeMdc>true</includeMdc>
         </encoder>
     </appender>
 
