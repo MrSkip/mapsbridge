@@ -5,14 +5,15 @@ import org.slf4j.MDC;
 
 /**
  * Utility class for storing and retrieving logging context information.
- * This class uses MDC (Mapped Diagnostic Context) to store transaction ID and email
- * to be included in logs.
+ * This class uses MDC (Mapped Diagnostic Context) to store transaction ID, email,
+ * and chat ID to be included in logs.
  */
 @UtilityClass
 public class LoggingContext {
 
     private static final String TRANSACTION_ID_KEY = "transactionId";
     private static final String EMAIL_KEY = "email";
+    private static final String CHAT_ID_KEY = "chatId";
 
     /**
      * Gets the transaction ID for the current thread.
@@ -51,11 +52,30 @@ public class LoggingContext {
     }
 
     /**
+     * Gets the chat ID for the current thread.
+     *
+     * @return the chat ID, or null if not set
+     */
+    public static String getChatId() {
+        return MDC.get(CHAT_ID_KEY);
+    }
+
+    /**
+     * Sets the chat ID for the current thread.
+     *
+     * @param chatId the chat ID to set
+     */
+    public static void setChatId(String chatId) {
+        MDC.put(CHAT_ID_KEY, chatId);
+    }
+
+    /**
      * Clears all context values for the current thread.
      * This should be called at the end of request processing to prevent memory leaks.
      */
     public static void clear() {
         MDC.remove(TRANSACTION_ID_KEY);
         MDC.remove(EMAIL_KEY);
+        MDC.remove(CHAT_ID_KEY);
     }
 }

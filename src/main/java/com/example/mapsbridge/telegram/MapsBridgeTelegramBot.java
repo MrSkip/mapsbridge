@@ -1,5 +1,8 @@
 package com.example.mapsbridge.telegram;
 
+import com.example.mapsbridge.config.logging.LoggingContext;
+import com.example.mapsbridge.telegram.service.ResponseFormatterService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -8,26 +11,16 @@ import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.example.mapsbridge.telegram.service.ResponseFormatterService;
-
+@Slf4j
 @Component
 @ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = true)
 public class MapsBridgeTelegramBot extends TelegramLongPollingBot {
 
-    private static final Logger logger = LoggerFactory.getLogger(MapsBridgeTelegramBot.class);
-
+    private static final String ERROR_MESSAGE_TEMPLATE = "Sorry, I couldn't process your message";
+    private final ResponseFormatterService responseFormatterService;
     @Value("${telegram.bot.username}")
     private String botUsername;
-
-    private final ResponseFormatterService responseFormatterService;
-
-    @Override
-    public String getBotUsername() {
-        return botUsername;
-    }
 
     public MapsBridgeTelegramBot(
             @Value("${telegram.bot.token}") String token,
@@ -37,43 +30,66 @@ public class MapsBridgeTelegramBot extends TelegramLongPollingBot {
     }
 
     @Override
+    public String getBotUsername() {
+        return botUsername;
+    }
+
+    @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText();
-            long chatId = update.getMessage().getChatId();
+        if (!hasTextMessage(update)) {
+            log.info("Ignoring update with no text message: {}", update);
+            return;
+        }
 
-            logger.info("Received message: '{}' from chat ID: {}", messageText, chatId);
+        String messageText = update.getMessage().getText();
+        long chatId = update.getMessage().getChatId();
+        String chatIdStr = String.valueOf(chatId);
 
-            try {
-                // Convert the message to map links
-                String responseText = responseFormatterService.convertMessageToMapLinks(messageText);
+        processMessageWithLoggingContext(messageText, chatId, chatIdStr);
+    }
 
-                // Create and configure the response message
-                SendMessage message = new SendMessage();
-                message.setChatId(String.valueOf(chatId));
-                message.setText(responseText);
-                message.setParseMode(ParseMode.HTML); // Enable HTML formatting for clickable links
-
-                // Send the response
-                execute(message);
-                logger.info("Map links response sent to chat ID: {}", chatId);
-            } catch (Exception e) {
-                logger.error("Error processing message from chat ID: {}", chatId, e);
-
-                // Send error message
-                try {
-                    sendErrorMessage(e, chatId);
-                } catch (TelegramApiException ex) {
-                    logger.error("Failed to send error message to chat ID: {}", chatId, ex);
-                }
-            }
+    private void processMessageWithLoggingContext(String messageText, long chatId, String chatIdStr) {
+        LoggingContext.setChatId(chatIdStr);
+        try {
+            log.info("Received message: '{}' from chat ID: {}", messageText, chatId);
+            processMessage(messageText, chatIdStr);
+            log.info("Map links response sent to chat ID: {}", chatId);
+        } catch (Exception e) {
+            handleProcessingError(e, chatId, chatIdStr);
+        } finally {
+            LoggingContext.clear();
         }
     }
 
-    private void sendErrorMessage(Exception e, long chatId) throws TelegramApiException {
-        SendMessage errorMessage = new SendMessage();
-        errorMessage.setChatId(String.valueOf(chatId));
-        errorMessage.setText("Sorry, I couldn't process your message: " + e.getMessage());
+    private void processMessage(String messageText, String chatIdStr) throws TelegramApiException {
+        String responseText = responseFormatterService.convertMessageToMapLinks(messageText);
+        SendMessage message = createResponseMessage(chatIdStr, responseText);
+        execute(message);
+    }
+
+    private void handleProcessingError(Exception e, long chatId, String chatIdStr) {
+        log.error("Error processing message from chat ID: {}", chatId, e);
+        try {
+            sendErrorMessage(e, chatIdStr);
+        } catch (TelegramApiException ex) {
+            log.error("Failed to send error message to chat ID: {}", chatId, ex);
+        }
+    }
+
+    private SendMessage createResponseMessage(String chatId, String text) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(text);
+        message.setParseMode(ParseMode.HTML);
+        return message;
+    }
+
+    private void sendErrorMessage(Exception e, String chatId) throws TelegramApiException {
+        SendMessage errorMessage = createResponseMessage(chatId, ERROR_MESSAGE_TEMPLATE);
         execute(errorMessage);
+    }
+
+    private boolean hasTextMessage(Update update) {
+        return update.hasMessage() && update.getMessage().hasText();
     }
 }
