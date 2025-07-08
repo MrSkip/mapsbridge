@@ -1,14 +1,14 @@
 package com.example.mapsbridge.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import com.example.mapsbridge.dto.ConvertRequest;
+import com.example.mapsbridge.dto.ConvertResponse;
+import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.example.mapsbridge.dto.ConvertRequest;
-import com.example.mapsbridge.dto.ConvertResponse;
-import com.example.mapsbridge.dto.MapType;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Integration tests for MapConverterService.convert method.
@@ -18,7 +18,7 @@ import com.example.mapsbridge.dto.MapType;
 class MapConverterServiceIntegrationTest {
 
     @Autowired
-    private MapConverterService mapConverterService;
+    private MapConverterServiceImpl mapConverterService;
 
     @Test
     void testConvertCoordinates() {

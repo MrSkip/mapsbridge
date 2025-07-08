@@ -1,6 +1,7 @@
 package com.example.mapsbridge.provider.impl;
 
 import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,18 +53,20 @@ class WazeMapProviderTest {
     @MethodSource("getValidUrls")
     void testExtractCoordinatesWithValidUrls(String url) {
         // when
-        Coordinate coordinate = target.extractCoordinates(url);
+        LocationResult locationResult = target.extractLocation(url);
 
         // then
-        assertEquals(51.98312, coordinate.getLat());
-        assertEquals(5.905344, coordinate.getLon());
+        assertNotNull(locationResult);
+        assertNotNull(locationResult.getCoordinates());
+        assertEquals(51.98312, locationResult.getCoordinates().getLat());
+        assertEquals(5.905344, locationResult.getCoordinates().getLon());
     }
 
     @ParameterizedTest
     @MethodSource("getInvalidUrls")
     void testExtractCoordinatesWithInvalidUrls(String url) {
         // when
-        Coordinate coordinate = target.extractCoordinates(url);
+        Coordinate coordinate = target.extractLocation(url).getCoordinates();
 
         // then
         assertNull(coordinate);
@@ -111,4 +114,3 @@ class WazeMapProviderTest {
         assertFalse(result);
     }
 }
-

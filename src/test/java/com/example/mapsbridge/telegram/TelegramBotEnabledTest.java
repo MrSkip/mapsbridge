@@ -1,5 +1,7 @@
 package com.example.mapsbridge.telegram;
 
+import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
+import com.example.mapsbridge.telegram.service.ResponseFormatterService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -8,10 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import com.example.mapsbridge.service.MapConverterService;
-import com.example.mapsbridge.telegram.service.ResponseFormatterService;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -49,13 +47,13 @@ public class TelegramBotEnabledTest {
         }
 
         @Bean
-        public MapConverterService mapConverterService() {
-            return mock(MapConverterService.class);
+        public MapConverterServiceImpl mapConverterService() {
+            return mock(MapConverterServiceImpl.class);
         }
 
         @Bean
         @ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = true)
-        public ResponseFormatterService responseFormatterService(MapConverterService mapConverterService) {
+        public ResponseFormatterService responseFormatterService(MapConverterServiceImpl mapConverterService) {
             return new ResponseFormatterService(mapConverterService);
         }
 

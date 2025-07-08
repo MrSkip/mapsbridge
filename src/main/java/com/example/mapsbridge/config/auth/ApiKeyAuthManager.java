@@ -48,6 +48,7 @@ public class ApiKeyAuthManager implements AuthenticationManager {
     private Authentication authenticateToken(String providedToken, ApiKeyAuthToken authToken) {
         if (isMasterToken(providedToken)) {
             log.info("Master token authentication successful");
+            LoggingContext.setEmail("master@token");
             return ApiKeyAuthToken.createMasterToken(providedToken);
         }
 

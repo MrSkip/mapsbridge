@@ -1,6 +1,6 @@
 package com.example.mapsbridge.provider.impl;
 
-import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,12 +32,13 @@ class BingMapProviderTest {
     })
     void testExtractCoordinatesWithValidUrls(String url) {
         // when
-        Coordinate coordinate = target.extractCoordinates(url);
+        LocationResult locationResult = target.extractLocation(url);
 
         // then
-        assertNotNull(coordinate);
-        assertEquals(51.98312, coordinate.getLat(), 0.0001);
-        assertEquals(5.905344, coordinate.getLon(), 0.0001);
+        assertNotNull(locationResult);
+        assertNotNull(locationResult.getCoordinates());
+        assertEquals(51.98312, locationResult.getCoordinates().getLat(), 0.0001);
+        assertEquals(5.905344, locationResult.getCoordinates().getLon(), 0.0001);
     }
 
     @ParameterizedTest
@@ -49,10 +50,10 @@ class BingMapProviderTest {
     })
     void testExtractCoordinatesWithInvalidUrls(String url) {
         // when
-        Coordinate coordinate = target.extractCoordinates(url);
+        LocationResult locationResult = target.extractLocation(url);
 
         // then
-        assertNull(coordinate);
+        assertNull(locationResult);
     }
 
     @ParameterizedTest

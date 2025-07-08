@@ -1,14 +1,12 @@
 package com.example.mapsbridge.provider.impl;
 
-import java.util.regex.Pattern;
-
-import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.example.mapsbridge.dto.MapType;
+import java.util.regex.Pattern;
 
 /**
  * Komoot Maps provider implementation.
@@ -37,7 +35,7 @@ public class KomootMapProvider extends AbstractMapProvider {
     }
 
     @Override
-    public Coordinate extractCoordinates(String url) {
+    public com.example.mapsbridge.dto.LocationResult extractLocation(String url) {
         // not supported
         return null;
     }

@@ -2,7 +2,7 @@ package com.example.mapsbridge.controller;
 
 import com.example.mapsbridge.dto.ConvertRequest;
 import com.example.mapsbridge.dto.ConvertResponse;
-import com.example.mapsbridge.service.MapConverterService;
+import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Map Converter", description = "API for converting map links between different providers")
 public class MapConverterController {
 
-    private final MapConverterService mapConverterService;
+    private final MapConverterServiceImpl mapConverterService;
 
     /**
      * Convert a map URL or coordinates to links for all supported map providers.

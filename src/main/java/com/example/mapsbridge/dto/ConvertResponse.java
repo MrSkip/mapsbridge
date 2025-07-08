@@ -1,15 +1,15 @@
 package com.example.mapsbridge.dto;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Response model for the map link conversion API.
- * Contains the extracted coordinates and links to various map providers.
+ * Contains the extracted location information and links to various map providers.
  */
 @Data
 @NoArgsConstructor
@@ -20,6 +20,10 @@ public class ConvertResponse {
      * The geographic coordinates extracted from the input.
      */
     private Coordinate coordinates;
+
+    private String locationName;
+
+    private String address;
 
     /**
      * Map of links to different map providers.

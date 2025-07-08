@@ -1,21 +1,20 @@
 package com.example.mapsbridge.telegram.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.util.HashMap;
-import java.util.Map;
-
+import com.example.mapsbridge.dto.ConvertRequest;
+import com.example.mapsbridge.dto.ConvertResponse;
+import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.example.mapsbridge.dto.ConvertRequest;
-import com.example.mapsbridge.dto.ConvertResponse;
-import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.service.MapConverterService;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for ResponseFormatterService.convertMessageToMapLinks method.
@@ -24,7 +23,7 @@ import com.example.mapsbridge.service.MapConverterService;
 class ResponseFormatterServiceTest {
 
     @Mock
-    private MapConverterService mapConverterService;
+    private MapConverterServiceImpl mapConverterService;
     
     private ResponseFormatterService responseFormatterService;
     

@@ -1,123 +1,18 @@
 package com.example.mapsbridge.service;
 
-import java.util.List;
-import java.util.regex.Pattern;
-import org.springframework.stereotype.Service;
-
-import com.example.mapsbridge.exception.CoordinateExtractionException;
-import com.example.mapsbridge.exception.InvalidCoordinateException;
-import com.example.mapsbridge.exception.InvalidInputException;
-import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.ConvertRequest;
 import com.example.mapsbridge.dto.ConvertResponse;
-import com.example.mapsbridge.provider.MapProvider;
-
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
- * Service for converting map URLs and coordinates.
+ * Interface for converting map URLs and coordinates.
  */
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class MapConverterService {
-    // Pattern to match coordinates in the format "lat,lon"
-    private static final Pattern COORDINATE_PATTERN = Pattern.compile("^-?\\d+\\.?\\d*,-?\\d+\\.?\\d*$");
-
-    // Pattern to match URLs
-    private static final Pattern URL_PATTERN = Pattern.compile("^https?://.*");
-
-    private final List<MapProvider> mapProviders;
-    private final Counter.Builder inputTypeCounterBuilder;
-    private final Counter.Builder mapProviderUrlCounterBuilder;
-    private final MeterRegistry meterRegistry;
-
+public interface MapConverterService {
+    
     /**
      * Convert a map URL or coordinates to links for all supported map providers.
-     * 
-     * @param request The conversion request
-     * @return The conversion response with coordinates and links
-     * @throws InvalidCoordinateException if the coordinates are invalid
-     * @throws CoordinateExtractionException if coordinates can't be extracted from a URL
-     * @throws InvalidInputException if the input is neither coordinates nor a valid URL
+     *
+     * @param request The request containing input to convert (coordinates or URL)
+     * @return A response containing the extracted coordinates and links to all supported map providers
      */
-    public ConvertResponse convert(ConvertRequest request) {
-        String input = request.getInput().trim();
-        Coordinate coordinate;
-
-        if (COORDINATE_PATTERN.matcher(input).matches()) {
-            // Input is coordinates
-            trackUnknownProvider(inputTypeCounterBuilder, "type", "coordinates");
-            coordinate = Coordinate.fromString(input);
-            if (!coordinate.isValid()) {
-                throw new InvalidCoordinateException("Invalid coordinates: " + input);
-            }
-        } else if (URL_PATTERN.matcher(input).matches()) {
-            // Input is a URL
-            trackUnknownProvider(inputTypeCounterBuilder, "type", "url");
-            coordinate = extractCoordinatesFromUrl(input);
-            if (coordinate == null) {
-                throw new CoordinateExtractionException("Could not extract coordinates from URL: " + input);
-            }
-        } else {
-            throw new InvalidInputException("Input must be coordinates (lat,lon) or a valid URL");
-        }
-
-        // Generate links for all providers
-        ConvertResponse response = new ConvertResponse();
-        response.setCoordinates(coordinate);
-
-        for (MapProvider provider : mapProviders) {
-            try {
-                String url = provider.generateUrl(coordinate);
-                response.addLink(provider.getType(), url);
-            } catch (Exception e) {
-                log.error("Error generating URL for provider {}: {}", provider.getType().getName(), e.getMessage());
-            }
-        }
-
-        return response;
-    }
-
-    /**
-     * Extract coordinates from a URL using the appropriate map provider.
-     * 
-     * @param url The URL to extract coordinates from
-     * @return The extracted coordinates, or null if coordinates couldn't be extracted
-     */
-    private Coordinate extractCoordinatesFromUrl(String url) {
-        // Try each provider to see if it can extract coordinates
-        for (MapProvider provider : mapProviders) {
-            if (provider.isProviderUrl(url)) {
-                trackKnownProvider(provider);
-
-                Coordinate coordinate = provider.extractCoordinates(url);
-                if (coordinate != null && coordinate.isValid()) {
-                    return coordinate;
-                }
-            }
-        }
-
-        // If no provider could extract coordinates, track as unknown
-        trackUnknownProvider(mapProviderUrlCounterBuilder, "provider", "unknown");
-
-        log.info("Could not extract coordinates from URL: {}", url);
-
-        return null;
-    }
-
-    private void trackUnknownProvider(Counter.Builder mapProviderUrlCounterBuilder, String provider, String unknown) {
-        mapProviderUrlCounterBuilder
-            .tag(provider, unknown)
-            .register(meterRegistry)
-            .increment();
-    }
-
-    private void trackKnownProvider(MapProvider provider) {
-        // Track which map provider URL was used
-        trackUnknownProvider(mapProviderUrlCounterBuilder, "provider", provider.getType().getName());
-    }
+    ConvertResponse convert(ConvertRequest request);
 }

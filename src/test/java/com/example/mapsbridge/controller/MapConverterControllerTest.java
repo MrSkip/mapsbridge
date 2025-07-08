@@ -4,8 +4,7 @@ import com.example.mapsbridge.dto.ConvertRequest;
 import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.service.MailtrapService;
-import com.example.mapsbridge.service.MapConverterService;
+import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
 import com.example.mapsbridge.setup.TestAuthUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MapConverterControllerTest {
 
     @MockitoBean
-    private MapConverterService mapConverterService;
+    private MapConverterServiceImpl mapConverterService;
 
     @Autowired
     private MockMvc mockMvc;

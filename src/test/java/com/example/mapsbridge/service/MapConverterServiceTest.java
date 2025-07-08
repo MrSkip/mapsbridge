@@ -1,14 +1,9 @@
 package com.example.mapsbridge.service;
 
-import com.example.mapsbridge.dto.ConvertRequest;
-import com.example.mapsbridge.dto.ConvertResponse;
-import com.example.mapsbridge.dto.Coordinate;
-import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.dto.*;
 import com.example.mapsbridge.exception.InvalidInputException;
 import com.example.mapsbridge.provider.MapProvider;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,12 +24,13 @@ class MapConverterServiceTest {
     @Mock
     private MapProvider appleProvider;
 
-    private MapConverterService service;
+    @Mock
+    private UserInputProcessorService userInputProcessorService;
+
+    private MapConverterServiceImpl service;
 
     private MapType googleMapType;
     private MapType appleMapType;
-
-    private MeterRegistry meterRegistry;
 
     @BeforeEach
     void setUp() {
@@ -45,9 +41,6 @@ class MapConverterServiceTest {
 
         lenient().when(googleProvider.generateUrl(any(Coordinate.class)))
                 .thenAnswer(i -> "https://www.google.com/maps?q=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
-        lenient().when(googleProvider.isProviderUrl(startsWith("https://maps.google.com"))).thenReturn(true);
-        lenient().when(googleProvider.extractCoordinates("https://maps.google.com/?q=Statue+of+Liberty"))
-                .thenReturn(new Coordinate(40.6892, -74.0445));
 
         appleMapType = mock(MapType.class);
         lenient().when(appleMapType.getName()).thenReturn("apple");
@@ -56,24 +49,17 @@ class MapConverterServiceTest {
         lenient().when(appleProvider.generateUrl(any(Coordinate.class)))
                 .thenAnswer(i -> "https://maps.apple.com/?ll=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
 
-        // Initialize Micrometer components
-        meterRegistry = new SimpleMeterRegistry();
-        Counter.Builder inputTypeCounterBuilder = Counter.builder("maps.input.type")
-                .description("Number of times each input type is used (coordinates vs URL)");
-        Counter.Builder mapProviderUrlCounterBuilder = Counter.builder("maps.provider.url.usage")
-                .description("Number of times URLs from each map provider are used as input");
-
-        // Initialize service with mock providers and Micrometer components
-        service = new MapConverterService(List.of(googleProvider, appleProvider),
-                inputTypeCounterBuilder,
-                mapProviderUrlCounterBuilder,
-                meterRegistry);
+        // Initialize service with mock providers and input processor
+        service = new MapConverterServiceImpl(List.of(googleProvider, appleProvider), userInputProcessorService);
     }
 
     @Test
     void testConvertCoordinates() {
         // Given
         ConvertRequest request = new ConvertRequest("40.6892,-74.0445");
+        Coordinate expectedCoordinate = new Coordinate(40.6892, -74.0445);
+        LocationResult expectedLocationResult = LocationResult.fromCoordinates(expectedCoordinate);
+        when(userInputProcessorService.processInput("40.6892,-74.0445")).thenReturn(expectedLocationResult);
 
         // When
         ConvertResponse response = service.convert(request);
@@ -86,16 +72,17 @@ class MapConverterServiceTest {
         assertEquals("https://www.google.com/maps?q=40.6892,-74.0445", response.getLinks().get(googleMapType));
         assertEquals("https://maps.apple.com/?ll=40.6892,-74.0445", response.getLinks().get(appleMapType));
 
-        // Verify metrics
-        assertEquals(1, meterRegistry.get("maps.input.type")
-                .tag("type", "coordinates")
-                .counter().count());
+        // Verify input processor was called
+        verify(userInputProcessorService).processInput("40.6892,-74.0445");
     }
 
     @Test
     void testConvertGoogleMapsUrl() {
         // Given
         ConvertRequest request = new ConvertRequest("https://maps.google.com/?q=Statue+of+Liberty");
+        Coordinate expectedCoordinate = new Coordinate(40.6892, -74.0445);
+        LocationResult expectedLocationResult = LocationResult.fromCoordinatesAndName(expectedCoordinate, "Statue of Liberty");
+        when(userInputProcessorService.processInput("https://maps.google.com/?q=Statue+of+Liberty")).thenReturn(expectedLocationResult);
 
         // When
         ConvertResponse response = service.convert(request);
@@ -108,19 +95,15 @@ class MapConverterServiceTest {
         assertEquals("https://www.google.com/maps?q=40.6892,-74.0445", response.getLinks().get(googleMapType));
         assertEquals("https://maps.apple.com/?ll=40.6892,-74.0445", response.getLinks().get(appleMapType));
 
-        // Verify metrics
-        assertEquals(1, meterRegistry.get("maps.input.type")
-                .tag("type", "url")
-                .counter().count());
-        assertEquals(1, meterRegistry.get("maps.provider.url.usage")
-                .tag("provider", "google")
-                .counter().count());
+        // Verify input processor was called
+        verify(userInputProcessorService).processInput("https://maps.google.com/?q=Statue+of+Liberty");
     }
 
     @Test
     void testInvalidInput() {
         // Given
         ConvertRequest request = new ConvertRequest("invalid input");
+        when(userInputProcessorService.processInput("invalid input")).thenThrow(new InvalidInputException("Input must be coordinates (lat,lon) or a valid URL"));
 
         // When/Then
         Exception exception = assertThrows(InvalidInputException.class, () -> service.convert(request));

@@ -1,6 +1,7 @@
 package com.example.mapsbridge.provider;
 
 import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
 
 /**
@@ -32,10 +33,10 @@ public interface MapProvider {
     boolean isProviderUrl(String url);
 
     /**
-     * Extract coordinates from a URL if possible.
-     * 
-     * @param url The URL to extract coordinates from
-     * @return The extracted coordinates, or null if coordinates couldn't be extracted
+     * Extract location information from a URL if possible.
+     *
+     * @param url The URL to extract location information from
+     * @return The extracted location result, or null if location couldn't be extracted
      */
-    Coordinate extractCoordinates(String url);
+    LocationResult extractLocation(String url);
 }

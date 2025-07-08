@@ -1,6 +1,6 @@
 package com.example.mapsbridge.provider.impl;
 
-import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,10 +51,10 @@ class KomootMapProviderTest {
     @MethodSource("getInvalidUrls")
     void testExtractCoordinatesWithInvalidUrls(String url) {
         // when
-        Coordinate coordinate = target.extractCoordinates(url);
+        LocationResult locationResult = target.extractLocation(url);
 
         // then
-        assertNull(coordinate);
+        assertNull(locationResult);
     }
 
     @ParameterizedTest

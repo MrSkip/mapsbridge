@@ -3,7 +3,7 @@ package com.example.mapsbridge.telegram.service;
 import com.example.mapsbridge.dto.ConvertRequest;
 import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.service.MapConverterService;
+import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
@@ -25,11 +25,11 @@ import java.util.Objects;
 @ConditionalOnProperty(name = "telegram.bot.enabled", havingValue = "true", matchIfMissing = true)
 public class ResponseFormatterService {
 
-    private final MapConverterService mapConverterService;
+    private final MapConverterServiceImpl mapConverterService;
 
     private final Mustache mustacheTemplate;
 
-    public ResponseFormatterService(MapConverterService mapConverterService) {
+    public ResponseFormatterService(MapConverterServiceImpl mapConverterService) {
         this.mapConverterService = mapConverterService;
         mustacheTemplate = initMustacheTemplate();
     }
@@ -50,16 +50,17 @@ public class ResponseFormatterService {
 
         try {
             ConvertResponse response = mapConverterService.convert(request);
-            return formatResponse(response.getLinks());
+            return formatResponse(response);
         } catch (Exception e) {
             log.error("Error converting message: {}", e.getMessage());
             return "Sorry, I couldn't process your message ...";
         }
     }
 
-    private String formatResponse(Map<MapType, String> links) {
+    private String formatResponse(ConvertResponse response) {
         Map<String, Object> context = new HashMap<>();
-        for (Map.Entry<MapType, String> entry : links.entrySet()) {
+
+        for (Map.Entry<MapType, String> entry : response.getLinks().entrySet()) {
             if (entry.getValue() != null && !entry.getValue().isBlank()) {
                 String mapUrl = String.format("%sUrl", entry.getKey().name().toLowerCase());
                 context.put(mapUrl, entry.getValue());
@@ -69,6 +70,8 @@ public class ResponseFormatterService {
         if (context.isEmpty()) {
             return "No valid map links found in your message.";
         }
+
+        context.put("address", response.getAddress());
 
         StringWriter writer = new StringWriter();
         mustacheTemplate.execute(writer, context);
