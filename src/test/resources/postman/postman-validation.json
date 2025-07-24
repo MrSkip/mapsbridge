@@ -1,0 +1,44 @@
+[
+  {
+    "input": "https://maps.app.goo.gl/J54kedA3yteFBAiH9",
+    "expected": {
+      "coordinates": {
+        "lat": 45.8855635,
+        "lon": 10.8454374
+      },
+      "address": "Parkplatz Riva Centro, Via Filzi, 3, 38066 Riva del Garda TN, Italy",
+      "name": null
+    },
+    "testConfig": {
+      "description": "[googleMaps][mobile][place][addressGeocoding][googleApi][noRadar] - Italy Parkplatz"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/Hpn85aKXtkAgvzss5?g_st=com.google.maps.preview.copy",
+    "expected": {
+      "coordinates": {
+        "lat": 51.9832916,
+        "lon": 5.9092774
+      },
+      "address": "Dadawan Arnhem, Gele Rijders Plein 15, 6811 AV Arnhem, Netherlands",
+      "name": null
+    },
+    "testConfig": {
+      "description": "[googleMaps][mobile][place][addressGeocoding][googleApi] - NL Restaurant Dadawan"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/3KRHSbjUDnMhbWg59",
+    "expected": {
+      "coordinates": {
+        "lat": 51.9740939,
+        "lon": 5.9016994
+      },
+      "address": "Arnhem, Gelderland NL",
+      "name": null
+    },
+    "testConfig": {
+      "description": "[googleMaps][mobile][place][qParameter][radar] - NL Rural area in Arnhem"
+    }
+  }
+]

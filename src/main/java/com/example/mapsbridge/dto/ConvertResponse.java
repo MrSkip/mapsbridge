@@ -21,7 +21,7 @@ public class ConvertResponse {
      */
     private Coordinate coordinates;
 
-    private String locationName;
+    private String name;
 
     private String address;
 
@@ -34,13 +34,11 @@ public class ConvertResponse {
 
     /**
      * Adds a link for a specific map provider.
-     * 
+     *
      * @param providerType The type of the map provider
-     * @param url The URL for that provider
-     * @return This ConvertResponse instance for method chaining
+     * @param url          The URL for that provider
      */
-    public ConvertResponse addLink(MapType providerType, String url) {
+    public void addLink(MapType providerType, String url) {
         links.put(providerType, url);
-        return this;
     }
 }

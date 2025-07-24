@@ -2,21 +2,42 @@ package com.example.mapsbridge.provider.extractor.impl;
 
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 class G3AtSymbolExtractorTest {
 
     private G3AtSymbolExtractor extractor;
 
+    @Mock
+    private Counter.Builder counterBuilder;
+
+    @Mock
+    private MeterRegistry meterRegistry;
+
+    @Mock
+    private Counter counter;
+
     @BeforeEach
     void setUp() {
-        extractor = new G3AtSymbolExtractor();
+        MockitoAnnotations.openMocks(this);
+
+        // Configure mocks
+        when(counterBuilder.tag(anyString(), anyString())).thenReturn(counterBuilder);
+        when(counterBuilder.register(meterRegistry)).thenReturn(counter);
+
+        extractor = new G3AtSymbolExtractor(counterBuilder, meterRegistry);
     }
 
 

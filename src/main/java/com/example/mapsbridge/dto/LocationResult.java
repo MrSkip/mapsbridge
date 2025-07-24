@@ -36,12 +36,12 @@ public class LocationResult {
     /**
      * Creates a LocationResult with coordinates and location name.
      *
-     * @param coordinates  The coordinates of the location
-     * @param locationName The name of the location
+     * @param coordinates The coordinates of the location
+     * @param address The address of the location
      * @return LocationResult with the specified coordinates and location name
      */
-    public static LocationResult fromCoordinatesAndName(Coordinate coordinates, String locationName) {
-        return new LocationResult(coordinates, locationName, null);
+    public static LocationResult fromCoordinatesAndName(Coordinate coordinates, String address) {
+        return new LocationResult(coordinates, address, null);
     }
 
     /**

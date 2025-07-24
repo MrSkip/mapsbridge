@@ -34,7 +34,6 @@ public class MapConverterServiceImpl implements MapConverterService {
     @Override
     public ConvertResponse convert(ConvertRequest request) {
         String input = request.getInput().trim();
-
         LocationResult locationResult = userInputProcessorService.processInput(input);
         return generateResponse(locationResult);
     }
@@ -49,7 +48,7 @@ public class MapConverterServiceImpl implements MapConverterService {
         ConvertResponse response = new ConvertResponse();
         response.setCoordinates(locationResult.getCoordinates());
         response.setAddress(locationResult.getAddress());
-        response.setLocationName(locationResult.getPlaceName());
+        response.setName(locationResult.getPlaceName());
 
         for (MapProvider provider : mapProviders) {
             addProviderLink(response, provider, locationResult.getCoordinates());

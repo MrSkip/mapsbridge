@@ -1,6 +1,5 @@
 package com.example.mapsbridge.provider.extractor.impl.url;
 
-import com.example.mapsbridge.dto.Coordinate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +22,6 @@ public class UrlPatternExtractor {
     private static final Pattern PLACE_ID_PATTERN_2 = Pattern.compile("!1s([\\w\\-:]+)");
     private static final Pattern PLACE_ID_PATTERN_3 = Pattern.compile("!3m\\d+!1s([\\w\\-:]+)");
     private static final Pattern QUERY_PATTERN = Pattern.compile("q=([^&]+)");
-    private static final Pattern COORDINATE_PATTERN = Pattern.compile("@(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)");
 
     private static final Pattern[] PLACE_ID_PATTERNS = {
             PLACE_ID_PATTERN, PLACE_ID_PATTERN_2, PLACE_ID_PATTERN_3
@@ -66,29 +64,6 @@ public class UrlPatternExtractor {
                 // Fallback to manual replacement if decoding fails
                 query = query.replace("+", " ");
                 return Optional.of(query);
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
-     * Finds coordinates in the given URL.
-     *
-     * @param url The URL to search for coordinates
-     * @return An Optional containing the LocationResult if found, or empty if not found
-     */
-    public Optional<Coordinate> findCoordinates(String url) {
-        Matcher coordinateMatcher = COORDINATE_PATTERN.matcher(url);
-        if (coordinateMatcher.find()) {
-            try {
-                double lat = Double.parseDouble(coordinateMatcher.group(1));
-                double lon = Double.parseDouble(coordinateMatcher.group(2));
-                Coordinate coordinate = new Coordinate(lat, lon);
-                if (coordinate.isValid()) {
-                    return Optional.of(coordinate);
-                }
-            } catch (NumberFormatException e) {
-                log.warn("Error parsing coordinates from URL: {}", url, e);
             }
         }
         return Optional.empty();

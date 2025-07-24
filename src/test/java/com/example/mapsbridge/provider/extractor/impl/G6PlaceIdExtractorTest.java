@@ -18,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class G6GeocodingApiFallbackExtractorTest {
+class G6PlaceIdExtractorTest {
 
-    private G6GeocodingApiFallbackExtractor extractor;
+    private G6PlaceIdExtractor extractor;
 
     @Mock
     private HybridGeocodingService mockGeocodingService;
@@ -46,14 +46,12 @@ class G6GeocodingApiFallbackExtractorTest {
         when(mockCounterBuilder.tag(anyString(), anyString())).thenReturn(mockCounterBuilder);
         when(mockCounterBuilder.register(mockMeterRegistry)).thenReturn(mockCounter);
 
-        when(mockInputTypeCounterBuilder.tag(anyString(), anyString())).thenReturn(mockInputTypeCounterBuilder);
         when(mockInputTypeCounterBuilder.register(mockMeterRegistry)).thenReturn(mockCounter);
 
-        extractor = new G6GeocodingApiFallbackExtractor(
+        extractor = new G6PlaceIdExtractor(
                 mockGeocodingService,
                 mockUrlPatternExtractor,
                 mockCounterBuilder,
-                mockInputTypeCounterBuilder,
                 mockMeterRegistry);
     }
 
@@ -66,7 +64,6 @@ class G6GeocodingApiFallbackExtractorTest {
         LocationResult expectedResult = LocationResult.fromCoordinatesAndName(expectedCoordinate, "Statue of Liberty");
 
         // Configure mocks
-        when(mockUrlPatternExtractor.findCoordinates(url)).thenReturn(Optional.empty());
         when(mockUrlPatternExtractor.findPlaceId(url)).thenReturn(Optional.of(placeId));
         when(mockGeocodingService.getLocationFromPlaceId(placeId)).thenReturn(expectedResult);
 
@@ -81,72 +78,69 @@ class G6GeocodingApiFallbackExtractorTest {
         assertEquals("Statue of Liberty", result.getAddress());
 
         // Verify the services were called
-        verify(mockUrlPatternExtractor).findCoordinates(url);
         verify(mockUrlPatternExtractor).findPlaceId(url);
         verify(mockGeocodingService).getLocationFromPlaceId(placeId);
+        verify(mockCounter).increment();
     }
 
     @Test
-    void shouldExtractCoordinatesUsingAddressQuery() {
+    void shouldReturnEmptyResultWhenNoPlaceIdFound() {
         // given
-        String url = "https://www.google.com/maps?q=Dadawan+Arnhem,+Gele+Rijders+Plein+15,+6811+AV+Arnhem,+Netherlands";
-        String query = "Dadawan Arnhem, Gele Rijders Plein 15, 6811 AV Arnhem, Netherlands";
-        Coordinate expectedCoordinate = new Coordinate(40.7128, -74.0060);
-        LocationResult expectedResult = LocationResult.fromCoordinatesAndName(expectedCoordinate, "Dadawan Arnhem");
+        String url = "https://www.google.com/maps?invalid=true";
 
         // Configure mocks
-        when(mockUrlPatternExtractor.findCoordinates(url)).thenReturn(Optional.empty());
         when(mockUrlPatternExtractor.findPlaceId(url)).thenReturn(Optional.empty());
-        when(mockUrlPatternExtractor.findAddressQuery(url)).thenReturn(Optional.of(query));
-        when(mockGeocodingService.geocodeQuery(query)).thenReturn(expectedResult);
 
         // when
         LocationResult result = extractor.extract(url);
 
         // then
         assertNotNull(result);
-        assertTrue(result.hasValidCoordinates());
-        assertEquals(expectedCoordinate.getLat(), result.getCoordinates().getLat());
-        assertEquals(expectedCoordinate.getLon(), result.getCoordinates().getLon());
-        assertEquals("Dadawan Arnhem", result.getAddress());
+        assertFalse(result.hasValidCoordinates());
 
         // Verify the services were called
-        verify(mockUrlPatternExtractor).findCoordinates(url);
         verify(mockUrlPatternExtractor).findPlaceId(url);
-        verify(mockUrlPatternExtractor).findAddressQuery(url);
-        verify(mockGeocodingService).geocodeQuery(query);
+        verify(mockGeocodingService, never()).getLocationFromPlaceId(anyString());
     }
 
     @Test
-    void shouldReturnNullWhenNoLocationFound() {
+    void shouldReturnEmptyResultWhenPlaceIdResolutionFails() {
         // given
-        String url = "https://www.google.com/maps?invalid=true";
+        String url = "https://www.google.com/maps/place/id=invalid_place_id";
+        String placeId = "invalid_place_id";
 
         // Configure mocks
-        when(mockUrlPatternExtractor.findCoordinates(url)).thenReturn(Optional.empty());
-        when(mockUrlPatternExtractor.findPlaceId(url)).thenReturn(Optional.empty());
-        when(mockUrlPatternExtractor.findAddressQuery(url)).thenReturn(Optional.empty());
+        when(mockUrlPatternExtractor.findPlaceId(url)).thenReturn(Optional.of(placeId));
+        when(mockGeocodingService.getLocationFromPlaceId(placeId)).thenReturn(null);
 
         // when
         LocationResult result = extractor.extract(url);
 
         // then
-        assertNull(result.getCoordinates());
+        assertNotNull(result);
+        assertFalse(result.hasValidCoordinates());
 
         // Verify the services were called
-        verify(mockUrlPatternExtractor).findCoordinates(url);
         verify(mockUrlPatternExtractor).findPlaceId(url);
-        verify(mockUrlPatternExtractor).findAddressQuery(url);
+        verify(mockGeocodingService).getLocationFromPlaceId(placeId);
+        verify(mockCounter, never()).increment();
     }
 
     @Test
-    void shouldReturnNullForInvalidUrl() {
+    void shouldReturnEmptyResultForInvalidUrl() {
         // given
         String emptyUrl = "";
         String nullUrl = null;
 
         // when & then
-        assertNull(extractor.extract(emptyUrl).getCoordinates());
-        assertNull(extractor.extract(nullUrl).getCoordinates());
+        LocationResult emptyResult = extractor.extract(emptyUrl);
+        LocationResult nullResult = extractor.extract(nullUrl);
+
+        assertNotNull(emptyResult);
+        assertNotNull(nullResult);
+        assertFalse(emptyResult.hasValidCoordinates());
+        assertFalse(nullResult.hasValidCoordinates());
+
+        verify(mockUrlPatternExtractor, never()).findPlaceId(any());
     }
 }

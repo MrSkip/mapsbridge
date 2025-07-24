@@ -149,18 +149,33 @@ public abstract class AbstractMapProvider implements MapProvider {
      * @param shortUrl The initial URL
      * @return The final URL after following redirects, or the original URL if no redirects
      */
+    /**
+     * Follow redirects to get the final URL.
+     *
+     * @param shortUrl The initial URL
+     * @return The final URL after following redirects, or the original URL if no redirects
+     */
     protected String followRedirects(String shortUrl) {
-        Request request = new Request.Builder()
-                .url(shortUrl)
-                .build();
+        try {
+            // Create a request with explicit redirect handling
+            Request request = new Request.Builder()
+                    .url(shortUrl)
+                    .header("User-Agent", "Mozilla/5.0 (compatible; MapsBot/1.0)")
+                    .build();
 
-        try (Response response = httpClient.newCall(request).execute()) {
-            if (response.isSuccessful()) {
-                return response.request().url().toString();
+            try (Response response = httpClient.newCall(request).execute()) {
+                if (response.isSuccessful()) {
+                    String finalUrl = response.request().url().toString();
+                    log.debug("Followed redirects from {} to {}", shortUrl, finalUrl);
+                    return finalUrl;
+                } else {
+                    log.warn("HTTP request failed with code {} for URL: {}", response.code(), shortUrl);
+                    return shortUrl;
+                }
             }
         } catch (Exception e) {
+            log.error("Error following redirects for URL {}: {}", shortUrl, e.getMessage(), e);
             return shortUrl;
         }
-        return shortUrl;
     }
 }

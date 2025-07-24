@@ -3,9 +3,12 @@ package com.example.mapsbridge.provider.extractor.impl;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.provider.extractor.GoogleCoordinateExtractor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +28,8 @@ import java.util.regex.Pattern;
 @Slf4j
 public class G4QParameterExtractor implements GoogleCoordinateExtractor {
 
+    private static final String COUNTER_TAG_METHOD = "qParameter";
+
     /**
      * Pattern to match coordinates in q parameter.
      * Supports both dot and comma as decimal separators.
@@ -33,6 +38,17 @@ public class G4QParameterExtractor implements GoogleCoordinateExtractor {
     private static final Pattern COORDINATE_PATTERN = Pattern.compile(
             "q=(?<lat>-?\\d+[.,]?\\d*),(?<lon>-?\\d+[.,]?\\d*)"
     );
+
+    private final Counter qParameterCounter;
+
+    @Autowired
+    public G4QParameterExtractor(
+            Counter.Builder googleMapsExtractorCounterBuilder,
+            MeterRegistry meterRegistry) {
+        this.qParameterCounter = googleMapsExtractorCounterBuilder
+                .tag("method", COUNTER_TAG_METHOD)
+                .register(meterRegistry);
+    }
 
     @Override
     public @NotNull LocationResult extract(String url) {
@@ -75,6 +91,10 @@ public class G4QParameterExtractor implements GoogleCoordinateExtractor {
         try {
             Coordinate coordinate = parseCoordinates(matcher.group("lat"), matcher.group("lon"));
             log.debug("Extracted coordinates from q parameter: {},{}", coordinate.getLat(), coordinate.getLon());
+
+            // Increment counter for successful coordinate extraction
+            qParameterCounter.increment();
+            
             return LocationResult.fromCoordinates(coordinate);
         } catch (NumberFormatException e) {
             log.warn("Invalid coordinate format in q parameter: {}", decodedUrl);

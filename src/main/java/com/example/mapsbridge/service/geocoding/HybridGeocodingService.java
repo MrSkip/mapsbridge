@@ -99,8 +99,8 @@ public class HybridGeocodingService implements GeocodingService {
         hybridServiceCounter.increment();
         log.debug("Forward geocoding query: {}", query);
 
-        return tryRadarForwardGeocode(query)
-                .orElseGet(() -> tryGoogleForwardGeocode(query)
+        return tryGoogleForwardGeocode(query)
+                .orElseGet(() -> tryRadarForwardGeocode(query)
                         .orElse(null));
     }
 

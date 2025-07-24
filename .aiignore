@@ -37,7 +37,7 @@ doc/
 
 # Exclude large data files
 *.csv
-*.json
+#*.json
 *.db
 *.sqlite
 

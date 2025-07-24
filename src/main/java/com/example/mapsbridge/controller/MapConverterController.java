@@ -3,7 +3,6 @@ package com.example.mapsbridge.controller;
 import com.example.mapsbridge.dto.ConvertRequest;
 import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,11 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Controller for the map link conversion API.
  */
-@RestController
-@RequestMapping("/api")
-@RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Map Converter", description = "API for converting map links between different providers")
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api")
 public class MapConverterController {
 
     private final MapConverterServiceImpl mapConverterService;

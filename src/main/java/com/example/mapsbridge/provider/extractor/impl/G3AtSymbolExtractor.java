@@ -3,10 +3,13 @@ package com.example.mapsbridge.provider.extractor.impl;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.provider.extractor.GoogleCoordinateExtractor;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -41,11 +44,24 @@ import static com.example.mapsbridge.provider.utils.PlaceNameDecoder.extractPlac
 @Slf4j
 public class G3AtSymbolExtractor implements GoogleCoordinateExtractor {
 
+    private static final String COUNTER_TAG_METHOD = "atSymbol";
+
     /**
      * Regular expression pattern to match coordinates in the format @latitude,longitude.
      * Supports both positive and negative decimal numbers.
      */
     private static final Pattern COORDINATE_PATTERN = Pattern.compile("@([\\-\\d.]+),([\\-\\d.]+)");
+
+    private final Counter atSymbolCounter;
+
+    @Autowired
+    public G3AtSymbolExtractor(
+            Counter.Builder googleMapsExtractorCounterBuilder,
+            MeterRegistry meterRegistry) {
+        this.atSymbolCounter = googleMapsExtractorCounterBuilder
+                .tag("method", COUNTER_TAG_METHOD)
+                .register(meterRegistry);
+    }
 
     @Override
     public @NotNull LocationResult extract(String url) {
@@ -58,6 +74,9 @@ public class G3AtSymbolExtractor implements GoogleCoordinateExtractor {
             return new LocationResult();
         }
 
+        // Increment counter for successful coordinate extraction
+        atSymbolCounter.increment();
+        
         String placeName = extractPlaceName(url);
         return new LocationResult(coordinate, null, placeName);
     }

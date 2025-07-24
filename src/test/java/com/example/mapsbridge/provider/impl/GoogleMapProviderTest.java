@@ -57,22 +57,23 @@ class GoogleMapProviderTest {
         lenient().when(mockCounterBuilder.tag(anyString(), anyString())).thenReturn(mockCounterBuilder);
         lenient().when(mockCounterBuilder.register(mockMeterRegistry)).thenReturn(mock(Counter.class));
 
-        lenient().when(mockInputTypeCounterBuilder.tag(anyString(), anyString())).thenReturn(mockInputTypeCounterBuilder);
-        lenient().when(mockInputTypeCounterBuilder.register(mockMeterRegistry)).thenReturn(mock(Counter.class));
-
         lenient().when(mockGeocodingService.isApiEnabled()).thenReturn(false);
 
         // Create mock extractors
         OkHttpClient httpClient = new OkHttpClient.Builder().build();
-        G2LatLon3d4dExtractor latLon3d4dExtractor = new G2LatLon3d4dExtractor();
-        G3AtSymbolExtractor atSymbolExtractor = new G3AtSymbolExtractor();
-        G4QParameterExtractor qParameterExtractor = new G4QParameterExtractor();
-        G5SearchPatternExtractor searchPatternExtractor = new G5SearchPatternExtractor();
-        G6GeocodingApiFallbackExtractor geocodingExtractor = new G6GeocodingApiFallbackExtractor(
+        G2LatLon3d4dExtractor latLon3d4dExtractor = new G2LatLon3d4dExtractor(mockCounterBuilder, mockMeterRegistry);
+        G3AtSymbolExtractor atSymbolExtractor = new G3AtSymbolExtractor(mockCounterBuilder, mockMeterRegistry);
+        G4QParameterExtractor qParameterExtractor = new G4QParameterExtractor(mockCounterBuilder, mockMeterRegistry);
+        G5SearchPatternExtractor searchPatternExtractor = new G5SearchPatternExtractor(mockCounterBuilder, mockMeterRegistry);
+        G6PlaceIdExtractor placeIdExtractor = new G6PlaceIdExtractor(
                 mockHybridGeocodingService,
                 mockUrlPatternExtractor,
                 mockCounterBuilder,
-                mockInputTypeCounterBuilder,
+                mockMeterRegistry);
+        G7AddressGeocodingExtractor addressGeocodingExtractor = new G7AddressGeocodingExtractor(
+                mockHybridGeocodingService,
+                mockUrlPatternExtractor,
+                mockCounterBuilder,
                 mockMeterRegistry);
 
         // Provider with mock geocoding service and extractors
@@ -84,7 +85,8 @@ class GoogleMapProviderTest {
                     atSymbolExtractor,
                     qParameterExtractor,
                     searchPatternExtractor,
-                    geocodingExtractor
+                        placeIdExtractor,
+                        addressGeocodingExtractor
                 ),
                 mockCounterBuilder,
                 mockMeterRegistry);
@@ -226,7 +228,6 @@ class GoogleMapProviderTest {
         LocationResult expectedResult = LocationResult.fromCoordinatesAndName(expectedCoordinate, "New York");
 
         // Configure mocks
-        when(mockUrlPatternExtractor.findCoordinates(urlWithQuery)).thenReturn(Optional.empty());
         when(mockUrlPatternExtractor.findPlaceId(urlWithQuery)).thenReturn(Optional.empty());
         when(mockUrlPatternExtractor.findAddressQuery(urlWithQuery)).thenReturn(Optional.of(query));
         when(mockHybridGeocodingService.geocodeQuery(query)).thenReturn(expectedResult);
@@ -242,7 +243,6 @@ class GoogleMapProviderTest {
         assertEquals("New York", result.getAddress());
 
         // Verify the services were called
-        verify(mockUrlPatternExtractor).findCoordinates(urlWithQuery);
         verify(mockUrlPatternExtractor).findPlaceId(urlWithQuery);
         verify(mockUrlPatternExtractor).findAddressQuery(urlWithQuery);
         verify(mockHybridGeocodingService).geocodeQuery(query);
@@ -257,7 +257,6 @@ class GoogleMapProviderTest {
         LocationResult expectedResult = LocationResult.fromCoordinatesAndName(expectedCoordinate, "Statue of Liberty");
 
         // Configure mocks
-        when(mockUrlPatternExtractor.findCoordinates(urlWithPlaceId)).thenReturn(Optional.empty());
         when(mockUrlPatternExtractor.findPlaceId(urlWithPlaceId)).thenReturn(Optional.of(placeId));
         when(mockHybridGeocodingService.getLocationFromPlaceId(placeId)).thenReturn(expectedResult);
 
@@ -272,7 +271,6 @@ class GoogleMapProviderTest {
         assertEquals("Statue of Liberty", result.getAddress());
 
         // Verify the services were called
-        verify(mockUrlPatternExtractor).findCoordinates(urlWithPlaceId);
         verify(mockUrlPatternExtractor).findPlaceId(urlWithPlaceId);
         verify(mockHybridGeocodingService).getLocationFromPlaceId(placeId);
     }
