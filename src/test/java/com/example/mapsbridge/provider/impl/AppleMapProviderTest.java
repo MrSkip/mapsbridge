@@ -46,7 +46,7 @@ class AppleMapProviderTest {
         LocationResult locationResult = target.extractLocation(url);
 
         // then
-        assertNull(locationResult);
+        assertNull(locationResult.getCoordinates());
     }
 
     @ParameterizedTest

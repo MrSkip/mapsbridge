@@ -4,13 +4,13 @@
     "expected": {
       "coordinates": {
         "lat": 45.8855635,
-        "lon": 10.8454374
+        "lon": 10.8454375
       },
-      "address": "Parkplatz Riva Centro, Via Filzi, 3, 38066 Riva del Garda TN, Italy",
-      "name": null
+      "name": "Parkplatz Riva Centro",
+      "address": "Riva del Garda, Autonomous Province of Trento"
     },
     "testConfig": {
-      "description": "[googleMaps][mobile][place][addressGeocoding][googleApi][noRadar] - Italy Parkplatz"
+      "description": "[googleMaps][mobile][place][UrlContent][googleApi] - Italy Parkplatz"
     }
   },
   {
@@ -20,11 +20,11 @@
         "lat": 51.9832916,
         "lon": 5.9092774
       },
-      "address": "Dadawan Arnhem, Gele Rijders Plein 15, 6811 AV Arnhem, Netherlands",
-      "name": null
+      "name": "Dadawan Arnhem",
+      "address": "Arnhem"
     },
     "testConfig": {
-      "description": "[googleMaps][mobile][place][addressGeocoding][googleApi] - NL Restaurant Dadawan"
+      "description": "[googleMaps][mobile][place][UrlContent][googleApi] - NL Restaurant Dadawan"
     }
   },
   {
@@ -34,11 +34,53 @@
         "lat": 51.9740939,
         "lon": 5.9016994
       },
-      "address": "Arnhem, Gelderland NL",
-      "name": null
+      "name": null,
+      "address": "Arnhem, Gelderland NL"
     },
     "testConfig": {
-      "description": "[googleMaps][mobile][place][qParameter][radar] - NL Rural area in Arnhem"
+      "description": "[googleMaps][mobile][UrlContent][radar] - NL Rural area in Arnhem"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/f9PD4LmvWrPdhEDT6",
+    "expected": {
+      "coordinates": {
+        "lat": 51.9779268,
+        "lon": 5.9055642
+      },
+      "name": "Foodhall Arnhem",
+      "address": "Rijnkade 49, 6811 HB Arnhem, Niederlande"
+    },
+    "testConfig": {
+      "description": "[googleMaps][mac][place][UrlContent] - NL Foodhall Arnhem"
+    }
+  },
+  {
+    "input": "https://www.google.com/maps/place/Foodhall+Arnhem/@51.9774178,5.9042947,18z/data=!3m1!5s0x47c7a5ca3bc380cf:0xacfac2b1fdd2642!4m6!3m5!1s0x47c7a59e06802b89:0xadfd07d7242c2cd1!8m2!3d51.9779268!4d5.9055642!16s%2Fg%2F11h5x3nlff?entry=ttu&g_ep=EgoyMDI1MDcyMS4wIKXMDSoASAFQAw%3D%3D",
+    "expected": {
+      "coordinates": {
+        "lat": 51.9779268,
+        "lon": 5.9055642
+      },
+      "name": "Foodhall Arnhem",
+      "address": "Rijnkade 49, 6811 HB Arnhem, Niederlande"
+    },
+    "testConfig": {
+      "description": "[googleMaps][mac][place][UrlContent] - NL Foodhall Arnhem"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/pcHRAK76CCGvvquq5?g_st=ac",
+    "expected": {
+      "coordinates": {
+        "lat": 48.1361651,
+        "lon": 11.5958117
+      },
+      "name": "Maximilianeum",
+      "address": "München"
+    },
+    "testConfig": {
+      "description": "[googleMaps][android][place][UrlContent] - DE Maximilianeum (on the edge of the bigger location with the same name)"
     }
   }
 ]

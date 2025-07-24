@@ -71,4 +71,6 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    maxParallelForks = Runtime.runtime.availableProcessors()
+    systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
 }

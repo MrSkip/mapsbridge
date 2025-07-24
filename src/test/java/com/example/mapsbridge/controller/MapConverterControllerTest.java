@@ -8,6 +8,10 @@ import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
 import com.example.mapsbridge.setup.TestAuthUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@MockitoSettings(strictness = Strictness.LENIENT)
+@Execution(ExecutionMode.SAME_THREAD)
 class MapConverterControllerTest {
 
     @MockitoBean

@@ -85,14 +85,15 @@ public abstract class AbstractMapProvider implements MapProvider {
 
         // First, try to extract coordinates from the URL directly
         LocationResult result = this.parseLocation(url);
-        if (result != null) {
+        if (result != null && result.hasValidCoordinates()) {
             return result;
         }
 
         // If not found, follow redirects and try again
         String finalUrl = followRedirects(url);
         if (!url.equals(finalUrl)) {
-            return this.parseLocation(finalUrl);
+            LocationResult locationResult = this.parseLocation(finalUrl);
+            return locationResult != null ? locationResult : new LocationResult();
         }
 
         return new LocationResult();

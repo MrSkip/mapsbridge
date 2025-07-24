@@ -5,11 +5,14 @@ import com.example.mapsbridge.dto.LocationResult;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Execution(ExecutionMode.SAME_THREAD)
 class OpenStreetMapProviderTest {
 
     private OpenStreetMapProvider target;
@@ -50,7 +53,7 @@ class OpenStreetMapProviderTest {
         LocationResult locationResult = target.extractLocation(url);
 
         // then
-        assertNull(locationResult);
+        assertNull(locationResult.getCoordinates());
     }
 
     @ParameterizedTest
