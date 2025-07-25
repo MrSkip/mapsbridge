@@ -1,6 +1,5 @@
 package com.example.mapsbridge.provider;
 
-import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.exception.InvalidCoordinateException;
 import com.example.mapsbridge.provider.extractor.CoordinateExtractor;
@@ -52,14 +51,14 @@ public abstract class AbstractMapProvider implements MapProvider {
     }
 
     @Override
-    public String generateUrl(Coordinate coordinate) {
-        if (coordinate == null || !coordinate.isValid()) {
+    public String generateUrl(LocationResult location) {
+        if (location == null || !location.hasValidCoordinates()) {
             throw new InvalidCoordinateException("Invalid coordinates");
         }
 
         return urlTemplate
-                .replace("{lat}", String.valueOf(coordinate.getLat()))
-                .replace("{lon}", String.valueOf(coordinate.getLon()));
+                .replace("{lat}", String.valueOf(location.getCoordinates().getLat()))
+                .replace("{lon}", String.valueOf(location.getCoordinates().getLon()));
     }
 
     @Override

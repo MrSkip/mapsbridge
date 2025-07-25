@@ -129,7 +129,7 @@ class GoogleMapProviderTest {
         Coordinate coordinate = new Coordinate(40.7128, -74.0060);
 
         // when
-        String url = target.generateUrl(coordinate);
+        String url = target.generateUrl(LocationResult.fromCoordinates(coordinate));
 
         // then
         assertEquals("https://www.google.com/maps?q=40.7128,-74.006", url);

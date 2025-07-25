@@ -1,6 +1,5 @@
 package com.example.mapsbridge.provider;
 
-import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
 
@@ -22,7 +21,7 @@ public interface MapProvider {
      * @param coordinate The coordinates to generate a URL for
      * @return A URL that will open the specified location in this map provider
      */
-    String generateUrl(Coordinate coordinate);
+    String generateUrl(LocationResult coordinate);
 
     /**
      * Check if a URL is from this map provider.

@@ -2,7 +2,6 @@ package com.example.mapsbridge.service.impl;
 
 import com.example.mapsbridge.dto.ConvertRequest;
 import com.example.mapsbridge.dto.ConvertResponse;
-import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.provider.MapProvider;
 import com.example.mapsbridge.service.MapConverterService;
@@ -51,7 +50,7 @@ public class MapConverterServiceImpl implements MapConverterService {
         response.setName(locationResult.getPlaceName());
 
         for (MapProvider provider : mapProviders) {
-            addProviderLink(response, provider, locationResult.getCoordinates());
+            addProviderLink(response, provider, locationResult);
         }
 
         return response;
@@ -62,11 +61,10 @@ public class MapConverterServiceImpl implements MapConverterService {
      *
      * @param response   The response to add the link to
      * @param provider   The map provider to generate a link for
-     * @param coordinate The coordinates to use for generating the link
      */
-    private void addProviderLink(ConvertResponse response, MapProvider provider, Coordinate coordinate) {
+    private void addProviderLink(ConvertResponse response, MapProvider provider, LocationResult locationResult) {
         try {
-            String url = provider.generateUrl(coordinate);
+            String url = provider.generateUrl(locationResult);
             response.addLink(provider.getType(), url);
         } catch (Exception e) {
             log.error("Error generating URL for provider {}: {}",

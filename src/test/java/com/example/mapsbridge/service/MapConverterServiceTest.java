@@ -39,14 +39,14 @@ class MapConverterServiceTest {
         lenient().when(googleMapType.getName()).thenReturn("google");
         lenient().when(googleProvider.getType()).thenReturn(googleMapType);
 
-        lenient().when(googleProvider.generateUrl(any(Coordinate.class)))
+        lenient().when(googleProvider.generateUrl(any(LocationResult.class)))
                 .thenAnswer(i -> "https://www.google.com/maps?q=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
 
         appleMapType = mock(MapType.class);
         lenient().when(appleMapType.getName()).thenReturn("apple");
         lenient().when(appleProvider.getType()).thenReturn(appleMapType);
 
-        lenient().when(appleProvider.generateUrl(any(Coordinate.class)))
+        lenient().when(appleProvider.generateUrl(any(LocationResult.class)))
                 .thenAnswer(i -> "https://maps.apple.com/?ll=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
 
         // Initialize service with mock providers and input processor

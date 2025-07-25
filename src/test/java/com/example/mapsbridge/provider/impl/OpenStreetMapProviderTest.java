@@ -91,7 +91,7 @@ class OpenStreetMapProviderTest {
         Coordinate coordinate = new Coordinate(51.98312, 5.905344);
 
         // when
-        String url = target.generateUrl(coordinate);
+        String url = target.generateUrl(LocationResult.fromCoordinates(coordinate));
 
         // then
         assertEquals("https://www.openstreetmap.org/?mlat=51.98312&mlon=5.905344#map=16/51.98312/5.905344", url);
