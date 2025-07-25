@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BingMapProviderTest {
@@ -16,7 +18,7 @@ class BingMapProviderTest {
 
     @BeforeEach
     void setUp() {
-        target = new BingMapProvider(new OkHttpClient.Builder().build(), "https://www.bing.com/maps?q={lat},{lon}");
+        target = new BingMapProvider(new OkHttpClient.Builder().build(), "https://www.bing.com/maps?q={lat},{lon}", List.of());
     }
 
     @Test

@@ -1,8 +1,7 @@
-package com.example.mapsbridge.provider.extractor.impl;
+package com.example.mapsbridge.provider.extractor.google;
 
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
-import com.example.mapsbridge.provider.extractor.GoogleCoordinateExtractor;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;

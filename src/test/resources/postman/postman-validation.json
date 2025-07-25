@@ -218,14 +218,44 @@
     "expected": {
       "coordinates": {
         "lat": 48.062174,
-        "lon": 10.866981,
+        "lon": 10.8669806,
+        "valid": true
+      },
+      "name": "dm",
+      "address": "Augsburger Straße 60, Landsberg am Lech"
+    },
+    "testConfig": {
+      "description": "[appleMaps][phone][place][UrlContent][radar] - LL / DM store in Landsberg am Lech"
+    }
+  },
+  {
+    "input": "https://maps.apple.com/place?coordinate=48.061074,10.867041&name=Marked%20Location&map=explore",
+    "expected": {
+      "coordinates": {
+        "lat": 48.061074,
+        "lon": 10.867041,
         "valid": true
       },
       "name": null,
-      "address": "Augsburger Straße 60, 86899 Landsberg am Lech, DE"
+      "address": "Augsburger Straße 52, Landsberg, Landsberg am Lech"
     },
     "testConfig": {
-      "description": "[appleMaps][android][place][SearchPattern][radar] - CH / more concrete street address"
+      "description": "[appleMaps][phone][UrlContent] - Augsburger Straße 52, Landsberg, Landsberg am Lech / random location"
+    }
+  },
+  {
+    "input": "https://maps.apple.com/place?place-id=IA6915417629D711B&address=238+Rue+du+G%C3%A9n%C3%A9ral+de+Gaulle%2C+45160+Olivet%2C+France&coordinate=47.8658959%2C1.8979758&name=Public+Parking&_provider=9902",
+    "expected": {
+      "coordinates": {
+        "lat": 47.8658959,
+        "lon": 1.8979758,
+        "valid": true
+      },
+      "name": "Public Parking",
+      "address": "238 Rue du Général de Gaulle, Olivet"
+    },
+    "testConfig": {
+      "description": "[appleMaps][web][UrlContent] - FR Public Parking in Olivet"
     }
   }
 ]

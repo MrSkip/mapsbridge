@@ -1,6 +1,7 @@
 package com.example.mapsbridge.provider.extractor.impl;
 
 import com.example.mapsbridge.dto.LocationResult;
+import com.example.mapsbridge.provider.extractor.google.G4QParameterExtractor;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;

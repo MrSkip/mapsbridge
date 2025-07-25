@@ -1,19 +1,16 @@
-package com.example.mapsbridge.provider.extractor.impl;
+package com.example.mapsbridge.provider.extractor.google;
 
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
-import com.example.mapsbridge.provider.extractor.GoogleCoordinateExtractor;
+import com.example.mapsbridge.provider.utils.HttpClientUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -25,6 +22,7 @@ import java.util.regex.Pattern;
 @Component
 @Order(1)
 @Slf4j
+@RequiredArgsConstructor
 public class G1UrlContentExtractor implements GoogleCoordinateExtractor {
 
     private static final Pattern[] META_TITLE_PATTERNS = {
@@ -48,11 +46,7 @@ public class G1UrlContentExtractor implements GoogleCoordinateExtractor {
 
     private static final Pattern PLACE_ADDRESS_SEPARATOR = Pattern.compile("\\s*[·•]\\s*");
 
-    private final OkHttpClient httpClient;
-
-    public G1UrlContentExtractor(OkHttpClient httpClient) {
-        this.httpClient = httpClient;
-    }
+    private final HttpClientUtils httpClientUtils;
 
     @Override
     public @NotNull LocationResult extract(String url) {
@@ -61,35 +55,12 @@ public class G1UrlContentExtractor implements GoogleCoordinateExtractor {
         }
 
         try {
-            return fetchUrlContent(url)
+            return httpClientUtils.fetchUrlContent(url)
                     .map(content -> extractLocationFromHtml(content, url))
                     .orElse(new LocationResult());
         } catch (Exception e) {
             log.warn("Failed to extract location from URL content: {}", url, e);
             return new LocationResult();
-        }
-    }
-
-    private Optional<String> fetchUrlContent(String url) throws IOException {
-        Request request = new Request.Builder().url(url).build();
-
-        try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                log.warn("HTTP request failed with status: {} for URL: {}", response.code(), url);
-                return Optional.empty();
-            }
-
-            return Optional.ofNullable(response.body())
-                    .map(body -> {
-                        try {
-                            String content = body.string();
-                            log.debug("Successfully fetched content from URL: {} (length: {})", url, content.length());
-                            return content;
-                        } catch (IOException e) {
-                            log.warn("Failed to read response body for URL: {}", url, e);
-                            return null;
-                        }
-                    });
         }
     }
 

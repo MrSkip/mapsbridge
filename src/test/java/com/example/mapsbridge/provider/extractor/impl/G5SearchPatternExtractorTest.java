@@ -2,6 +2,7 @@
 package com.example.mapsbridge.provider.extractor.impl;
 
 import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.provider.extractor.google.G5SearchPatternExtractor;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;

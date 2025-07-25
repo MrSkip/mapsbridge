@@ -1,11 +1,14 @@
 package com.example.mapsbridge.provider.impl;
 
+import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.provider.AbstractMapProvider;
+import com.example.mapsbridge.provider.extractor.komoot.KomootCoordinateExtractor;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -15,7 +18,6 @@ import java.util.regex.Pattern;
 public class KomootMapProvider extends AbstractMapProvider {
 
     private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.)?komoot\\.com/.*");
-    private static final Pattern COORDINATE_PATTERN = Pattern.compile("@(?<lat>-?\\d+\\.?\\d*),(?<lon>-?\\d+\\.?\\d*)");
 
     /**
      * Constructor with dependency injection.
@@ -25,8 +27,9 @@ public class KomootMapProvider extends AbstractMapProvider {
      */
     public KomootMapProvider(
             OkHttpClient httpClient,
-            @Value("${maps.komoot.url}") String urlTemplate) {
-        super(httpClient, urlTemplate, URL_PATTERN, COORDINATE_PATTERN);
+            @Value("${maps.komoot.url}") String urlTemplate,
+            List<KomootCoordinateExtractor> extractors) {
+        super(httpClient, urlTemplate, URL_PATTERN, extractors);
     }
 
     @Override
@@ -35,8 +38,8 @@ public class KomootMapProvider extends AbstractMapProvider {
     }
 
     @Override
-    public com.example.mapsbridge.dto.LocationResult extractLocation(String url) {
+    public LocationResult extractLocation(String url) {
         // not supported
-        return null;
+        return new LocationResult();
     }
 }

@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,7 +42,7 @@ class WazeMapProviderTest {
 
     @BeforeEach
     void setUp() {
-        target = new WazeMapProvider(new OkHttpClient.Builder().build(), "https://waze.com/ul?ll={lat},{lon}&navigate=yes");
+        target = new WazeMapProvider(new OkHttpClient.Builder().build(), "https://waze.com/ul?ll={lat},{lon}&navigate=yes", List.of());
     }
 
     @Test

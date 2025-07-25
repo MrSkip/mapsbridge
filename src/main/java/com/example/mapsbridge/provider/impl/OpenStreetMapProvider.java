@@ -1,13 +1,14 @@
 package com.example.mapsbridge.provider.impl;
 
-import java.util.regex.Pattern;
-
+import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.provider.AbstractMapProvider;
+import com.example.mapsbridge.provider.extractor.openstreet.OpenStreetMapCoordinateExtractor;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import okhttp3.OkHttpClient;
 
-import com.example.mapsbridge.dto.MapType;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * OpenStreetMap provider implementation.
@@ -16,10 +17,6 @@ import com.example.mapsbridge.dto.MapType;
 public class OpenStreetMapProvider extends AbstractMapProvider {
 
     private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.)?openstreetmap\\.org/.*");
-    private static final Pattern COORDINATE_PATTERN = Pattern.compile(
-            "mlat=(?<lat>-?\\d+(?:\\.\\d+)?)&mlon=(?<lon>-?\\d+(?:\\.\\d+)?)" +
-                    "|#map=\\d+/(?<lat2>-?\\d+(?:\\.\\d+)?)/(?<lon2>-?\\d+(?:\\.\\d+)?)"
-    );
 
     /**
      * Constructor with dependency injection.
@@ -29,8 +26,9 @@ public class OpenStreetMapProvider extends AbstractMapProvider {
      */
     public OpenStreetMapProvider(
             OkHttpClient httpClient,
-            @Value("${maps.osm.url:https://www.openstreetmap.org/?mlat={lat}&mlon={lon}}") String urlTemplate) {
-        super(httpClient, urlTemplate, URL_PATTERN, COORDINATE_PATTERN);
+            @Value("${maps.osm.url:https://www.openstreetmap.org/?mlat={lat}&mlon={lon}}") String urlTemplate,
+            List<OpenStreetMapCoordinateExtractor> extractors) {
+        super(httpClient, urlTemplate, URL_PATTERN, extractors);
     }
 
     @Override

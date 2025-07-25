@@ -2,7 +2,8 @@ package com.example.mapsbridge.provider.extractor.impl;
 
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
-import com.example.mapsbridge.provider.extractor.impl.url.UrlPatternExtractor;
+import com.example.mapsbridge.provider.extractor.google.G7AddressGeocodingExtractor;
+import com.example.mapsbridge.provider.url.UrlPatternExtractor;
 import com.example.mapsbridge.service.geocoding.HybridGeocodingService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;

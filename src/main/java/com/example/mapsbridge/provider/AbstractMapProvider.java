@@ -3,14 +3,14 @@ package com.example.mapsbridge.provider;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.exception.InvalidCoordinateException;
+import com.example.mapsbridge.provider.extractor.CoordinateExtractor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.regex.Matcher;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -32,25 +32,23 @@ public abstract class AbstractMapProvider implements MapProvider {
      */
     protected Pattern urlPattern;
 
-    /**
-     * Pattern to extract coordinates from URLs.
-     * Should have capturing groups for latitude and longitude.
-     */
-    protected Pattern coordinatePattern;
+    protected List<? extends CoordinateExtractor> extractors;
 
     /**
      * Constructor with OkHttpClient injection.
-     * 
-     * @param httpClient The OkHttpClient to use for HTTP requests
+     *
+     * @param httpClient  The OkHttpClient to use for HTTP requests
      * @param urlTemplate The URL template for generating map links
-     * @param urlPattern The pattern to match URLs from this provider
-     * @param coordinatePattern The pattern to extract coordinates from URLs
+     * @param urlPattern  The pattern to match URLs from this provider
      */
-    public AbstractMapProvider(OkHttpClient httpClient, String urlTemplate, Pattern urlPattern, Pattern coordinatePattern) {
+    public AbstractMapProvider(OkHttpClient httpClient,
+                               String urlTemplate,
+                               Pattern urlPattern,
+                               List<? extends CoordinateExtractor> extractors) {
         this.httpClient = httpClient;
         this.urlTemplate = urlTemplate;
         this.urlPattern = urlPattern;
-        this.coordinatePattern = coordinatePattern;
+        this.extractors = extractors;
     }
 
     @Override
@@ -79,77 +77,29 @@ public abstract class AbstractMapProvider implements MapProvider {
 
     @Override
     public LocationResult extractLocation(String url) {
-        if (StringUtils.isBlank(url)) {
+        if (!isProviderUrl(url)) {
             return new LocationResult();
         }
 
-        // First, try to extract coordinates from the URL directly
-        LocationResult result = this.parseLocation(url);
-        if (result != null && result.hasValidCoordinates()) {
-            return result;
+        if (StringUtils.isBlank(url)) {
+            return null;
         }
 
-        // If not found, follow redirects and try again
         String finalUrl = followRedirects(url);
-        if (!url.equals(finalUrl)) {
-            LocationResult locationResult = this.parseLocation(finalUrl);
-            return locationResult != null ? locationResult : new LocationResult();
+
+        // Apply each extractor in the chain until one returns a non-null result
+        for (CoordinateExtractor extractor : extractors) {
+            LocationResult locationResult = extractor.extract(finalUrl);
+            if (locationResult.hasValidCoordinates()) {
+                String extractorName = extractor.getClass().getSimpleName();
+                log.info("Extracted location using {}: {}", extractorName, locationResult);
+                return locationResult;
+            }
         }
 
         return new LocationResult();
     }
 
-    @Nullable
-    private LocationResult parseLocation(String url) {
-        if (StringUtils.isBlank(url)) {
-            return null;
-        }
-
-        Coordinate coordinate = parseCoordinates(url);
-        if (coordinate != null) {
-            // For now, we don't have a way to extract location name, so we set it to null
-            return LocationResult.fromCoordinates(coordinate);
-        }
-
-        return null;
-    }
-
-    @Nullable
-    private Coordinate parseCoordinates(String url) {
-        if (StringUtils.isBlank(url)) {
-            return null;
-        }
-
-        Matcher matcher = coordinatePattern.matcher(url);
-        if (matcher.find()) {
-            String latStr = matcher.group("lat") != null ? matcher.group("lat") : matcher.group("lat2");
-            String lonStr = matcher.group("lon") != null ? matcher.group("lon") : matcher.group("lon2");
-
-            // Normalize European decimal commas to dots
-            latStr = latStr.replace(',', '.');
-            lonStr = lonStr.replace(',', '.');
-
-            try {
-                double latitude = Double.parseDouble(latStr);
-                double longitude = Double.parseDouble(lonStr);
-
-                return new Coordinate(latitude, longitude);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid coordinate format in: " + url);
-            }
-        } else {
-            log.info("No coordinates found for URL: {}", url);
-        }
-
-        return null;
-    }
-
-    /**
-     * Follow redirects to get the final URL.
-     * 
-     * @param shortUrl The initial URL
-     * @return The final URL after following redirects, or the original URL if no redirects
-     */
     /**
      * Follow redirects to get the final URL.
      *

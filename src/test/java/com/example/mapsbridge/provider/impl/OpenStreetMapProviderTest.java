@@ -10,6 +10,8 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -21,7 +23,7 @@ class OpenStreetMapProviderTest {
     void setUp() {
         target = new OpenStreetMapProvider(
                 new OkHttpClient.Builder().build(),
-                "https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}"
+                "https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}", List.of()
         );
     }
 
