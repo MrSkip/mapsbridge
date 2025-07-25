@@ -71,14 +71,7 @@ public class G1UrlContentExtractor implements GoogleCoordinateExtractor {
     }
 
     private Optional<String> fetchUrlContent(String url) throws IOException {
-        Request request = new Request.Builder()
-                .url(url)
-//                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
-//                .header("Accept", "*/*")
-//                .header("Accept-Language", "en-US,en;q=0.5")
-//                .header("Accept-Encoding", "gzip, deflate")
-//                .header("Connection", "keep-alive")
-                .build();
+        Request request = new Request.Builder().url(url).build();
 
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {

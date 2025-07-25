@@ -10,7 +10,50 @@
       "address": "Riva del Garda, Autonomous Province of Trento"
     },
     "testConfig": {
-      "description": "[googleMaps][mobile][place][UrlContent][googleApi] - Italy Parkplatz"
+      "description": "[googleMaps][mobile][place][UrlContent] - Italy Parkplatz"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/f9B7oJ2KuDaGcM777?g_st=ipc",
+    "expected": {
+      "coordinates": {
+        "lat": 48.1139244,
+        "lon": 10.8624105
+      },
+      "name": "Lech-Stau Kaufring",
+      "address": "Kaufering"
+    },
+    "testConfig": {
+      "description": "[googleMaps][iphone][place][UrlContent] - Lech-Stau Kaufring"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/pdC19Dfog5dEK1RCA?g_st=ipc",
+    "expected": {
+      "coordinates": {
+        "lat": 48.103256,
+        "lon": 10.8700336
+      },
+      "name": null,
+      "address": "Landkreis Landsberg am Lech, Bayern DE"
+    },
+    "testConfig": {
+      "description": "[googleMaps][iphone][place][UrlContent] - Location near river in Kaufering"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/GezU9DY8HxAxLbZB9?g_st=it",
+    "expected": {
+      "coordinates": {
+        "lat": 59.8425,
+        "lon": 9.8925,
+        "valid": true
+      },
+      "name": "Bunnpris Skotselv",
+      "address": "Skotselv"
+    },
+    "testConfig": {
+      "description": "[googleMaps][iphone][place][UrlContent] - Norway - Grocery store"
     }
   },
   {
@@ -24,7 +67,7 @@
       "address": "Arnhem"
     },
     "testConfig": {
-      "description": "[googleMaps][mobile][place][UrlContent][googleApi] - NL Restaurant Dadawan"
+      "description": "[googleMaps][mobile][place][UrlContent] - NL Restaurant Dadawan"
     }
   },
   {
@@ -38,7 +81,7 @@
       "address": "Arnhem, Gelderland NL"
     },
     "testConfig": {
-      "description": "[googleMaps][mobile][UrlContent][radar] - NL Rural area in Arnhem"
+      "description": "[googleMaps][mobile][QParameter][radar] - NL Rural area in Arnhem"
     }
   },
   {
@@ -66,7 +109,50 @@
       "address": "Rijnkade 49, 6811 HB Arnhem, Niederlande"
     },
     "testConfig": {
-      "description": "[googleMaps][mac][place][UrlContent] - NL Foodhall Arnhem"
+      "description": "[googleMaps][mac][place][UrlContent] - NL Foodhall Arnhem / full URL"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/6Pns9LTLZSyvX9W8A",
+    "expected": {
+      "coordinates": {
+        "lat": 48.08982,
+        "lon": 10.85625
+      },
+      "name": "Lidl",
+      "address": "Kolpingstraße 10, 86916 Kaufering"
+    },
+    "testConfig": {
+      "description": "[googleMaps][mac][place][UrlContent] - DE/Kaufering Lidl"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/9CkrhjhKJZjvZKVr7",
+    "expected": {
+      "coordinates": {
+        "lat": 48.1001328,
+        "lon": 10.8898249
+      },
+      "name": "St. Walburga Kapelle",
+      "address": "86916 Kaufering"
+    },
+    "testConfig": {
+      "description": "[googleMaps][mac][place][UrlContent] - DE/Kaufering - St. Walburga Kapelle"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/9nwptsvMqmZ4q2R3A",
+    "expected": {
+      "coordinates": {
+        "lat": 48.922771,
+        "lon": 24.710459,
+        "valid": true
+      },
+      "name": "Ratusha",
+      "address": "Iwano-Frankiwsk, Ukraine, 76000"
+    },
+    "testConfig": {
+      "description": "[googleMaps][mac][place][UrlContent] - UA Iwano-Frankiwsk Ratusha"
     }
   },
   {
@@ -81,6 +167,65 @@
     },
     "testConfig": {
       "description": "[googleMaps][android][place][UrlContent] - DE Maximilianeum (on the edge of the bigger location with the same name)"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/q3agfG7kg8Wr5NPT8?g_st=ac",
+    "expected": {
+      "coordinates": {
+        "lat": 47.557574,
+        "lon": 10.7498004
+      },
+      "name": "Schloss Neuschwanstein",
+      "address": "Schwangau"
+    },
+    "testConfig": {
+      "description": "[googleMaps][android][place][UrlContent] - DE Schloss Neuschwanstein"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/HyGFYNL5UvJ4stMW9?g_st=ac",
+    "expected": {
+      "coordinates": {
+        "lat": 47.2123916,
+        "lon": 8.3240657,
+        "valid": true
+      },
+      "name": null,
+      "address": "Brunnwil 1, 6277 Hohenrain, CH"
+    },
+    "testConfig": {
+      "description": "[googleMaps][android][place][LatLon3d4d][radar] - CH / near Farm"
+    }
+  },
+  {
+    "input": "https://maps.app.goo.gl/K5sPvRDwNbvr4CsG9",
+    "expected": {
+      "coordinates": {
+        "lat": 47.421874,
+        "lon": 9.04834,
+        "valid": true
+      },
+      "name": null,
+      "address": "Wolfikon 122.1, 9533 Kirchberg SG, CH"
+    },
+    "testConfig": {
+      "description": "[googleMaps][android][place][SearchPattern][radar] - CH / more concrete street address"
+    }
+  },
+  {
+    "input": "https://maps.apple.com/place?address=Augsburger%20Stra%C3%9Fe%2060%0A86899%20Landsberg%20am%20Lech%0AGermany&coordinate=48.062174,10.866981&name=dm&place-id=IF1E304E1E4625F52&map=explore",
+    "expected": {
+      "coordinates": {
+        "lat": 48.062174,
+        "lon": 10.866981,
+        "valid": true
+      },
+      "name": null,
+      "address": "Augsburger Straße 60, 86899 Landsberg am Lech, DE"
+    },
+    "testConfig": {
+      "description": "[appleMaps][android][place][SearchPattern][radar] - CH / more concrete street address"
     }
   }
 ]
