@@ -257,5 +257,35 @@
     "testConfig": {
       "description": "[appleMaps][web][UrlContent] - FR Public Parking in Olivet"
     }
+  },
+  {
+    "input": "https://ul.waze.com/ul?ll=48.12489726%2C11.01779815&navigate=yes&zoom=14&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_location",
+    "expected": {
+      "coordinates": {
+        "lat": 48.12489726,
+        "lon": 11.01779815,
+        "valid": true
+      },
+      "name": null,
+      "address": "Landkreis Landsberg am Lech, Bayern DE"
+    },
+    "testConfig": {
+      "description": "[wazeMaps][web][default][radar] - Landkreis Landsberg am Lech"
+    }
+  },
+  {
+    "input": "https://waze.com/ul/hu284055e2",
+    "expected": {
+      "coordinates": {
+        "lat": 48.181121,
+        "lon": 11.254828,
+        "valid": true
+      },
+      "name": null,
+      "address": "Maisacher Straße 6, 82256 Fürstenfeldbruck, DE"
+    },
+    "testConfig": {
+      "description": "[wazeMaps][mobile][default][radar] - Maisacher Straße 6"
+    }
   }
 ]

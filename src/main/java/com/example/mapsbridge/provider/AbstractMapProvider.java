@@ -68,11 +68,7 @@ public abstract class AbstractMapProvider implements MapProvider {
             return false;
         }
 
-        boolean matches = urlPattern.matcher(url).matches();
-        if (matches) {
-            log.info("URL provider is {}", getType());
-        }
-        return matches;
+        return urlPattern.matcher(url).matches();
     }
 
     @Override
@@ -80,6 +76,8 @@ public abstract class AbstractMapProvider implements MapProvider {
         if (!isProviderUrl(url)) {
             return new LocationResult();
         }
+
+        log.info("URL provider is {}", getType());
 
         if (StringUtils.isBlank(url)) {
             return null;
