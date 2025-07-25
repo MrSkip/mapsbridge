@@ -10,7 +10,8 @@
       "address": "Riva del Garda, Autonomous Province of Trento"
     },
     "testConfig": {
-      "description": "[googleMaps][mobile][place][UrlContent] - Italy Parkplatz"
+      "description": "[googleMaps][mobile][place][UrlContent] - Italy Parkplatz",
+      "source": "google"
     }
   },
   {
@@ -24,7 +25,8 @@
       "address": "Kaufering"
     },
     "testConfig": {
-      "description": "[googleMaps][iphone][place][UrlContent] - Lech-Stau Kaufring"
+      "description": "[googleMaps][iphone][place][UrlContent] - Lech-Stau Kaufring",
+      "source": "google"
     }
   },
   {
@@ -38,7 +40,8 @@
       "address": "Landkreis Landsberg am Lech, Bayern DE"
     },
     "testConfig": {
-      "description": "[googleMaps][iphone][place][UrlContent] - Location near river in Kaufering"
+      "description": "[googleMaps][iphone][place][UrlContent] - Location near river in Kaufering",
+      "source": "google"
     }
   },
   {
@@ -53,7 +56,8 @@
       "address": "Skotselv"
     },
     "testConfig": {
-      "description": "[googleMaps][iphone][place][UrlContent] - Norway - Grocery store"
+      "description": "[googleMaps][iphone][place][UrlContent] - Norway - Grocery store",
+      "source": "google"
     }
   },
   {
@@ -67,7 +71,8 @@
       "address": "Arnhem"
     },
     "testConfig": {
-      "description": "[googleMaps][mobile][place][UrlContent] - NL Restaurant Dadawan"
+      "description": "[googleMaps][mobile][place][UrlContent] - NL Restaurant Dadawan",
+      "source": "google"
     }
   },
   {
@@ -81,7 +86,8 @@
       "address": "Arnhem, Gelderland NL"
     },
     "testConfig": {
-      "description": "[googleMaps][mobile][QParameter][radar] - NL Rural area in Arnhem"
+      "description": "[googleMaps][mobile][QParameter][radar] - NL Rural area in Arnhem",
+      "source": "google"
     }
   },
   {
@@ -95,7 +101,8 @@
       "address": "Rijnkade 49, 6811 HB Arnhem, Niederlande"
     },
     "testConfig": {
-      "description": "[googleMaps][mac][place][UrlContent] - NL Foodhall Arnhem"
+      "description": "[googleMaps][mac][place][UrlContent] - NL Foodhall Arnhem",
+      "source": "google"
     }
   },
   {
@@ -109,7 +116,8 @@
       "address": "Rijnkade 49, 6811 HB Arnhem, Niederlande"
     },
     "testConfig": {
-      "description": "[googleMaps][mac][place][UrlContent] - NL Foodhall Arnhem / full URL"
+      "description": "[googleMaps][mac][place][UrlContent] - NL Foodhall Arnhem / full URL",
+      "source": "google"
     }
   },
   {
@@ -123,7 +131,8 @@
       "address": "Kolpingstraße 10, 86916 Kaufering"
     },
     "testConfig": {
-      "description": "[googleMaps][mac][place][UrlContent] - DE/Kaufering Lidl"
+      "description": "[googleMaps][mac][place][UrlContent] - DE/Kaufering Lidl",
+      "source": "google"
     }
   },
   {
@@ -137,7 +146,8 @@
       "address": "86916 Kaufering"
     },
     "testConfig": {
-      "description": "[googleMaps][mac][place][UrlContent] - DE/Kaufering - St. Walburga Kapelle"
+      "description": "[googleMaps][mac][place][UrlContent] - DE/Kaufering - St. Walburga Kapelle",
+      "source": "google"
     }
   },
   {
@@ -152,7 +162,8 @@
       "address": "Iwano-Frankiwsk, Ukraine, 76000"
     },
     "testConfig": {
-      "description": "[googleMaps][mac][place][UrlContent] - UA Iwano-Frankiwsk Ratusha"
+      "description": "[googleMaps][mac][place][UrlContent] - UA Iwano-Frankiwsk Ratusha",
+      "source": "google"
     }
   },
   {
@@ -166,7 +177,8 @@
       "address": "München"
     },
     "testConfig": {
-      "description": "[googleMaps][android][place][UrlContent] - DE Maximilianeum (on the edge of the bigger location with the same name)"
+      "description": "[googleMaps][android][place][UrlContent] - DE Maximilianeum (on the edge of the bigger location with the same name)",
+      "source": "google"
     }
   },
   {
@@ -180,7 +192,8 @@
       "address": "Schwangau"
     },
     "testConfig": {
-      "description": "[googleMaps][android][place][UrlContent] - DE Schloss Neuschwanstein"
+      "description": "[googleMaps][android][place][UrlContent] - DE Schloss Neuschwanstein",
+      "source": "google"
     }
   },
   {
@@ -195,7 +208,8 @@
       "address": "Brunnwil 1, 6277 Hohenrain, CH"
     },
     "testConfig": {
-      "description": "[googleMaps][android][place][LatLon3d4d][radar] - CH / near Farm"
+      "description": "[googleMaps][android][place][LatLon3d4d][radar] - CH / near Farm",
+      "source": "google"
     }
   },
   {
@@ -210,7 +224,8 @@
       "address": "Wolfikon 122.1, 9533 Kirchberg SG, CH"
     },
     "testConfig": {
-      "description": "[googleMaps][android][place][SearchPattern][radar] - CH / more concrete street address"
+      "description": "[googleMaps][android][place][SearchPattern][radar] - CH / more concrete street address",
+      "source": "google"
     }
   },
   {
@@ -225,7 +240,8 @@
       "address": "Augsburger Straße 60, Landsberg am Lech"
     },
     "testConfig": {
-      "description": "[appleMaps][phone][place][UrlContent][radar] - LL / DM store in Landsberg am Lech"
+      "description": "[appleMaps][phone][place][UrlContent][radar] - LL / DM store in Landsberg am Lech",
+      "source": "apple"
     }
   },
   {
@@ -240,7 +256,8 @@
       "address": "Augsburger Straße 52, Landsberg, Landsberg am Lech"
     },
     "testConfig": {
-      "description": "[appleMaps][phone][UrlContent] - Augsburger Straße 52, Landsberg, Landsberg am Lech / random location"
+      "description": "[appleMaps][phone][UrlContent] - Augsburger Straße 52, Landsberg, Landsberg am Lech / random location",
+      "source": "apple"
     }
   },
   {
@@ -255,7 +272,8 @@
       "address": "238 Rue du Général de Gaulle, Olivet"
     },
     "testConfig": {
-      "description": "[appleMaps][web][UrlContent] - FR Public Parking in Olivet"
+      "description": "[appleMaps][web][UrlContent] - FR Public Parking in Olivet",
+      "source": "apple"
     }
   },
   {
@@ -270,7 +288,8 @@
       "address": "Landkreis Landsberg am Lech, Bayern DE"
     },
     "testConfig": {
-      "description": "[wazeMaps][web][default][radar] - Landkreis Landsberg am Lech"
+      "description": "[wazeMaps][web][default][radar] - Landkreis Landsberg am Lech",
+      "source": "waze"
     }
   },
   {
@@ -285,7 +304,8 @@
       "address": "Maisacher Straße 6, 82256 Fürstenfeldbruck, DE"
     },
     "testConfig": {
-      "description": "[wazeMaps][mobile][default][radar] - Maisacher Straße 6"
+      "description": "[wazeMaps][mobile][default][radar] - Maisacher Straße 6",
+      "source": "waze"
     }
   },
   {
@@ -300,7 +320,8 @@
       "address": "Landkreis Landsberg am Lech, Bayern DE"
     },
     "testConfig": {
-      "description": "[openstreetmap][browser][default][radar] -Landkreis Landsberg am Lech"
+      "description": "[openstreetmap][browser][default][radar] -Landkreis Landsberg am Lech",
+      "source": "osm"
     }
   },
   {
@@ -315,7 +336,8 @@
       "address": "Scheuringer Straße 6, 86916 Kaufering, DE"
     },
     "testConfig": {
-      "description": "[bing][browser][default][radar] - Scheuringer Straße 6"
+      "description": "[bing][browser][default][radar] - Scheuringer Straße 6",
+      "source": "bing"
     }
   }
 ]

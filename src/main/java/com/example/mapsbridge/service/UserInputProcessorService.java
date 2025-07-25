@@ -75,8 +75,11 @@ public class UserInputProcessorService {
         if (locationResult == null || !locationResult.hasValidCoordinates()) {
             throw new CoordinateExtractionException("Could not extract location information from URL: " + input);
         }
+
         if (StringUtils.isBlank(locationResult.getAddress())) {
-            return geocodingService.reverseGeocode(locationResult.getCoordinates());
+            LocationResult reverseGeocode = geocodingService.reverseGeocode(locationResult.getCoordinates());
+            reverseGeocode.setMapSource(locationResult.getMapSource());
+            return reverseGeocode;
         }
         return locationResult;
     }
