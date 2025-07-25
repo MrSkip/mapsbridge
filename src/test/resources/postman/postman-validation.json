@@ -339,5 +339,47 @@
       "description": "[bing][browser][default][radar] - Scheuringer Straße 6",
       "source": "bing"
     }
+  },
+  {
+    "input": "48.922771,  24.710459",
+    "expected": {
+      "coordinates": {
+        "lat": 48.922771,
+        "lon": 24.710459
+      },
+      "name": null,
+      "address": "Галицька вулиця 4А, Івано-Франківська міська громада, UA"
+    },
+    "testConfig": {
+      "description": "[coordinates][radar] - Галицька вулиця 4А / біля Ратуші"
+    }
+  },
+  {
+    "input": "48.922771,24.710459",
+    "expected": {
+      "coordinates": {
+        "lat": 48.922771,
+        "lon": 24.710459
+      },
+      "name": null,
+      "address": "Галицька вулиця 4А, Івано-Франківська міська громада, UA"
+    },
+    "testConfig": {
+      "description": "[coordinates][radar] - Галицька вулиця 4А / біля Ратуші"
+    }
+  },
+  {
+    "input": "48.922771 24.710459",
+    "expected": {
+      "coordinates": {
+        "lat": 48.922771,
+        "lon": 24.710459
+      },
+      "name": null,
+      "address": "Галицька вулиця 4А, Івано-Франківська міська громада, UA"
+    },
+    "testConfig": {
+      "description": "[coordinates][radar] - Галицька вулиця 4А / біля Ратуші"
+    }
   }
 ]

@@ -47,6 +47,7 @@ class ResponseFormatterServiceTest {
         links.put(MapType.WAZE, "https://waze.com/ul?ll=40.6892,-74.0445");
         links.put(MapType.KOMOOT, "https://www.komoot.com/plan/@40.6892,-74.0445");
         mockResponse.setLinks(links);
+        mockResponse.setAddress("Statue of Liberty, New York, USA");
         
         when(mapConverterService.convert(argThat(request -> 
             request.getInput().equals(expectedRequest.getInput()))))
@@ -71,6 +72,9 @@ class ResponseFormatterServiceTest {
         assertTrue(response.contains("href=\"https://www.openstreetmap.org"));
         assertTrue(response.contains("href=\"https://waze.com"));
         assertTrue(response.contains("href=\"https://www.komoot.com"));
+
+        // Verify address is displayed
+        assertTrue(response.contains("📍 Statue of Liberty, New York, USA"));
         
         // Verify the service was called with the correct request
         verify(mapConverterService).convert(argThat(request -> 
@@ -212,5 +216,63 @@ class ResponseFormatterServiceTest {
         // Verify the service was called with the correct request
         verify(mapConverterService).convert(argThat(request -> 
             request.getInput().equals(expectedRequest.getInput())));
+    }
+
+    @Test
+    void testConvertMessageToMapLinks_withNameAndAddressNotContainingName() {
+        // Given
+        String message = "40.6892,-74.0445";
+        ConvertRequest expectedRequest = new ConvertRequest("40.6892,-74.0445");
+
+        ConvertResponse mockResponse = new ConvertResponse();
+        Map<MapType, String> links = new HashMap<>();
+        links.put(MapType.GOOGLE, "https://www.google.com/maps?q=40.6892,-74.0445");
+        mockResponse.setLinks(links);
+        mockResponse.setName("Statue of Liberty");
+        mockResponse.setAddress("New York, USA");
+
+        when(mapConverterService.convert(argThat(request ->
+                request.getInput().equals(expectedRequest.getInput()))))
+                .thenReturn(mockResponse);
+
+        // When
+        String response = responseFormatterService.convertMessageToMapLinks(message);
+
+        // Then
+        assertNotNull(response);
+        // Verify name is displayed on top
+        assertTrue(response.contains("📍 Statue of Liberty"));
+        // Verify address is displayed below
+        assertTrue(response.contains("📍 New York, USA"));
+        // Verify the order: name should appear before address
+        assertTrue(response.indexOf("Statue of Liberty") < response.indexOf("New York, USA"));
+    }
+
+    @Test
+    void testConvertMessageToMapLinks_withNameAndAddressContainingName() {
+        // Given
+        String message = "40.6892,-74.0445";
+        ConvertRequest expectedRequest = new ConvertRequest("40.6892,-74.0445");
+
+        ConvertResponse mockResponse = new ConvertResponse();
+        Map<MapType, String> links = new HashMap<>();
+        links.put(MapType.GOOGLE, "https://www.google.com/maps?q=40.6892,-74.0445");
+        mockResponse.setLinks(links);
+        mockResponse.setName("Statue of Liberty");
+        mockResponse.setAddress("Statue of Liberty, New York, USA");
+
+        when(mapConverterService.convert(argThat(request ->
+                request.getInput().equals(expectedRequest.getInput()))))
+                .thenReturn(mockResponse);
+
+        // When
+        String response = responseFormatterService.convertMessageToMapLinks(message);
+
+        // Then
+        assertNotNull(response);
+        // Verify only address is displayed (not name separately)
+        assertTrue(response.contains("📍 Statue of Liberty, New York, USA"));
+        // Verify name is not displayed separately
+        assertEquals(response.indexOf("📍 Statue of Liberty"), response.lastIndexOf("📍 Statue of Liberty"));
     }
 }

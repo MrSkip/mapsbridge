@@ -61,11 +61,12 @@ public class UserInputProcessorService {
     private LocationResult processCoordinateInput(String input) {
         trackMetric(inputTypeCounterBuilder, MetricTags.INPUT_TYPE, MetricTags.COORDINATES);
 
-        Coordinate coordinate = Coordinate.fromString(input);
+        Coordinate coordinate = Coordinate.fromString(input.trim());
         if (!coordinate.isValid()) {
             throw new InvalidCoordinateException("Invalid coordinates: " + input);
         }
-        return LocationResult.fromCoordinates(coordinate);
+
+        return geocodingService.reverseGeocode(coordinate);
     }
 
     private LocationResult processUrlInput(String input) {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents geographic coordinates with latitude and longitude.
@@ -24,13 +25,22 @@ public class Coordinate {
      * @throws InvalidCoordinateException if the string format is invalid
      */
     public static Coordinate fromString(String latLonString) {
-        if (latLonString == null || latLonString.trim().isEmpty()) {
+        if (StringUtils.isBlank(latLonString)) {
             throw new InvalidCoordinateException("Coordinate string cannot be null or empty");
         }
 
-        String[] parts = latLonString.split(",");
+        String[] parts;
+
+        // First try splitting by comma
+        if (latLonString.contains(",")) {
+            parts = latLonString.split(",");
+        } else {
+            // If no comma, split by whitespace
+            parts = latLonString.trim().split("\\s+");
+        }
+
         if (parts.length != 2) {
-            throw new InvalidCoordinateException("Coordinate string must be in format 'lat,lon'");
+            throw new InvalidCoordinateException("Coordinate string must be in format 'lat,lon' or 'lat lon'");
         }
 
         try {

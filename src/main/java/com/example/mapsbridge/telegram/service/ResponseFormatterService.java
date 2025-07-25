@@ -8,6 +8,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -52,7 +53,7 @@ public class ResponseFormatterService {
             ConvertResponse response = mapConverterService.convert(request);
             return formatResponse(response);
         } catch (Exception e) {
-            log.error("Error converting message: {}", e.getMessage());
+            log.error("Error converting message", e);
             return "Sorry, I couldn't process your message ...";
         }
     }
@@ -71,7 +72,13 @@ public class ResponseFormatterService {
             return "No valid map links found in your message.";
         }
 
-        context.put("address", response.getAddress());
+        if (StringUtils.isNoneBlank(response.getName())) {
+            context.put("name", response.getName());
+        }
+
+        if (StringUtils.isNoneBlank(response.getAddress())) {
+            context.put("address", response.getAddress());
+        }
 
         StringWriter writer = new StringWriter();
         mustacheTemplate.execute(writer, context);
