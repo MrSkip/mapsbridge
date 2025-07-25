@@ -11,7 +11,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,7 +39,7 @@ class KomootMapProviderTest {
 
     @BeforeEach
     void setUp() {
-        target = new KomootMapProvider(new OkHttpClient.Builder().build(), "https://www.komoot.com/plan/@{lat},{lon}", List.of());
+        target = new KomootMapProvider(new OkHttpClient.Builder().build(), "https://www.komoot.com/plan/@{lat},{lon}");
     }
 
     @Test

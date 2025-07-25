@@ -287,5 +287,35 @@
     "testConfig": {
       "description": "[wazeMaps][mobile][default][radar] - Maisacher Straße 6"
     }
+  },
+  {
+    "input": "https://www.openstreetmap.org/?mlat=48.1001328&mlon=10.8898249#map=19/48.099976/10.890082",
+    "expected": {
+      "coordinates": {
+        "lat": 48.1001328,
+        "lon": 10.8898249,
+        "valid": true
+      },
+      "name": null,
+      "address": "Landkreis Landsberg am Lech, Bayern DE"
+    },
+    "testConfig": {
+      "description": "[openstreetmap][browser][default][radar] -Landkreis Landsberg am Lech"
+    }
+  },
+  {
+    "input": "https://www.bing.com/maps?&ty=18&ss=ypid.6740x16465602606402969989&mb=48.099644~10.877605~48.099033~10.878857&description=Scheuringer%20Str.%206%20%C2%B7%2086916%20Kaufering%C2%B7Landwirtschaftlicher%20Betrieb&cardbg=%23219AB6&dt=1753437600000&tt=Pferdeoffenstall-Kaufering%20GbR%20Naturland-Hof&tsts0=%2526ty%253D18%2526ss%253Dypid.6740x16465602606402969989%2526mb%253D48.099644~10.877605~48.099033~10.878857%2526description%253DScheuringer%252520Str.%2525206%252520%2525C2%2525B7%25252086916%252520Kaufering%2525C2%2525B7Landwirtschaftlicher%252520Betrieb%2526cardbg%253D%252523219AB6%2526dt%253D1753437600000&tstt0=Pferdeoffenstall-Kaufering%20GbR%20Naturland-Hof&cp=48.099339~10.877979&lvl=20.4&pi=0&ftst=0&ftics=False&v=2&sV=2&form=S00027",
+    "expected": {
+      "coordinates": {
+        "lat": 48.099339,
+        "lon": 10.877979,
+        "valid": true
+      },
+      "name": null,
+      "address": "Scheuringer Straße 6, 86916 Kaufering, DE"
+    },
+    "testConfig": {
+      "description": "[bing][browser][default][radar] - Scheuringer Straße 6"
+    }
   }
 ]

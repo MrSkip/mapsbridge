@@ -3,7 +3,6 @@ package com.example.mapsbridge.provider.impl;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.provider.AbstractMapProvider;
-import com.example.mapsbridge.provider.extractor.komoot.KomootCoordinateExtractor;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,9 +26,8 @@ public class KomootMapProvider extends AbstractMapProvider {
      */
     public KomootMapProvider(
             OkHttpClient httpClient,
-            @Value("${maps.komoot.url}") String urlTemplate,
-            List<KomootCoordinateExtractor> extractors) {
-        super(httpClient, urlTemplate, URL_PATTERN, extractors);
+            @Value("${maps.komoot.url}") String urlTemplate) {
+        super(httpClient, urlTemplate, URL_PATTERN, List.of());
     }
 
     @Override
