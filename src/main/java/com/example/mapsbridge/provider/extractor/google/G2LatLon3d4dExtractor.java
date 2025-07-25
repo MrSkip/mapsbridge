@@ -96,8 +96,8 @@ public class G2LatLon3d4dExtractor implements GoogleCoordinateExtractor {
 
             // Increment counter for successful coordinate extraction
             latLon3d4dCounter.increment();
-            
-            return new LocationResult(coordinate, null, placeName);
+
+            return new LocationResult(null, coordinate, null, placeName);
         }
 
         return new LocationResult();

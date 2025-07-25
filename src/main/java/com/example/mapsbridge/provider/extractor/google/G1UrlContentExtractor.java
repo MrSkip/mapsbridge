@@ -68,7 +68,7 @@ public class G1UrlContentExtractor implements GoogleCoordinateExtractor {
         LocationInfo locationInfo = extractLocationInfo(htmlContent);
         Coordinate coordinates = extractCoordinates(htmlContent, originalUrl);
 
-        LocationResult result = new LocationResult(coordinates, locationInfo.address(), locationInfo.placeName());
+        LocationResult result = new LocationResult(null, coordinates, locationInfo.address(), locationInfo.placeName());
         log.info("G1UrlContentExtractor result: coordinates={}, address='{}', placeName='{}'",
                 coordinates, locationInfo.address(), locationInfo.placeName());
 

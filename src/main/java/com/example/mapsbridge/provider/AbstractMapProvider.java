@@ -88,6 +88,7 @@ public abstract class AbstractMapProvider implements MapProvider {
         for (CoordinateExtractor extractor : extractors) {
             LocationResult locationResult = extractor.extract(finalUrl);
             if (locationResult.hasValidCoordinates()) {
+                locationResult.setMapSource(getType());
                 String extractorName = extractor.getClass().getSimpleName();
                 log.info("Extracted location using {}: {}", extractorName, locationResult);
                 return locationResult;

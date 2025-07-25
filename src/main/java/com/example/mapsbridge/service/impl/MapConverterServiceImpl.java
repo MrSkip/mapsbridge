@@ -34,7 +34,7 @@ public class MapConverterServiceImpl implements MapConverterService {
     public ConvertResponse convert(ConvertRequest request) {
         String input = request.getInput().trim();
         LocationResult locationResult = userInputProcessorService.processInput(input);
-        return generateResponse(locationResult);
+        return generateResponse(locationResult, request.getInput());
     }
 
     /**
@@ -43,13 +43,17 @@ public class MapConverterServiceImpl implements MapConverterService {
      * @param locationResult The location result to use for generating links
      * @return A response containing the location information and links
      */
-    private ConvertResponse generateResponse(LocationResult locationResult) {
+    private ConvertResponse generateResponse(LocationResult locationResult, String userInput) {
         ConvertResponse response = new ConvertResponse();
         response.setCoordinates(locationResult.getCoordinates());
         response.setAddress(locationResult.getAddress());
         response.setName(locationResult.getPlaceName());
 
         for (MapProvider provider : mapProviders) {
+            if (provider.getType().equals(locationResult.getMapSource())) {
+                response.addLink(provider.getType(), userInput);
+                continue;
+            }
             addProviderLink(response, provider, locationResult);
         }
 

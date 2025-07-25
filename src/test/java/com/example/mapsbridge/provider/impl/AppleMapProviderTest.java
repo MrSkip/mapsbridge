@@ -110,7 +110,7 @@ class AppleMapProviderTest {
     void testGenerateUrlWithAddressAndPlaceName() {
         // given
         Coordinate coordinate = new Coordinate(48.0973715, 10.8743395);
-        LocationResult location = new LocationResult(coordinate, "Am Hohlweg 1, 86916 Kaufering, Germany", "Stephan Mayrock");
+        LocationResult location = new LocationResult(null, coordinate, "Am Hohlweg 1, 86916 Kaufering, Germany", "Stephan Mayrock");
 
         // when
         String url = target.generateUrl(location);
@@ -126,7 +126,7 @@ class AppleMapProviderTest {
     void testGenerateUrlWithAddressOnly() {
         // given
         Coordinate coordinate = new Coordinate(48.0973715, 10.8743395);
-        LocationResult location = new LocationResult(coordinate, "Am Hohlweg 1, 86916 Kaufering, Germany", null);
+        LocationResult location = new LocationResult(null, coordinate, "Am Hohlweg 1, 86916 Kaufering, Germany", null);
 
         // when
         String url = target.generateUrl(location);
@@ -142,7 +142,7 @@ class AppleMapProviderTest {
     void testGenerateUrlWithCoordinatesOnly() {
         // given
         Coordinate coordinate = new Coordinate(48.0973715, 10.8743395);
-        LocationResult location = new LocationResult(coordinate, null, null);
+        LocationResult location = new LocationResult(null, coordinate, null, null);
 
         // when
         String url = target.generateUrl(location);

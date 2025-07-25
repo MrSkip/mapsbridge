@@ -13,6 +13,7 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -74,7 +75,7 @@ public class UserInputProcessorService {
         if (locationResult == null || !locationResult.hasValidCoordinates()) {
             throw new CoordinateExtractionException("Could not extract location information from URL: " + input);
         }
-        if (locationResult.getAddress() == null) {
+        if (StringUtils.isBlank(locationResult.getAddress())) {
             return geocodingService.reverseGeocode(locationResult.getCoordinates());
         }
         return locationResult;

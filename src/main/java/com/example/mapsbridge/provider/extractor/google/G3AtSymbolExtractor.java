@@ -77,7 +77,7 @@ public class G3AtSymbolExtractor implements GoogleCoordinateExtractor {
         atSymbolCounter.increment();
         
         String placeName = extractPlaceName(url);
-        return new LocationResult(coordinate, null, placeName);
+        return new LocationResult(null, coordinate, null, placeName);
     }
 
     @Nullable

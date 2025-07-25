@@ -12,6 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LocationResult {
+    private MapType mapSource;
+
     /**
      * The geographic coordinates of the location.
      */
@@ -34,7 +36,7 @@ public class LocationResult {
      * @return LocationResult with the specified coordinates and null location name
      */
     public static LocationResult fromCoordinates(Coordinate coordinates) {
-        return new LocationResult(coordinates, null, null);
+        return new LocationResult(null, coordinates, null, null);
     }
 
     /**
@@ -45,7 +47,7 @@ public class LocationResult {
      * @return LocationResult with the specified coordinates and location name
      */
     public static LocationResult fromCoordinatesAndName(Coordinate coordinates, String address) {
-        return new LocationResult(coordinates, address, null);
+        return new LocationResult(null, coordinates, address, null);
     }
 
     /**
