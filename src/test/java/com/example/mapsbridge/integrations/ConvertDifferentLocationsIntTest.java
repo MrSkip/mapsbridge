@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -87,7 +88,6 @@ class ConvertDifferentLocationsIntTest {
                 .andExpect(jsonPath("$.name").value(expectedName))
                 .andExpect(jsonPath("$.address").value(expectedAddress))
                 .andExpect(jsonPath("$.links.google").value("https://www.google.com/maps?q=" + expectedCoordinates.getLat() + "," + expectedCoordinates.getLon()))
-                .andExpect(jsonPath("$.links.apple").value("https://maps.apple.com/?q=" + expectedCoordinates.getLat() + "," + expectedCoordinates.getLon()));
+                .andExpect(jsonPath("$.links.apple").value(startsWith("https://maps.apple.com/place?ll=" + expectedCoordinates.getLat() + "," + expectedCoordinates.getLon())));
     }
-
 }

@@ -3,6 +3,7 @@ package com.example.mapsbridge.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents a location result with coordinates and location name.
@@ -21,6 +22,9 @@ public class LocationResult {
      */
     private String address;
 
+    /**
+     * The place name for the location.
+     */
     private String placeName;
 
     /**
@@ -58,16 +62,29 @@ public class LocationResult {
      *
      * @return true if location name is not null or empty, false otherwise
      */
-    public boolean hasLocationName() {
-        return address != null && !address.trim().isEmpty();
+    public boolean hasValidAddress() {
+        return StringUtils.isNoneBlank(address);
     }
 
     /**
-     * Checks if this is a complete location result with both valid coordinates and a location name.
+     * Checks if the location result has a valid place name.
      *
-     * @return true if both coordinates and location name are valid, false otherwise
+     * @return true if place name is not null or empty, false otherwise
      */
-    public boolean isComplete() {
-        return hasValidCoordinates() && hasLocationName();
+    public boolean hasValidPlaceName() {
+        return StringUtils.isNoneBlank(placeName);
+    }
+
+    /**
+     * Returns a coordinate parameter string for URL building (e.g., "lat,lon").
+     * Returns empty string if coordinates are invalid.
+     *
+     * @return The coordinate parameter string
+     */
+    public String getCoordinateParam() {
+        if (!hasValidCoordinates()) {
+            return "";
+        }
+        return coordinates.getLat() + "," + coordinates.getLon();
     }
 }

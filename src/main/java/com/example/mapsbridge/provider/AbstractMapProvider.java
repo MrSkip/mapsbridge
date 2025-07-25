@@ -126,4 +126,13 @@ public abstract class AbstractMapProvider implements MapProvider {
             return shortUrl;
         }
     }
+
+    /**
+     * Validates the location result and throws an exception if invalid.
+     */
+    protected void validateLocation(LocationResult location) {
+        if (location == null || !location.hasValidCoordinates()) {
+            throw new InvalidCoordinateException("Invalid coordinates provided");
+        }
+    }
 }

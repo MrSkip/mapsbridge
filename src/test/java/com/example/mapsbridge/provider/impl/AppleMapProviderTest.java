@@ -1,5 +1,6 @@
 package com.example.mapsbridge.provider.impl;
 
+import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -105,5 +106,49 @@ class AppleMapProviderTest {
         assertFalse(result);
     }
 
+    @Test
+    void testGenerateUrlWithAddressAndPlaceName() {
+        // given
+        Coordinate coordinate = new Coordinate(48.0973715, 10.8743395);
+        LocationResult location = new LocationResult(coordinate, "Am Hohlweg 1, 86916 Kaufering, Germany", "Stephan Mayrock");
 
+        // when
+        String url = target.generateUrl(location);
+
+        // then
+        assertTrue(url.startsWith("https://maps.apple.com/place?"));
+        assertTrue(url.contains("ll=48.0973715,10.8743395"));
+        assertTrue(url.contains("address=Am+Hohlweg+1%2C+86916+Kaufering%2C+Germany"));
+        assertTrue(url.contains("q=Stephan+Mayrock"));
+    }
+
+    @Test
+    void testGenerateUrlWithAddressOnly() {
+        // given
+        Coordinate coordinate = new Coordinate(48.0973715, 10.8743395);
+        LocationResult location = new LocationResult(coordinate, "Am Hohlweg 1, 86916 Kaufering, Germany", null);
+
+        // when
+        String url = target.generateUrl(location);
+
+        // then
+        assertTrue(url.startsWith("https://maps.apple.com/place?"));
+        assertTrue(url.contains("ll=48.0973715,10.8743395"));
+        assertTrue(url.contains("address=Am+Hohlweg+1%2C+86916+Kaufering%2C+Germany"));
+        assertFalse(url.contains("q="));
+    }
+
+    @Test
+    void testGenerateUrlWithCoordinatesOnly() {
+        // given
+        Coordinate coordinate = new Coordinate(48.0973715, 10.8743395);
+        LocationResult location = new LocationResult(coordinate, null, null);
+
+        // when
+        String url = target.generateUrl(location);
+
+        // then
+        assertEquals("https://maps.apple.com/?q=48.0973715,10.8743395", url);
+        assertFalse(url.contains("address="));
+    }
 }
