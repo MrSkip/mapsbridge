@@ -1,7 +1,7 @@
 package com.example.mapsbridge.dto;
 
 import com.example.mapsbridge.exception.InvalidCoordinateException;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,6 +47,7 @@ public class Coordinate {
      * 
      * @return true if valid, false otherwise
      */
+    @JsonIgnore
     public boolean isValid() {
         return lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;
     }
