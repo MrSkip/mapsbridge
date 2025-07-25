@@ -1,5 +1,8 @@
 name: CI/CD to AWS EC2
 
+env:
+  RADAR_TEST_API_KEY: ${{ secrets.RADAR_TEST_API_KEY }}
+
 on:
   push:
     branches:
