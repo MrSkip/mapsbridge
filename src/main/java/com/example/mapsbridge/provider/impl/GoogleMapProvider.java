@@ -1,6 +1,7 @@
 package com.example.mapsbridge.provider.impl;
 
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import com.example.mapsbridge.provider.extractor.google.GoogleCoordinateExtractor;
 import io.micrometer.core.instrument.Counter;
@@ -40,8 +41,9 @@ public class GoogleMapProvider extends AbstractMapProvider {
             @Value("${maps.google.url:https://www.google.com/maps?q={lat},{lon}}") String urlTemplate,
             List<GoogleCoordinateExtractor> extractors,
             Counter.Builder googleMapsExtractorCounterBuilder,
-            MeterRegistry meterRegistry) {
-        super(httpClient, urlTemplate, URL_PATTERN, extractors);
+            MeterRegistry meterRegistry,
+            MapProviderMetrics mapProviderMetrics) {
+        super(httpClient, urlTemplate, URL_PATTERN, extractors, mapProviderMetrics);
         this.googleMapsExtractorCounterBuilder = googleMapsExtractorCounterBuilder;
         this.meterRegistry = meterRegistry;
     }

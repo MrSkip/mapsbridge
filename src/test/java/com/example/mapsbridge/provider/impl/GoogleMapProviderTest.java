@@ -3,6 +3,7 @@ package com.example.mapsbridge.provider.impl;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.extractor.google.*;
 import com.example.mapsbridge.provider.url.UrlPatternExtractor;
 import com.example.mapsbridge.service.GoogleGeocodingService;
@@ -49,6 +50,9 @@ class GoogleMapProviderTest {
     @Mock
     private MeterRegistry mockMeterRegistry;
 
+    @Mock
+    private MapProviderMetrics mockMapProviderMetrics;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -89,7 +93,8 @@ class GoogleMapProviderTest {
                         addressGeocodingExtractor
                 ),
                 mockCounterBuilder,
-                mockMeterRegistry);
+                mockMeterRegistry,
+                mockMapProviderMetrics);
     }
 
     @Test

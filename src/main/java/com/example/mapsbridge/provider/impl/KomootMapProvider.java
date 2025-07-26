@@ -2,6 +2,7 @@ package com.example.mapsbridge.provider.impl;
 
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,8 +27,9 @@ public class KomootMapProvider extends AbstractMapProvider {
      */
     public KomootMapProvider(
             OkHttpClient httpClient,
-            @Value("${maps.komoot.url}") String urlTemplate) {
-        super(httpClient, urlTemplate, URL_PATTERN, List.of());
+            @Value("${maps.komoot.url}") String urlTemplate,
+            MapProviderMetrics mapProviderMetrics) {
+        super(httpClient, urlTemplate, URL_PATTERN, List.of(), mapProviderMetrics);
     }
 
     @Override

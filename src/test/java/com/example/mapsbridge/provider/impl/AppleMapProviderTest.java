@@ -2,6 +2,7 @@ package com.example.mapsbridge.provider.impl;
 
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
+import com.example.mapsbridge.metrics.MapProviderMetrics;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class AppleMapProviderTest {
 
@@ -18,7 +20,8 @@ class AppleMapProviderTest {
 
     @BeforeEach
     void setUp() {
-        target = new AppleMapProvider(new OkHttpClient.Builder().build(), "https://maps.apple.com/?q={lat},{lon}", List.of());
+        MapProviderMetrics mockMetrics = mock(MapProviderMetrics.class);
+        target = new AppleMapProvider(new OkHttpClient.Builder().build(), "https://maps.apple.com/?q={lat},{lon}", List.of(), mockMetrics);
     }
 
     @ParameterizedTest

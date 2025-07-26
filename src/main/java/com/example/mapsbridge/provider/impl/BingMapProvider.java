@@ -1,6 +1,7 @@
 package com.example.mapsbridge.provider.impl;
 
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import com.example.mapsbridge.provider.extractor.bing.BingCoordinateExtractor;
 import okhttp3.OkHttpClient;
@@ -27,8 +28,9 @@ public class BingMapProvider extends AbstractMapProvider {
     public BingMapProvider(
             OkHttpClient httpClient,
             @Value("${maps.bing.url:https://www.bing.com/maps?q={lat},{lon}}") String urlTemplate,
-            List<BingCoordinateExtractor> extractors) {
-        super(httpClient, urlTemplate, URL_PATTERN, extractors);
+            List<BingCoordinateExtractor> extractors,
+            MapProviderMetrics mapProviderMetrics) {
+        super(httpClient, urlTemplate, URL_PATTERN, extractors, mapProviderMetrics);
     }
 
     @Override
