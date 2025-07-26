@@ -3,6 +3,8 @@ package com.example.mapsbridge.telegram.service;
 import com.example.mapsbridge.dto.ConvertRequest;
 import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.exception.InvalidInputException;
+import com.example.mapsbridge.exception.rate.ChatIdRateLimitExceededException;
 import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
@@ -27,7 +29,6 @@ import java.util.Objects;
 public class ResponseFormatterService {
 
     private final MapConverterServiceImpl mapConverterService;
-
     private final Mustache mustacheTemplate;
 
     public ResponseFormatterService(MapConverterServiceImpl mapConverterService) {
@@ -52,9 +53,15 @@ public class ResponseFormatterService {
         try {
             ConvertResponse response = mapConverterService.convert(request);
             return formatResponse(response);
+        } catch (ChatIdRateLimitExceededException e) {
+            log.warn("Rate limit exceeded for chat ID: {}", e.getChatId());
+            return "🕐 Daily limit reached. Your map requests will reset in 24 hours";
+        } catch (InvalidInputException e) {
+            log.warn("Invalid input received: {}", e.getMessage());
+            return "🤔 Hmm, that doesn't look quite right!\n\nTry coordinates like '40.7128,-74.0060' or drop me a map link! 📍";
         } catch (Exception e) {
             log.error("Error converting message", e);
-            return "Sorry, I couldn't process your message ...";
+            return "Sorry, I couldn't process your message. Please try again later! 🤖";
         }
     }
 

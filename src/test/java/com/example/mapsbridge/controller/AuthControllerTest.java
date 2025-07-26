@@ -6,7 +6,7 @@ import com.example.mapsbridge.dto.MessageResponseDto;
 import com.example.mapsbridge.exception.InvalidTokenException;
 import com.example.mapsbridge.service.EmailConfirmationService;
 import com.example.mapsbridge.service.MailtrapService;
-import com.example.mapsbridge.service.RateLimiterService;
+import com.example.mapsbridge.service.ratelimit.UserRateLimiterService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -37,7 +37,7 @@ class AuthControllerTest {
     private EmailConfirmationService emailConfirmationService;
 
     @MockitoBean
-    private RateLimiterService rateLimiterService;
+    private UserRateLimiterService userRateLimiterService;
 
     @MockitoBean
     private MailtrapService mailtrapService;
@@ -60,8 +60,8 @@ class AuthControllerTest {
                 .build();
 
         when(emailConfirmationService.generateAndSendConfirmationToken(anyString())).thenReturn(response);
-        doNothing().when(rateLimiterService).checkRateLimit(anyString());
-        doNothing().when(rateLimiterService).checkRateLimitForEmail(anyString());
+        doNothing().when(userRateLimiterService).checkIpRateLimit();
+        doNothing().when(userRateLimiterService).checkRateLimitForEmail(anyString());
 
         // When/Then
         mockMvc.perform(post("/auth/api/request-api-key")
@@ -72,8 +72,8 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Confirmation email sent. Please check your inbox."));
 
         // Verify service methods were called
-        verify(rateLimiterService).checkRateLimit(anyString());
-        verify(rateLimiterService).checkRateLimitForEmail("test@example.com");
+        verify(userRateLimiterService).checkIpRateLimit();
+        verify(userRateLimiterService).checkRateLimitForEmail("test@example.com");
         verify(emailConfirmationService).generateAndSendConfirmationToken("test@example.com");
     }
 
@@ -86,7 +86,7 @@ class AuthControllerTest {
                 .build();
 
         when(emailConfirmationService.validateTokenAndGenerateApiKey(token)).thenReturn(response);
-        doNothing().when(rateLimiterService).checkRateLimit(anyString());
+        doNothing().when(userRateLimiterService).checkIpRateLimit();
 
         // When/Then
         mockMvc.perform(get("/auth/api/confirm")
@@ -95,7 +95,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.apiKey").value("maps_live_abc123"));
 
         // Verify service methods were called
-        verify(rateLimiterService).checkRateLimit(anyString());
+        verify(userRateLimiterService).checkIpRateLimit();
         verify(emailConfirmationService).validateTokenAndGenerateApiKey(token);
     }
 
@@ -122,7 +122,7 @@ class AuthControllerTest {
 
         when(emailConfirmationService.validateTokenAndGenerateApiKey(token))
                 .thenThrow(new InvalidTokenException("Invalid token"));
-        doNothing().when(rateLimiterService).checkRateLimit(anyString());
+        doNothing().when(userRateLimiterService).checkIpRateLimit();
 
         // When/Then
         mockMvc.perform(get("/auth/api/confirm")
@@ -131,7 +131,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Invalid token"));
 
         // Verify service methods were called
-        verify(rateLimiterService).checkRateLimit(anyString());
+        verify(userRateLimiterService).checkIpRateLimit();
         verify(emailConfirmationService).validateTokenAndGenerateApiKey(token);
     }
 

@@ -1,6 +1,7 @@
 package com.example.mapsbridge.task;
 
-import com.example.mapsbridge.service.RateLimiterService;
+import com.example.mapsbridge.service.ratelimit.MapConverterRateLimiterService;
+import com.example.mapsbridge.service.ratelimit.UserRateLimiterService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,28 +15,41 @@ import org.springframework.stereotype.Component;
 @Component
 public class RateLimiterCleanupTask {
 
-    private final RateLimiterService rateLimiterService;
+    private final UserRateLimiterService userRateLimiterService;
+    private final MapConverterRateLimiterService mapConverterRateLimiterService;
     
     @Value("${app.rate-limiter.cleanup.max-idle-hours:24}")
     private int maxIdleHours;
 
     @Autowired
-    public RateLimiterCleanupTask(RateLimiterService rateLimiterService) {
-        this.rateLimiterService = rateLimiterService;
+    public RateLimiterCleanupTask(UserRateLimiterService userRateLimiterService,
+                                  MapConverterRateLimiterService mapConverterRateLimiterService) {
+        this.userRateLimiterService = userRateLimiterService;
+        this.mapConverterRateLimiterService = mapConverterRateLimiterService;
     }
 
     /**
-     * Cleans up old entries from IP and email rate limiter maps.
+     * Cleans up old entries from IP, email, and chat ID rate limiter maps.
      * Runs daily at 1:00 AM.
      */
     @Scheduled(cron = "0 0 1 * * ?") // Run at 1:00 AM every day
     public void cleanupOldRateLimiters() {
         log.info("Starting scheduled cleanup of old rate limiter entries");
-        
-        int ipRemoved = rateLimiterService.cleanupOldIpRateLimiters(maxIdleHours);
-        int emailRemoved = rateLimiterService.cleanupOldEmailRateLimiters(maxIdleHours);
-        
-        log.info("Removed {} old IP rate limiters and {} old email rate limiters", 
-                ipRemoved, emailRemoved);
+
+        // Clean up user sign-up rate limiters
+        int userIpRemoved = userRateLimiterService.cleanupOldIpRateLimiters(maxIdleHours);
+        int userEmailRemoved = userRateLimiterService.cleanupOldEmailRateLimiters(maxIdleHours);
+        int userChatIdRemoved = userRateLimiterService.cleanupOldChatIdRateLimiters(maxIdleHours);
+
+        log.info("Removed {} old user IP rate limiters, {} old user email rate limiters, and {} old user chat ID rate limiters",
+                userIpRemoved, userEmailRemoved, userChatIdRemoved);
+
+        // Clean up geocoding rate limiters
+        int geocodingIpRemoved = mapConverterRateLimiterService.cleanupOldIpRateLimiters(maxIdleHours);
+        int geocodingEmailRemoved = mapConverterRateLimiterService.cleanupOldEmailRateLimiters(maxIdleHours);
+        int geocodingChatIdRemoved = mapConverterRateLimiterService.cleanupOldChatIdRateLimiters(maxIdleHours);
+
+        log.info("Removed {} old geocoding IP rate limiters, {} old geocoding email rate limiters, and {} old geocoding chat ID rate limiters",
+                geocodingIpRemoved, geocodingEmailRemoved, geocodingChatIdRemoved);
     }
 }

@@ -6,7 +6,7 @@ import org.slf4j.MDC;
 /**
  * Utility class for storing and retrieving logging context information.
  * This class uses MDC (Mapped Diagnostic Context) to store transaction ID, email,
- * and chat ID to be included in logs.
+ * chat ID, and IP address to be included in logs.
  */
 @UtilityClass
 public class LoggingContext {
@@ -14,6 +14,7 @@ public class LoggingContext {
     private static final String TRANSACTION_ID_KEY = "transactionId";
     private static final String EMAIL_KEY = "email";
     private static final String CHAT_ID_KEY = "chatId";
+    private static final String IP_ADDRESS_KEY = "ipAddress";
 
     /**
      * Gets the transaction ID for the current thread.
@@ -70,6 +71,24 @@ public class LoggingContext {
     }
 
     /**
+     * Gets the IP address for the current thread.
+     *
+     * @return the IP address, or null if not set
+     */
+    public static String getIpAddress() {
+        return MDC.get(IP_ADDRESS_KEY);
+    }
+
+    /**
+     * Sets the IP address for the current thread.
+     *
+     * @param ipAddress the IP address to set
+     */
+    public static void setIpAddress(String ipAddress) {
+        MDC.put(IP_ADDRESS_KEY, ipAddress);
+    }
+
+    /**
      * Clears all context values for the current thread.
      * This should be called at the end of request processing to prevent memory leaks.
      */
@@ -77,5 +96,6 @@ public class LoggingContext {
         MDC.remove(TRANSACTION_ID_KEY);
         MDC.remove(EMAIL_KEY);
         MDC.remove(CHAT_ID_KEY);
+        MDC.remove(IP_ADDRESS_KEY);
     }
 }
