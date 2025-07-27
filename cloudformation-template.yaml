@@ -1,0 +1,458 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudWatch monitoring setup for Maps Bridge application'
+
+Parameters:
+  ApplicationName:
+    Type: String
+    Default: 'mapsbridge'
+    Description: 'Name of the application'
+
+  Environment:
+    Type: String
+    Default: 'prod'
+    AllowedValues: [ 'dev', 'staging', 'prod' ]
+    Description: 'Environment name'
+
+  NotificationEmail:
+    Type: String
+    Description: 'Email address for alarm notifications'
+    Default: 'admin@example.com'
+
+  # New parameter to control log group creation
+  CreateLogGroup:
+    Type: String
+    Default: 'true'
+    AllowedValues: [ 'true', 'false' ]
+    Description: 'Whether to create the CloudWatch log group (set to false if it already exists)'
+
+Conditions:
+  ShouldCreateLogGroup: !Equals [ !Ref CreateLogGroup, 'true' ]
+
+Resources:
+  # SNS Topic for CloudWatch Alarms
+  CloudWatchAlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${ApplicationName}-${Environment}-cloudwatch-alarms'
+      DisplayName: 'Maps Bridge CloudWatch Alarms'
+
+  # SNS Subscription for email notifications
+  EmailNotification:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      TopicArn: !Ref CloudWatchAlarmTopic
+      Endpoint: !Ref NotificationEmail
+
+  # CloudWatch Log Group (conditional creation)
+  ApplicationLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: ShouldCreateLogGroup
+    Properties:
+      LogGroupName: 'mapsbridge-log-group'
+      RetentionInDays: 30
+
+  # CloudWatch Dashboard
+  MapsBridgeDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub '${ApplicationName}-${Environment}-monitoring'
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "maps.extraction.success", "provider", "google" ],
+                  [ ".", ".", ".", "apple" ],
+                  [ ".", ".", ".", "bing" ],
+                  [ ".", ".", ".", "osm" ],
+                  [ ".", ".", ".", "waze" ],
+                  [ ".", "maps.extraction.failure", "provider", "google" ],
+                  [ ".", ".", ".", "apple" ],
+                  [ ".", ".", ".", "bing" ],
+                  [ ".", ".", ".", "osm" ],
+                  [ ".", ".", ".", "waze" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Map Extraction Success/Failure by Provider",
+                "period": 300,
+                "stat": "Sum"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "maps.input.type", "type", "coordinates" ],
+                  [ ".", ".", ".", "url" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Input Type Usage",
+                "period": 300,
+                "stat": "Sum"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 6,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "resilience4j.ratelimiter.available_permissions", "name", "ipRateLimiter" ],
+                  [ ".", ".", ".", "emailRateLimiter" ],
+                  [ ".", ".", ".", "geocodingIpRateLimiter" ],
+                  [ ".", ".", ".", "geocodingEmailRateLimiter" ],
+                  [ ".", ".", ".", "geocodingChatIdRateLimiter" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Rate Limiter Available Permissions",
+                "period": 300,
+                "stat": "Average"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 6,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "jvm.memory.used", "area", "heap", "id", "G1 Old Gen" ],
+                  [ ".", ".", ".", ".", ".", "G1 Eden Space" ],
+                  [ ".", ".", ".", ".", ".", "G1 Survivor Space" ],
+                  [ ".", "jvm.memory.max", "area", "heap", "id", "G1 Old Gen" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "JVM Memory Usage",
+                "period": 300,
+                "stat": "Average"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 12,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "http.server.requests", "method", "GET", "status", "200" ],
+                  [ ".", ".", ".", "POST", ".", "." ],
+                  [ ".", ".", ".", "GET", ".", "404" ],
+                  [ ".", ".", ".", "POST", ".", "400" ],
+                  [ ".", ".", ".", "GET", ".", "500" ],
+                  [ ".", ".", ".", "POST", ".", "500" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "HTTP Requests by Method and Status",
+                "period": 300,
+                "stat": "Sum"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 12,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "jvm.gc.pause", "action", "end of minor GC", "cause", "G1 Evacuation Pause" ],
+                  [ ".", ".", ".", "end of major GC", ".", "G1 Evacuation Pause" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "JVM Garbage Collection",
+                "period": 300,
+                "stat": "Average"
+              }
+            },
+            {
+              "type": "log",
+              "x": 0,
+              "y": 18,
+              "width": 24,
+              "height": 6,
+              "properties": {
+                "query": "SOURCE 'mapsbridge-log-group' | fields @timestamp, @message\n| filter @message like /ERROR/\n| sort @timestamp desc\n| limit 100",
+                "region": "${AWS::Region}",
+                "title": "Recent Error Logs",
+                "view": "table"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 24,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "maps.google.extractor.usage", "extractor", "G2LatLon3d4dExtractor" ],
+                  [ ".", ".", ".", "G3AtSymbolExtractor" ],
+                  [ ".", ".", ".", "G4QParameterExtractor" ],
+                  [ ".", ".", ".", "G5SearchPatternExtractor" ],
+                  [ ".", ".", ".", "G6PlaceIdExtractor" ],
+                  [ ".", ".", ".", "G7AddressGeocodingExtractor" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Google Maps Extractor Usage",
+                "period": 300,
+                "stat": "Sum"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 24,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "maps.provider.url.usage", "provider", "google" ],
+                  [ ".", ".", ".", "apple" ],
+                  [ ".", ".", ".", "bing" ],
+                  [ ".", ".", ".", "osm" ],
+                  [ ".", ".", ".", "waze" ],
+                  [ ".", ".", ".", "unknown" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Map Provider URL Usage",
+                "period": 300,
+                "stat": "Sum"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 30,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "maps.geocoding.extractor.success", "method", "placeId" ],
+                  [ ".", ".", ".", "address" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Geocoding Extractor Success",
+                "period": 300,
+                "stat": "Sum"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 30,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [ "mapsbridge", "geocoding.requests", "service", "google" ],
+                  [ ".", ".", ".", "radar" ],
+                  [ ".", ".", ".", "hybrid" ]
+                ],
+                "view": "timeSeries",
+                "stacked": false,
+                "region": "${AWS::Region}",
+                "title": "Geocoding Requests by Service",
+                "period": 300,
+                "stat": "Sum"
+              }
+            }
+          ]
+        }
+
+  # Alarms for Application Health
+  HighErrorRateAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ApplicationName}-${Environment}-high-error-rate'
+      AlarmDescription: 'High error rate detected'
+      MetricName: 'http.server.requests'
+      Namespace: 'mapsbridge'
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 10
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: status
+          Value: '500'
+      AlarmActions:
+        - !Ref CloudWatchAlarmTopic
+      TreatMissingData: notBreaching
+
+  HighMemoryUsageAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ApplicationName}-${Environment}-high-memory-usage'
+      AlarmDescription: 'High JVM memory usage detected'
+      MetricName: 'jvm.memory.used'
+      Namespace: 'mapsbridge'
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 3
+      Threshold: 1000000000  # 1GB in bytes
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: area
+          Value: 'heap'
+      AlarmActions:
+        - !Ref CloudWatchAlarmTopic
+      TreatMissingData: notBreaching
+
+  MapExtractionFailureAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ApplicationName}-${Environment}-map-extraction-failures'
+      AlarmDescription: 'High number of map extraction failures'
+      MetricName: 'maps.extraction.failure'
+      Namespace: 'mapsbridge'
+      Statistic: Sum
+      Period: 600
+      EvaluationPeriods: 2
+      Threshold: 5
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref CloudWatchAlarmTopic
+      TreatMissingData: notBreaching
+
+  RateLimiterExhaustedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub '${ApplicationName}-${Environment}-rate-limiter-exhausted'
+      AlarmDescription: 'Rate limiter permissions exhausted'
+      MetricName: 'resilience4j.ratelimiter.available_permissions'
+      Namespace: 'mapsbridge'
+      Statistic: Minimum
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 1
+      ComparisonOperator: LessThanThreshold
+      AlarmActions:
+        - !Ref CloudWatchAlarmTopic
+      TreatMissingData: notBreaching
+
+  # Custom Metric Filters for Log Analysis (use string reference instead of !Ref)
+  ErrorLogMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: 'mapsbridge-log-group'
+      FilterPattern: 'ERROR'
+      MetricTransformations:
+        - MetricNamespace: !Sub '${ApplicationName}/Logs'
+          MetricName: 'ErrorCount'
+          MetricValue: '1'
+          DefaultValue: 0
+
+  DatabaseConnectionErrorFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: 'mapsbridge-log-group'
+      FilterPattern: '[timestamp, level="ERROR", logger, message="*database*" || message="*connection*" || message="*postgresql*"]'
+      MetricTransformations:
+        - MetricNamespace: !Sub '${ApplicationName}/Logs'
+          MetricName: 'DatabaseErrors'
+          MetricValue: '1'
+          DefaultValue: 0
+
+  # Composite Alarm for Application Health
+  ApplicationHealthCompositeAlarm:
+    Type: AWS::CloudWatch::CompositeAlarm
+    Properties:
+      AlarmName: !Sub '${ApplicationName}-${Environment}-application-health'
+      AlarmDescription: 'Overall application health status'
+      AlarmRule: !Sub 'ALARM(${HighErrorRateAlarm}) OR ALARM(${HighMemoryUsageAlarm}) OR ALARM(${MapExtractionFailureAlarm})'
+      AlarmActions:
+        - !Ref CloudWatchAlarmTopic
+
+  # IAM Role for EC2 to access CloudWatch
+  CloudWatchRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+      Path: /
+      Policies:
+        - PolicyName: CloudWatchMetricsAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudwatch:PutMetricData
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: '*'
+
+  # IAM Instance Profile
+  CloudWatchInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref CloudWatchRole
+
+Outputs:
+  DashboardURL:
+    Description: 'CloudWatch Dashboard URL'
+    Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=${ApplicationName}-${Environment}-monitoring'
+
+  LogGroupName:
+    Description: 'CloudWatch Log Group Name'
+    Value: 'mapsbridge-log-group'
+
+  SNSTopicArn:
+    Description: 'SNS Topic ARN for alarm notifications'
+    Value: !Ref CloudWatchAlarmTopic
+
+  IAMRoleArn:
+    Description: 'IAM Role ARN for CloudWatch access'
+    Value: !GetAtt CloudWatchRole.Arn
+
+  IAMInstanceProfileArn:
+    Description: 'IAM Instance Profile ARN'
+    Value: !GetAtt CloudWatchInstanceProfile.Arn
+
+  LogGroupCreated:
+    Description: 'Whether the log group was created by this stack'
+    Value: !If [ ShouldCreateLogGroup, 'true', 'false' ]
