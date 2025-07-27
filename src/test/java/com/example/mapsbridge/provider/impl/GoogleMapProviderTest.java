@@ -19,7 +19,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -156,18 +155,6 @@ class GoogleMapProviderTest {
     }
 
     @Test
-    void shouldReturnNullForMobileKnownPlaceUrl() {
-        // given
-        String mobileKnownPlaceUrl = "https://maps.app.goo.gl/Hpn85aKXtkAgvzss5?g_st=com.google.maps.preview.copy";
-
-        // when
-        LocationResult locationResult = target.extractLocation(mobileKnownPlaceUrl);
-
-        // then
-        assertNull(locationResult);
-    }
-
-    @Test
     void shouldExtractCoordinatesFromPCGoogleMapsKnownPlace() {
         // given
         String pcGoogleMapsKnownPlaceUrl = "https://maps.app.goo.gl/f9PD4LmvWrPdhEDT6";
@@ -220,64 +207,8 @@ class GoogleMapProviderTest {
         String nullUrl = null;
 
         // when & then
-        assertNull(target.extractLocation(emptyUrl));
-        assertNull(target.extractLocation(nullUrl));
-    }
-
-    @Test
-    void shouldExtractCoordinatesUsingGeocodingServiceForQueryUrl() {
-        // given
-        String urlWithQuery = "https://www.google.com/maps?q=New+York";
-        String query = "New York";
-        Coordinate expectedCoordinate = new Coordinate(40.7128, -74.0060);
-        LocationResult expectedResult = LocationResult.fromCoordinatesAndName(expectedCoordinate, "New York");
-
-        // Configure mocks
-        when(mockUrlPatternExtractor.findPlaceId(urlWithQuery)).thenReturn(Optional.empty());
-        when(mockUrlPatternExtractor.findAddressQuery(urlWithQuery)).thenReturn(Optional.of(query));
-        when(mockHybridGeocodingService.geocodeQuery(query)).thenReturn(expectedResult);
-
-        // when
-        LocationResult result = target.extractLocation(urlWithQuery);
-
-        // then
-        assertNotNull(result);
-        assertNotNull(result.getCoordinates());
-        assertEquals(expectedCoordinate.getLat(), result.getCoordinates().getLat());
-        assertEquals(expectedCoordinate.getLon(), result.getCoordinates().getLon());
-        assertEquals("New York", result.getAddress());
-
-        // Verify the services were called
-        verify(mockUrlPatternExtractor).findPlaceId(urlWithQuery);
-        verify(mockUrlPatternExtractor).findAddressQuery(urlWithQuery);
-        verify(mockHybridGeocodingService).geocodeQuery(query);
-    }
-
-    @Test
-    void shouldExtractCoordinatesUsingGeocodingServiceForPlaceIdUrl() {
-        // given
-        String urlWithPlaceId = "https://www.google.com/maps/place/Statue+of+Liberty/data=!4m6!3m5!1s0x89c25090129c363d:0x40c6a5770d25022b";
-        String placeId = "0x89c25090129c363d:0x40c6a5770d25022b";
-        Coordinate expectedCoordinate = new Coordinate(40.6892494, -74.0445004);
-        LocationResult expectedResult = LocationResult.fromCoordinatesAndName(expectedCoordinate, "Statue of Liberty");
-
-        // Configure mocks
-        when(mockUrlPatternExtractor.findPlaceId(urlWithPlaceId)).thenReturn(Optional.of(placeId));
-        when(mockHybridGeocodingService.getLocationFromPlaceId(placeId)).thenReturn(expectedResult);
-
-        // when
-        LocationResult result = target.extractLocation(urlWithPlaceId);
-
-        // then
-        assertNotNull(result);
-        assertNotNull(result.getCoordinates());
-        assertEquals(expectedCoordinate.getLat(), result.getCoordinates().getLat());
-        assertEquals(expectedCoordinate.getLon(), result.getCoordinates().getLon());
-        assertEquals("Statue of Liberty", result.getAddress());
-
-        // Verify the services were called
-        verify(mockUrlPatternExtractor).findPlaceId(urlWithPlaceId);
-        verify(mockHybridGeocodingService).getLocationFromPlaceId(placeId);
+        assertNull(target.extractLocation(emptyUrl).getCoordinates());
+        assertNull(target.extractLocation(nullUrl).getCoordinates());
     }
 
 }

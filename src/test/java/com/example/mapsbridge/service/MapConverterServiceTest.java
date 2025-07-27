@@ -40,14 +40,14 @@ class MapConverterServiceTest {
         lenient().when(googleProvider.getType()).thenReturn(googleMapType);
 
         lenient().when(googleProvider.generateUrl(any(LocationResult.class)))
-                .thenAnswer(i -> "https://www.google.com/maps?q=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
+                .thenAnswer(i -> "https://www.google.com/maps?q=" + i.getArgument(0, LocationResult.class).getCoordinates().getLat() + "," + i.getArgument(0, LocationResult.class).getCoordinates().getLon());
 
         appleMapType = mock(MapType.class);
         lenient().when(appleMapType.getName()).thenReturn("apple");
         lenient().when(appleProvider.getType()).thenReturn(appleMapType);
 
         lenient().when(appleProvider.generateUrl(any(LocationResult.class)))
-                .thenAnswer(i -> "https://maps.apple.com/?ll=" + i.getArgument(0, Coordinate.class).getLat() + "," + i.getArgument(0, Coordinate.class).getLon());
+                .thenAnswer(i -> "https://maps.apple.com/?ll=" + i.getArgument(0, LocationResult.class).getCoordinates().getLat() + "," + i.getArgument(0, LocationResult.class).getCoordinates().getLon());
 
         // Initialize service with mock providers and input processor
         service = new MapConverterServiceImpl(List.of(googleProvider, appleProvider), userInputProcessorService);

@@ -2,23 +2,36 @@ package com.example.mapsbridge.provider.impl;
 
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.metrics.MapProviderMetrics;
+import com.example.mapsbridge.provider.extractor.bing.B100DefaultExtractor;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ExtendWith(MockitoExtension.class)
 class BingMapProviderTest {
+
+    @Mock
+    private MapProviderMetrics mockMetrics;
 
     private BingMapProvider target;
 
     @BeforeEach
     void setUp() {
-        target = new BingMapProvider(new OkHttpClient.Builder().build(), "https://www.bing.com/maps?q={lat},{lon}", List.of());
+        target = new BingMapProvider(
+                new OkHttpClient.Builder().build(),
+                "https://www.bing.com/maps?q={lat},{lon}",
+                List.of(new B100DefaultExtractor(new OkHttpClient.Builder().build())),
+                mockMetrics);
     }
 
     @Test

@@ -169,7 +169,7 @@ class ResponseFormatterServiceTest {
         String response = responseFormatterService.convertMessageToMapLinks(message);
 
         // Then
-        assertEquals("Sorry, I couldn't process your message ...", response);
+        assertEquals("Sorry, I couldn't process your message. Please try again later! 🤖", response);
         
         // Verify the service was called with the correct request
         verify(mapConverterService).convert(argThat(request -> 
@@ -190,7 +190,7 @@ class ResponseFormatterServiceTest {
         String response = responseFormatterService.convertMessageToMapLinks(message);
 
         // Then
-        assertEquals("Sorry, I couldn't process your message ...", response);
+        assertEquals("Sorry, I couldn't process your message. Please try again later! 🤖", response);
         
         // Verify the service was called with the correct request
         verify(mapConverterService).convert(argThat(request -> 
@@ -211,7 +211,7 @@ class ResponseFormatterServiceTest {
         String response = responseFormatterService.convertMessageToMapLinks(message);
 
         // Then
-        assertEquals("Sorry, I couldn't process your message ...", response);
+        assertEquals("Sorry, I couldn't process your message. Please try again later! 🤖", response);
         
         // Verify the service was called with the correct request
         verify(mapConverterService).convert(argThat(request -> 
@@ -241,7 +241,7 @@ class ResponseFormatterServiceTest {
         // Then
         assertNotNull(response);
         // Verify name is displayed on top
-        assertTrue(response.contains("📍 Statue of Liberty"));
+        assertTrue(response.contains("🏷️ Statue of Liberty"));
         // Verify address is displayed below
         assertTrue(response.contains("📍 New York, USA"));
         // Verify the order: name should appear before address

@@ -3,6 +3,7 @@ package com.example.mapsbridge.provider.impl;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.metrics.MapProviderMetrics;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -19,6 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class WazeMapProviderTest {
+
+    @Mock
+    private MapProviderMetrics mockMetrics;
 
     private WazeMapProvider target;
 
@@ -42,7 +47,12 @@ class WazeMapProviderTest {
 
     @BeforeEach
     void setUp() {
-        target = new WazeMapProvider(new OkHttpClient.Builder().build(), "https://waze.com/ul?ll={lat},{lon}&navigate=yes", List.of());
+        OkHttpClient httpClient = new OkHttpClient.Builder().build();
+        target = new WazeMapProvider(
+                httpClient,
+                "https://waze.com/ul?ll={lat},{lon}&navigate=yes",
+                List.of(new com.example.mapsbridge.provider.extractor.waze.W100DefaultExtractor(httpClient)),
+                mockMetrics);
     }
 
     @Test

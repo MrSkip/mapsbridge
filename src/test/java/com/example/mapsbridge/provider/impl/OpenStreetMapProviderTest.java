@@ -2,28 +2,39 @@ package com.example.mapsbridge.provider.impl;
 
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
+import com.example.mapsbridge.metrics.MapProviderMetrics;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Execution(ExecutionMode.SAME_THREAD)
+@ExtendWith(MockitoExtension.class)
 class OpenStreetMapProviderTest {
+
+    @Mock
+    private MapProviderMetrics mockMetrics;
 
     private OpenStreetMapProvider target;
 
     @BeforeEach
     void setUp() {
+        OkHttpClient httpClient = new OkHttpClient.Builder().build();
         target = new OpenStreetMapProvider(
-                new OkHttpClient.Builder().build(),
-                "https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}", List.of()
+                httpClient,
+                "https://www.openstreetmap.org/?mlat={lat}&mlon={lon}#map=16/{lat}/{lon}",
+                List.of(new com.example.mapsbridge.provider.extractor.openstreet.O100DefaultExtractor(httpClient)),
+                mockMetrics
         );
     }
 

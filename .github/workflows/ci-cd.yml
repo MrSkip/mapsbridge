@@ -54,7 +54,7 @@ jobs:
       - name: Build Gradle project
         run: |
           chmod +x ./gradlew
-          ./gradlew build -x test
+          ./gradlew build
 
       # Step 7: Build the Docker image
       - name: Build Docker image

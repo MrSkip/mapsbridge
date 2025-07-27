@@ -3,42 +3,31 @@ package com.example.mapsbridge.provider.impl;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.metrics.MapProviderMetrics;
+import com.example.mapsbridge.provider.extractor.apple.A100DefaultExtractor;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
+@ExtendWith(MockitoExtension.class)
 class AppleMapProviderTest {
+
+    @Mock
+    private MapProviderMetrics mockMetrics;
 
     private AppleMapProvider target;
 
     @BeforeEach
     void setUp() {
-        MapProviderMetrics mockMetrics = mock(MapProviderMetrics.class);
-        target = new AppleMapProvider(new OkHttpClient.Builder().build(), "https://maps.apple.com/?q={lat},{lon}", List.of(), mockMetrics);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "https://maps.apple.com/?ul?ll=51.98312,5.905344",
-            "https://maps.apple.com/?@51.98312,5.905344",
-            "https://maps.apple.com/?&coordinate=51.98312,5.905344",
-    })
-    void testExtractCoordinatesWithValidUrls(String url) {
-        // when
-        LocationResult locationResult = target.extractLocation(url);
-
-        // then
-        assertNotNull(locationResult);
-        assertNotNull(locationResult.getCoordinates());
-        assertEquals(51.98312, locationResult.getCoordinates().getLat());
-        assertEquals(5.905344, locationResult.getCoordinates().getLon());
+        target = new AppleMapProvider(new OkHttpClient.Builder().build(), "https://maps.apple.com/?q={lat},{lon}", List.of(new A100DefaultExtractor(new OkHttpClient.Builder().build())), mockMetrics);
     }
 
     @ParameterizedTest

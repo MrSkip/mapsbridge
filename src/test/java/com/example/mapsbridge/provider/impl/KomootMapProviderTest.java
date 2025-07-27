@@ -39,7 +39,7 @@ class KomootMapProviderTest {
 
     @BeforeEach
     void setUp() {
-        target = new KomootMapProvider(new OkHttpClient.Builder().build(), "https://www.komoot.com/plan/@{lat},{lon}");
+        target = new KomootMapProvider(new OkHttpClient.Builder().build(), "https://www.komoot.com/plan/@{lat},{lon}", null);
     }
 
     @Test
@@ -54,7 +54,7 @@ class KomootMapProviderTest {
         LocationResult locationResult = target.extractLocation(url);
 
         // then
-        assertNull(locationResult);
+        assertNull(locationResult.getCoordinates());
     }
 
     @ParameterizedTest

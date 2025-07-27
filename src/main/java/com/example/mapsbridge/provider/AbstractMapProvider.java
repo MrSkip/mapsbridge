@@ -9,7 +9,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -53,7 +52,7 @@ public abstract class AbstractMapProvider implements MapProvider {
                                String urlTemplate,
                                Pattern urlPattern,
                                List<? extends CoordinateExtractor> extractors,
-                               @Autowired MapProviderMetrics metrics) {
+                               MapProviderMetrics metrics) {
         this.httpClient = httpClient;
         this.urlTemplate = urlTemplate;
         this.urlPattern = urlPattern;
@@ -102,19 +101,13 @@ public abstract class AbstractMapProvider implements MapProvider {
 
             if (locationResult.hasValidCoordinates()) {
                 locationResult.setMapSource(getType());
-                log.info("Extracted location using {}: {}", extractorName, locationResult);
 
-                // Track successful extraction
-                if (metrics != null) {
-                    metrics.trackExtractionSuccess(getType(), extractorName);
-                }
-                
+                metrics.trackExtractionSuccess(getType(), extractorName);
+
+                log.info("Extracted location using {}: {}", extractorName, locationResult);
                 return locationResult;
             } else {
-                // Track failed extraction
-                if (metrics != null) {
-                    metrics.trackExtractionFailure(getType(), extractorName);
-                }
+                metrics.trackExtractionFailure(getType(), extractorName);
             }
         }
 
