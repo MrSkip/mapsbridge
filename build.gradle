@@ -62,6 +62,7 @@ dependencies {
 
     // AWS CloudWatch
     implementation 'io.micrometer:micrometer-registry-cloudwatch2'
+    implementation 'software.amazon.awssdk:cloudwatch'
     implementation 'software.amazon.awssdk:cloudwatchlogs'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
