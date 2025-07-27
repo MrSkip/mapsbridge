@@ -27,19 +27,26 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Ignore application secrets and local configurations
+# Ignore environment files with secrets
 *.env
 .env
 .env.*
 !.env.template
 !docker-secrets/.env.template
-**/application-*.properties
-**/application-*.yml
-!**/application-prod.properties
-!**/application-prod.yml
-!**/application.yml
-!**/application.properties
-!**/application-ratelimiter.properties
+
+# Ignore development and local configuration files
+**/application-dev.properties
+**/*-dev.yml
+**/*-test.yml
+**/*-dev.xml
+**/*-test.xml
+**/application-local.properties
+**/application-local.yml
+**/application-test.properties
+**/application-test.yml
+
+# Include all other resources files
+!**/src/main/resources/**
 
 # Ignore test files
 **/src/test/
