@@ -43,7 +43,7 @@ dependencies {
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
     implementation 'com.google.maps:google-maps-services:2.2.0'
-    implementation 'org.apache.commons:commons-lang3:3.14.0'
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
     implementation 'org.telegram:telegrambots-spring-boot-starter:6.9.7.1'
     implementation 'org.telegram:telegrambots:6.9.7.1'
     implementation 'com.github.spullara.mustache.java:compiler:0.9.14'
