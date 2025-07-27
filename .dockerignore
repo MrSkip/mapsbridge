@@ -39,6 +39,7 @@ Thumbs.db
 !**/application-prod.yml
 !**/application.yml
 !**/application.properties
+!**/application-ratelimiter.properties
 
 # Ignore test files
 **/src/test/
