@@ -34,20 +34,6 @@ Thumbs.db
 !.env.template
 !docker-secrets/.env.template
 
-# Ignore development and local configuration files
-**/application-dev.properties
-**/*-dev.yml
-**/*-test.yml
-**/*-dev.xml
-**/*-test.xml
-**/application-local.properties
-**/application-local.yml
-**/application-test.properties
-**/application-test.yml
-
-# Include all other resources files
-!**/src/main/resources/**
-
 # Ignore test files
 **/src/test/
 
