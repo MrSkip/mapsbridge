@@ -1,16 +1,15 @@
 package com.example.mapsbridge.service;
 
+import com.example.mapsbridge.config.metrics.MetricTags;
+import com.example.mapsbridge.config.metrics.tracker.InputSourceTracker;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.exception.CoordinateExtractionException;
 import com.example.mapsbridge.exception.InvalidCoordinateException;
 import com.example.mapsbridge.exception.InvalidInputException;
-import com.example.mapsbridge.metrics.MetricTags;
 import com.example.mapsbridge.provider.MapProvider;
 import com.example.mapsbridge.service.geocoding.HybridGeocodingService;
 import com.example.mapsbridge.util.InputPatterns;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,9 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserInputProcessorService {
     private final List<MapProvider> mapProviders;
-    private final Counter.Builder inputTypeCounterBuilder;
-    private final Counter.Builder mapProviderUrlCounterBuilder;
-    private final MeterRegistry meterRegistry;
+    private final InputSourceTracker inputSourceTracker;
     private final HybridGeocodingService geocodingService;
 
     /**
@@ -59,7 +56,7 @@ public class UserInputProcessorService {
     }
 
     private LocationResult processCoordinateInput(String input) {
-        trackMetric(inputTypeCounterBuilder, MetricTags.INPUT_TYPE, MetricTags.COORDINATES);
+        inputSourceTracker.trackInputType(MetricTags.COORDINATES);
 
         Coordinate coordinate = Coordinate.fromString(input.trim());
         if (!coordinate.isValid()) {
@@ -70,7 +67,7 @@ public class UserInputProcessorService {
     }
 
     private LocationResult processUrlInput(String input) {
-        trackMetric(inputTypeCounterBuilder, MetricTags.INPUT_TYPE, MetricTags.URL);
+        inputSourceTracker.trackInputType(MetricTags.URL);
 
         LocationResult locationResult = extractLocationFromUrl(input);
         if (locationResult == null || !locationResult.hasValidCoordinates()) {
@@ -95,22 +92,15 @@ public class UserInputProcessorService {
             }
         }
 
-        trackMetric(mapProviderUrlCounterBuilder, MetricTags.PROVIDER, MetricTags.UNKNOWN);
+        inputSourceTracker.trackMapProviderUrl(MetricTags.UNKNOWN);
         log.info("Could not extract location information from URL: {}", url);
         return null;
     }
 
     private LocationResult processProviderUrlForLocation(MapProvider provider, String url) {
-        trackMetric(mapProviderUrlCounterBuilder, MetricTags.PROVIDER, provider.getType().getName());
+        inputSourceTracker.trackMapProviderUrl(provider.getType().getName());
 
         LocationResult locationResult = provider.extractLocation(url);
         return (locationResult != null && locationResult.hasValidCoordinates()) ? locationResult : null;
-    }
-
-    private void trackMetric(Counter.Builder counterBuilder, String tagKey, String tagValue) {
-        counterBuilder
-                .tag(tagKey, tagValue)
-                .register(meterRegistry)
-                .increment();
     }
 }

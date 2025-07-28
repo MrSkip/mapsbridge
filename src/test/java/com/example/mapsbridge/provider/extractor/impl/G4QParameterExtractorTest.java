@@ -2,39 +2,23 @@ package com.example.mapsbridge.provider.extractor.impl;
 
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.provider.extractor.google.G4QParameterExtractor;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 class G4QParameterExtractorTest {
 
     private G4QParameterExtractor extractor;
-
-    @Mock
-    private Counter.Builder counterBuilder;
-
-    @Mock
-    private MeterRegistry meterRegistry;
-
-    @Mock
-    private Counter counter;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
         // Configure mocks
-        when(counterBuilder.tag(anyString(), anyString())).thenReturn(counterBuilder);
-        when(counterBuilder.register(meterRegistry)).thenReturn(counter);
 
-        extractor = new G4QParameterExtractor(counterBuilder, meterRegistry);
+        extractor = new G4QParameterExtractor();
     }
 
     @Test

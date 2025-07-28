@@ -5,8 +5,6 @@ import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.provider.extractor.google.G7AddressGeocodingExtractor;
 import com.example.mapsbridge.provider.url.UrlPatternExtractor;
 import com.example.mapsbridge.service.geocoding.HybridGeocodingService;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,31 +30,9 @@ class G7AddressGeocodingExtractorTest {
     @Mock
     private UrlPatternExtractor mockUrlPatternExtractor;
 
-    @Mock
-    private Counter.Builder mockCounterBuilder;
-
-    @Mock
-    private Counter.Builder mockInputTypeCounterBuilder;
-
-    @Mock
-    private MeterRegistry mockMeterRegistry;
-
-    @Mock
-    private Counter mockCounter;
-
     @BeforeEach
     void setUp() {
-        // Configure the mock Counter.Builder to return a mock Counter when register() is called
-        when(mockCounterBuilder.tag(anyString(), anyString())).thenReturn(mockCounterBuilder);
-        when(mockCounterBuilder.register(mockMeterRegistry)).thenReturn(mockCounter);
-
-        when(mockInputTypeCounterBuilder.register(mockMeterRegistry)).thenReturn(mockCounter);
-
-        extractor = new G7AddressGeocodingExtractor(
-                mockGeocodingService,
-                mockUrlPatternExtractor,
-                mockCounterBuilder,
-                mockMeterRegistry);
+        extractor = new G7AddressGeocodingExtractor(mockGeocodingService, mockUrlPatternExtractor);
     }
 
     @Test
@@ -84,7 +60,6 @@ class G7AddressGeocodingExtractorTest {
         // Verify the services were called
         verify(mockUrlPatternExtractor).findAddressQuery(url);
         verify(mockGeocodingService).geocodeQuery(query);
-        verify(mockCounter).increment();
     }
 
     @Test
@@ -127,7 +102,6 @@ class G7AddressGeocodingExtractorTest {
         // Verify the services were called
         verify(mockUrlPatternExtractor).findAddressQuery(url);
         verify(mockGeocodingService).geocodeQuery(query);
-        verify(mockCounter, never()).increment();
     }
 
     @Test

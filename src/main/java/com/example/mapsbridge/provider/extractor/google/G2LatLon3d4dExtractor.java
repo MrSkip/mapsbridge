@@ -2,12 +2,9 @@ package com.example.mapsbridge.provider.extractor.google;
 
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -39,8 +36,6 @@ import static com.example.mapsbridge.provider.utils.PlaceNameDecoder.extractPlac
 @Slf4j
 public class G2LatLon3d4dExtractor implements GoogleCoordinateExtractor {
 
-    private static final String COUNTER_TAG_METHOD = "latLon3d4d";
-
     /**
      * Regular expression pattern to match !3d!4d coordinate format in Google Maps URLs.
      *
@@ -54,17 +49,6 @@ public class G2LatLon3d4dExtractor implements GoogleCoordinateExtractor {
      * </p>
      */
     private static final Pattern PATTERN_3D4D = Pattern.compile("!3d([\\-\\d.]+)!4d([\\-\\d.]+)");
-
-    private final Counter latLon3d4dCounter;
-
-    @Autowired
-    public G2LatLon3d4dExtractor(
-            Counter.Builder googleMapsExtractorCounterBuilder,
-            MeterRegistry meterRegistry) {
-        this.latLon3d4dCounter = googleMapsExtractorCounterBuilder
-                .tag("method", COUNTER_TAG_METHOD)
-                .register(meterRegistry);
-    }
 
     @Override
     public @NotNull LocationResult extract(String url) {
@@ -93,9 +77,6 @@ public class G2LatLon3d4dExtractor implements GoogleCoordinateExtractor {
             Coordinate coordinate = new Coordinate(lastLat, lastLon);
 
             String placeName = extractPlaceName(url);
-
-            // Increment counter for successful coordinate extraction
-            latLon3d4dCounter.increment();
 
             return new LocationResult(null, coordinate, null, placeName);
         }

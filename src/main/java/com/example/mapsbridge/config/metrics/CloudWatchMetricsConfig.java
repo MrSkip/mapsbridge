@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
 
@@ -20,6 +21,7 @@ import java.time.Duration;
  * required by micrometer-registry-cloudwatch2 to send metrics to CloudWatch.
  */
 @Configuration
+@Profile("prod")
 public class CloudWatchMetricsConfig {
 
     @Value("${management.metrics.export.cloudwatch.region:${AWS_REGION:eu-north-1}}")

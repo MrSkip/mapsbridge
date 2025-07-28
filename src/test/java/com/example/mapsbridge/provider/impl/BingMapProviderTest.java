@@ -1,8 +1,8 @@
 package com.example.mapsbridge.provider.impl;
 
+import com.example.mapsbridge.config.metrics.tracker.MapProviderTracker;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.extractor.bing.B100DefaultExtractor;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class BingMapProviderTest {
 
     @Mock
-    private MapProviderMetrics mockMetrics;
+    private MapProviderTracker mockMetrics;
 
     private BingMapProvider target;
 

@@ -1,6 +1,6 @@
-
 package com.example.mapsbridge.service.geocoding;
 
+import com.example.mapsbridge.config.metrics.tracker.GeocodingTracker;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.google.maps.GeoApiContext;
@@ -10,8 +10,6 @@ import com.google.maps.PlacesApi;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,18 +27,17 @@ public class GoogleGeocodingServiceImpl implements GeocodingService {
 
     private final GeoApiContext geoApiContext;
     private final boolean googleApiEnabled;
-    private final GoogleApiCounters counters;
+    private final GeocodingTracker geocodingTracker;
 
     @Autowired
     public GoogleGeocodingServiceImpl(
             GeoApiContext geoApiContext,
             @Value("${google.api.enabled:false}") boolean googleApiEnabled,
-            Counter.Builder geocodingCounterBuilder,
-            MeterRegistry meterRegistry) {
+            GeocodingTracker geocodingTracker) {
 
         this.geoApiContext = geoApiContext;
         this.googleApiEnabled = googleApiEnabled;
-        this.counters = new GoogleApiCounters(geocodingCounterBuilder, meterRegistry);
+        this.geocodingTracker = geocodingTracker;
     }
 
     @Override
@@ -51,7 +48,7 @@ public class GoogleGeocodingServiceImpl implements GeocodingService {
 
         try {
             GeocodingResult[] results = performReverseGeocoding(coordinate);
-            counters.incrementReverseGeocode();
+            geocodingTracker.trackReverseGeocode("google");
 
             return processReverseGeocodingResults(results, coordinate);
         } catch (Exception e) {
@@ -68,7 +65,7 @@ public class GoogleGeocodingServiceImpl implements GeocodingService {
 
         try {
             PlaceDetails placeDetails = fetchPlaceDetails(placeId);
-            counters.incrementPlaceIdLookup();
+            geocodingTracker.trackPlaceIdLookup("google");
 
             return processPlaceDetails(placeDetails);
         } catch (Exception e) {
@@ -85,7 +82,7 @@ public class GoogleGeocodingServiceImpl implements GeocodingService {
 
         try {
             GeocodingResult[] results = performForwardGeocoding(query);
-            counters.incrementForwardGeocode();
+            geocodingTracker.trackForwardGeocode("google");
 
             return processGeocodingResults(results);
         } catch (Exception e) {
@@ -113,7 +110,7 @@ public class GoogleGeocodingServiceImpl implements GeocodingService {
 
         try {
             PlaceDetails placeDetails = fetchPlaceDetailsWithGeometryOnly(placeId);
-            counters.incrementPlaceIdLookup();
+            geocodingTracker.trackPlaceIdLookup("google");
 
             return extractCoordinatesFromPlaceDetails(placeDetails);
         } catch (Exception e) {
@@ -214,44 +211,5 @@ public class GoogleGeocodingServiceImpl implements GeocodingService {
         double lat = result.geometry.location.lat;
         double lng = result.geometry.location.lng;
         return new Coordinate(lat, lng);
-    }
-
-    /**
-     * Inner class to handle metrics counters for Google API operations.
-     * Encapsulates counter creation and increment operations.
-     */
-    private static class GoogleApiCounters {
-        private final Counter placeIdLookupCounter;
-        private final Counter reverseGeocodeCounter;
-        private final Counter forwardGeocodeCounter;
-
-        public GoogleApiCounters(Counter.Builder geocodingCounterBuilder, MeterRegistry meterRegistry) {
-            this.placeIdLookupCounter = geocodingCounterBuilder
-                    .tag("service", "google")
-                    .tag("operation", "placeIdLookup")
-                    .register(meterRegistry);
-
-            this.reverseGeocodeCounter = geocodingCounterBuilder
-                    .tag("service", "google")
-                    .tag("operation", "reverseGeocode")
-                    .register(meterRegistry);
-
-            this.forwardGeocodeCounter = geocodingCounterBuilder
-                    .tag("service", "google")
-                    .tag("operation", "forwardGeocode")
-                    .register(meterRegistry);
-        }
-
-        public void incrementPlaceIdLookup() {
-            placeIdLookupCounter.increment();
-        }
-
-        public void incrementReverseGeocode() {
-            reverseGeocodeCounter.increment();
-        }
-
-        public void incrementForwardGeocode() {
-            forwardGeocodeCounter.increment();
-        }
     }
 }

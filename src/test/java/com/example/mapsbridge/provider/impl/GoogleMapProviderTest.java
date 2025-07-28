@@ -1,9 +1,9 @@
 package com.example.mapsbridge.provider.impl;
 
+import com.example.mapsbridge.config.metrics.tracker.MapProviderTracker;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.extractor.google.*;
 import com.example.mapsbridge.provider.url.UrlPatternExtractor;
 import com.example.mapsbridge.service.GoogleGeocodingService;
@@ -44,13 +44,10 @@ class GoogleMapProviderTest {
     private Counter.Builder mockCounterBuilder;
 
     @Mock
-    private Counter.Builder mockInputTypeCounterBuilder;
-
-    @Mock
     private MeterRegistry mockMeterRegistry;
 
     @Mock
-    private MapProviderMetrics mockMapProviderMetrics;
+    private MapProviderTracker mockMapProviderTracker;
 
     @BeforeEach
     void setUp() {
@@ -64,20 +61,16 @@ class GoogleMapProviderTest {
 
         // Create mock extractors
         OkHttpClient httpClient = new OkHttpClient.Builder().build();
-        G2LatLon3d4dExtractor latLon3d4dExtractor = new G2LatLon3d4dExtractor(mockCounterBuilder, mockMeterRegistry);
-        G3AtSymbolExtractor atSymbolExtractor = new G3AtSymbolExtractor(mockCounterBuilder, mockMeterRegistry);
-        G4QParameterExtractor qParameterExtractor = new G4QParameterExtractor(mockCounterBuilder, mockMeterRegistry);
-        G5SearchPatternExtractor searchPatternExtractor = new G5SearchPatternExtractor(mockCounterBuilder, mockMeterRegistry);
+        G2LatLon3d4dExtractor latLon3d4dExtractor = new G2LatLon3d4dExtractor();
+        G3AtSymbolExtractor atSymbolExtractor = new G3AtSymbolExtractor();
+        G4QParameterExtractor qParameterExtractor = new G4QParameterExtractor();
+        G5SearchPatternExtractor searchPatternExtractor = new G5SearchPatternExtractor();
         G6PlaceIdExtractor placeIdExtractor = new G6PlaceIdExtractor(
                 mockHybridGeocodingService,
-                mockUrlPatternExtractor,
-                mockCounterBuilder,
-                mockMeterRegistry);
+                mockUrlPatternExtractor);
         G7AddressGeocodingExtractor addressGeocodingExtractor = new G7AddressGeocodingExtractor(
                 mockHybridGeocodingService,
-                mockUrlPatternExtractor,
-                mockCounterBuilder,
-                mockMeterRegistry);
+                mockUrlPatternExtractor);
 
         // Provider with mock geocoding service and extractors
         target = new GoogleMapProvider(
@@ -91,9 +84,7 @@ class GoogleMapProviderTest {
                         placeIdExtractor,
                         addressGeocodingExtractor
                 ),
-                mockCounterBuilder,
-                mockMeterRegistry,
-                mockMapProviderMetrics);
+                mockMapProviderTracker);
     }
 
     @Test

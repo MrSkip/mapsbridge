@@ -1,11 +1,10 @@
 package com.example.mapsbridge.service.geocoding;
 
+import com.example.mapsbridge.config.metrics.tracker.GeocodingTracker;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,26 +45,21 @@ public class RadarGeocodingService implements GeocodingService {
 
     private final WebClient webClient;
     private final boolean radarApiEnabled;
-    private final Counter reverseGeocodeCounter;
-    private final Counter forwardGeocodeCounter;
+    private final GeocodingTracker geocodingTracker;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public RadarGeocodingService(
             @Value("${radar.api.key:}") String radarApiKey,
             @Value("${radar.api.enabled:false}") boolean radarApiEnabled,
-            Counter.Builder geocodingCounterBuilder,
-            MeterRegistry meterRegistry) {
+            GeocodingTracker geocodingTracker) {
 
         this.radarApiEnabled = radarApiEnabled;
+        this.geocodingTracker = geocodingTracker;
         this.objectMapper = new ObjectMapper();
 
         // Create WebClient with proper configuration
         this.webClient = createWebClient(radarApiKey);
-
-        // Initialize counters with proper tags
-        this.reverseGeocodeCounter = createCounter(geocodingCounterBuilder, "reverseGeocode", meterRegistry);
-        this.forwardGeocodeCounter = createCounter(geocodingCounterBuilder, "forwardGeocode", meterRegistry);
     }
 
     @Override
@@ -77,7 +71,7 @@ public class RadarGeocodingService implements GeocodingService {
 
         try {
             String responseBody = performReverseGeocodeRequest(coordinate);
-            reverseGeocodeCounter.increment();
+            geocodingTracker.trackReverseGeocode("radar");
             return parseReverseGeocodeResponse(coordinate, responseBody);
         } catch (Exception e) {
             log.error("Error reverse geocoding with Radar API for coordinates {},{}: {}",
@@ -102,7 +96,7 @@ public class RadarGeocodingService implements GeocodingService {
 
         try {
             String responseBody = performForwardGeocodeRequest(query);
-            forwardGeocodeCounter.increment();
+            geocodingTracker.trackForwardGeocode("radar");
             return parseForwardGeocodeResponse(responseBody);
         } catch (Exception e) {
             log.error("Error forward geocoding with Radar API for query '{}': {}", query, e.getMessage());
@@ -126,16 +120,6 @@ public class RadarGeocodingService implements GeocodingService {
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader("Authorization", apiKey)
                 .build();
-    }
-
-    /**
-     * Creates a counter with proper tags for metrics collection.
-     */
-    private Counter createCounter(Counter.Builder builder, String operation, MeterRegistry registry) {
-        return builder
-                .tag("service", "radar")
-                .tag("operation", operation)
-                .register(registry);
     }
 
     /**

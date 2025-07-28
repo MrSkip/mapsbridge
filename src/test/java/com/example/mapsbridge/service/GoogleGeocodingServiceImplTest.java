@@ -1,7 +1,9 @@
-package com.example.mapsbridge.service.geocoding;
+package com.example.mapsbridge.service;
 
+import com.example.mapsbridge.config.metrics.tracker.GeocodingTracker;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
+import com.example.mapsbridge.service.geocoding.GoogleGeocodingServiceImpl;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.PlacesApi;
@@ -9,9 +11,6 @@ import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.Geometry;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.PlaceDetails;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,28 +33,24 @@ class GoogleGeocodingServiceImplTest {
     @Mock
     private GeoApiContext geoApiContext;
 
-    private MeterRegistry meterRegistry;
-    private Counter.Builder counterBuilder;
+    @Mock
+    private GeocodingTracker geocodingTracker;
+
     private GoogleGeocodingServiceImpl service;
     private GoogleGeocodingServiceImpl disabledService;
 
     @BeforeEach
     void setUp() {
-        meterRegistry = new SimpleMeterRegistry();
-        counterBuilder = Counter.builder("geocoding.requests");
-
         service = new GoogleGeocodingServiceImpl(
                 geoApiContext,
                 true, // enabled
-                counterBuilder,
-                meterRegistry
+                geocodingTracker
         );
 
         disabledService = new GoogleGeocodingServiceImpl(
                 geoApiContext,
                 false, // disabled
-                counterBuilder,
-                meterRegistry
+                geocodingTracker
         );
     }
 
@@ -89,6 +84,7 @@ class GoogleGeocodingServiceImplTest {
             assertEquals(40.7128, locationResult.getCoordinates().getLat());
             assertEquals(-74.0060, locationResult.getCoordinates().getLon());
             assertEquals("New York, NY", locationResult.getAddress());
+            verify(geocodingTracker).trackReverseGeocode("google");
         }
     }
 
@@ -114,6 +110,7 @@ class GoogleGeocodingServiceImplTest {
             assertEquals(40.7128, locationResult.getCoordinates().getLat());
             assertEquals(-74.0060, locationResult.getCoordinates().getLon());
             assertNull(locationResult.getAddress());
+            verify(geocodingTracker).trackReverseGeocode("google");
         }
     }
 
@@ -139,6 +136,7 @@ class GoogleGeocodingServiceImplTest {
             assertEquals(40.7128, locationResult.getCoordinates().getLat());
             assertEquals(-74.0060, locationResult.getCoordinates().getLon());
             assertNull(locationResult.getAddress());
+            verify(geocodingTracker, never()).trackReverseGeocode(anyString());
         }
     }
 
@@ -147,7 +145,7 @@ class GoogleGeocodingServiceImplTest {
     void shouldReturnCoordinatesWhenServiceDisabled(boolean enabled) {
         // Given
         GoogleGeocodingServiceImpl disabledService = new GoogleGeocodingServiceImpl(
-                geoApiContext, enabled, counterBuilder, meterRegistry);
+                geoApiContext, enabled, geocodingTracker);
         Coordinate coordinate = new Coordinate(40.7128, -74.0060);
 
         // When
@@ -159,6 +157,7 @@ class GoogleGeocodingServiceImplTest {
         assertEquals(coordinate.getLat(), result.getCoordinates().getLat());
         assertEquals(coordinate.getLon(), result.getCoordinates().getLon());
         assertNull(result.getAddress());
+        verify(geocodingTracker, never()).trackReverseGeocode(anyString());
     }
 
     // Place ID Tests
@@ -186,6 +185,7 @@ class GoogleGeocodingServiceImplTest {
             assertEquals(2.3522, result.getCoordinates().getLon());
             assertEquals("Paris, France", result.getAddress());
             assertEquals("Paris", result.getPlaceName());
+            verify(geocodingTracker).trackPlaceIdLookup("google");
         }
     }
 
@@ -196,6 +196,7 @@ class GoogleGeocodingServiceImplTest {
 
         // Then
         assertNull(result);
+        verify(geocodingTracker, never()).trackPlaceIdLookup(anyString());
     }
 
     @Test
@@ -216,6 +217,7 @@ class GoogleGeocodingServiceImplTest {
 
             // Then
             assertNull(result);
+            verify(geocodingTracker, never()).trackPlaceIdLookup(anyString());
         }
     }
 
@@ -243,6 +245,7 @@ class GoogleGeocodingServiceImplTest {
             assertEquals(40.7128, locationResult.getCoordinates().getLat());
             assertEquals(-74.0060, locationResult.getCoordinates().getLon());
             assertEquals("New York, NY, USA", locationResult.getAddress());
+            verify(geocodingTracker).trackForwardGeocode("google");
         }
     }
 
@@ -264,6 +267,7 @@ class GoogleGeocodingServiceImplTest {
 
             // Then
             assertNull(result);
+            verify(geocodingTracker).trackForwardGeocode("google");
         }
     }
 
@@ -276,6 +280,7 @@ class GoogleGeocodingServiceImplTest {
 
         // Then
         assertNull(result);
+        verify(geocodingTracker, never()).trackForwardGeocode(anyString());
     }
 
     // Place Coordinates Tests
@@ -304,6 +309,7 @@ class GoogleGeocodingServiceImplTest {
             assertNotNull(coordinate);
             assertEquals(48.8566, coordinate.getLat());
             assertEquals(2.3522, coordinate.getLon());
+            verify(geocodingTracker).trackPlaceIdLookup("google");
         }
     }
 
@@ -314,6 +320,7 @@ class GoogleGeocodingServiceImplTest {
 
         // Then
         assertNull(coordinate);
+        verify(geocodingTracker, never()).trackPlaceIdLookup(anyString());
     }
 
     @Test
@@ -335,6 +342,7 @@ class GoogleGeocodingServiceImplTest {
 
             // Then
             assertNull(coordinate);
+            verify(geocodingTracker, never()).trackPlaceIdLookup(anyString());
         }
     }
 
@@ -347,6 +355,7 @@ class GoogleGeocodingServiceImplTest {
         // Then
         assertNotNull(result);
         assertNull(result.getCoordinates());
+        verify(geocodingTracker, never()).trackReverseGeocode(anyString());
     }
 
     @Test
@@ -360,6 +369,7 @@ class GoogleGeocodingServiceImplTest {
         // Then
         assertNotNull(result);
         assertEquals(invalidCoordinate, result.getCoordinates());
+        verify(geocodingTracker, never()).trackReverseGeocode(anyString());
     }
 
     @ParameterizedTest
@@ -391,62 +401,7 @@ class GoogleGeocodingServiceImplTest {
             assertNotNull(locationResult.getCoordinates());
             assertEquals(lat, locationResult.getCoordinates().getLat());
             assertEquals(lon, locationResult.getCoordinates().getLon());
-        }
-    }
-
-    // Metrics Tests
-    @Test
-    void shouldIncrementCountersOnOperations() throws Exception {
-        // Given
-        Coordinate coordinate = new Coordinate(40.7128, -74.0060);
-        GeocodingResult result = createGeocodingResult("New York", 40.7128, -74.0060);
-
-        try (MockedStatic<GeocodingApi> mockedApi = mockStatic(GeocodingApi.class)) {
-            // Create mock request
-            com.google.maps.GeocodingApiRequest mockRequest = mock(com.google.maps.GeocodingApiRequest.class);
-            when(mockRequest.await()).thenReturn(new GeocodingResult[]{result});
-
-            mockedApi.when(() -> GeocodingApi.reverseGeocode(any(GeoApiContext.class), any(LatLng.class)))
-                    .thenReturn(mockRequest);
-
-            // When
-            service.reverseGeocode(coordinate);
-
-            // Then
-            Counter counter = meterRegistry.find("geocoding.requests")
-                    .tag("service", "google")
-                    .tag("operation", "reverseGeocode")
-                    .counter();
-            assertNotNull(counter);
-            assertEquals(1.0, counter.count());
-        }
-    }
-
-    @Test
-    void shouldIncrementCountersOnPlaceIdOperations() throws Exception {
-        // Given
-        String placeId = "ChIJD7fiBh9u5kcRYJSMaMOCCwQ";
-        PlaceDetails placeDetails = createPlaceDetailsWithGeometry(48.8566, 2.3522);
-
-        try (MockedStatic<PlacesApi> mockedApi = mockStatic(PlacesApi.class)) {
-            // Create mock request
-            com.google.maps.PlaceDetailsRequest mockRequest = mock(com.google.maps.PlaceDetailsRequest.class);
-            when(mockRequest.fields(any())).thenReturn(mockRequest);
-            when(mockRequest.await()).thenReturn(placeDetails);
-
-            mockedApi.when(() -> PlacesApi.placeDetails(any(GeoApiContext.class), anyString()))
-                    .thenReturn(mockRequest);
-
-            // When
-            service.getPlaceCoordinates(placeId);
-
-            // Then
-            Counter counter = meterRegistry.find("geocoding.requests")
-                    .tag("service", "google")
-                    .tag("operation", "placeIdLookup")
-                    .counter();
-            assertNotNull(counter);
-            assertEquals(1.0, counter.count());
+            verify(geocodingTracker).trackReverseGeocode("google");
         }
     }
 

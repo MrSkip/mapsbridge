@@ -3,42 +3,21 @@ package com.example.mapsbridge.provider.extractor.impl;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.provider.extractor.google.G2LatLon3d4dExtractor;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 class G2LatLon3D4DExtractorTest {
 
     private G2LatLon3d4dExtractor extractor;
 
-    @Mock
-    private Counter.Builder counterBuilder;
-
-    @Mock
-    private MeterRegistry meterRegistry;
-
-    @Mock
-    private Counter counter;
-
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        // Configure mocks
-        when(counterBuilder.tag(anyString(), anyString())).thenReturn(counterBuilder);
-        when(counterBuilder.register(meterRegistry)).thenReturn(counter);
-
-        extractor = new G2LatLon3d4dExtractor(counterBuilder, meterRegistry);
+        extractor = new G2LatLon3d4dExtractor();
     }
 
     @ParameterizedTest

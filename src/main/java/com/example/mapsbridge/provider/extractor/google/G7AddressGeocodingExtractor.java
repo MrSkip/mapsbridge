@@ -3,8 +3,6 @@ package com.example.mapsbridge.provider.extractor.google;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.provider.url.UrlPatternExtractor;
 import com.example.mapsbridge.service.geocoding.HybridGeocodingService;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,21 +21,13 @@ public class G7AddressGeocodingExtractor implements GoogleCoordinateExtractor {
 
     private final HybridGeocodingService geocodingService;
     private final UrlPatternExtractor urlPatternExtractor;
-    private final Counter addressGeocodingCounter;
 
     @Autowired
     public G7AddressGeocodingExtractor(
             HybridGeocodingService geocodingService,
-            UrlPatternExtractor urlPatternExtractor,
-            Counter.Builder geocodingExtractorSuccessCounterBuilder,
-            MeterRegistry meterRegistry) {
+            UrlPatternExtractor urlPatternExtractor) {
         this.geocodingService = geocodingService;
         this.urlPatternExtractor = urlPatternExtractor;
-
-        // Initialize counter for address geocoding success
-        this.addressGeocodingCounter = geocodingExtractorSuccessCounterBuilder
-                .tag("method", "addressGeocoding")
-                .register(meterRegistry);
     }
 
     @Override
@@ -77,7 +67,6 @@ public class G7AddressGeocodingExtractor implements GoogleCoordinateExtractor {
                     result.getCoordinates().getLon(),
                     result.getAddress());
 
-            addressGeocodingCounter.increment();
             return result;
         }
 

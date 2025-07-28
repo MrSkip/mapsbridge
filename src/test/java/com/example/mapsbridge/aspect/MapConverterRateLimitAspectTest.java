@@ -1,6 +1,7 @@
 package com.example.mapsbridge.aspect;
 
 import com.example.mapsbridge.config.logging.LoggingContext;
+import com.example.mapsbridge.config.metrics.tracker.ClientTracker;
 import com.example.mapsbridge.dto.ConvertRequest;
 import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.dto.Coordinate;
@@ -28,9 +29,10 @@ public class MapConverterRateLimitAspectTest {
 
     @Mock
     private MapConverterRateLimiterService mapConverterRateLimiterService;
-
     @Mock
     private MapConverterService mapConverterService;
+    @Mock
+    private ClientTracker clientTracker;
 
     @InjectMocks
     private MapConverterRateLimitAspect aspect;

@@ -1,8 +1,8 @@
 package com.example.mapsbridge.provider;
 
+import com.example.mapsbridge.config.metrics.tracker.MapProviderTracker;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.exception.InvalidCoordinateException;
-import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.extractor.CoordinateExtractor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -37,7 +37,7 @@ public abstract class AbstractMapProvider implements MapProvider {
     /**
      * Metrics for tracking map provider and extractor usage.
      */
-    protected MapProviderMetrics metrics;
+    protected MapProviderTracker metrics;
 
     /**
      * Constructor with OkHttpClient injection.
@@ -52,7 +52,7 @@ public abstract class AbstractMapProvider implements MapProvider {
                                String urlTemplate,
                                Pattern urlPattern,
                                List<? extends CoordinateExtractor> extractors,
-                               MapProviderMetrics metrics) {
+                               MapProviderTracker metrics) {
         this.httpClient = httpClient;
         this.urlTemplate = urlTemplate;
         this.urlPattern = urlPattern;

@@ -1,6 +1,7 @@
 package com.example.mapsbridge.aspect;
 
 import com.example.mapsbridge.config.logging.LoggingContext;
+import com.example.mapsbridge.config.metrics.tracker.ClientTracker;
 import com.example.mapsbridge.service.ratelimit.MapConverterRateLimiterService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import org.springframework.util.StringUtils;
 public class MapConverterRateLimitAspect {
 
     private final MapConverterRateLimiterService mapConverterRateLimiterService;
+    private final ClientTracker clientTracker;
 
     /**
      * Pointcut that matches the convert method in implementations of the MapConverterService interface.
@@ -53,18 +55,21 @@ public class MapConverterRateLimitAspect {
             // User is using custom API call
             log.debug("Checking geocoding daily quota for email: {}", email);
             mapConverterRateLimiterService.checkDailyQuotaForEmail(email);
+            clientTracker.trackApiRequest();
         } else {
             String ipAddress = LoggingContext.getIpAddress();
             if (StringUtils.hasText(ipAddress)) {
                 // User is using website
                 log.debug("Checking geocoding daily quota for IP: {}", ipAddress);
                 mapConverterRateLimiterService.checkDailyQuotaForIp(ipAddress);
+                clientTracker.trackWebRequest();
             } else {
                 String chatId = LoggingContext.getChatId();
                 if (StringUtils.hasText(chatId)) {
                     // User is using chat
                     log.debug("Checking geocoding daily quota for chat ID: {}", chatId);
                     mapConverterRateLimiterService.checkDailyQuotaForChatId(chatId);
+                    clientTracker.trackTelegramRequest();
                 }
             }
         }

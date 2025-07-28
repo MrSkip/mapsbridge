@@ -1,7 +1,7 @@
 package com.example.mapsbridge.provider.impl;
 
+import com.example.mapsbridge.config.metrics.tracker.MapProviderTracker;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import com.example.mapsbridge.provider.extractor.waze.WazeCoordinateExtractor;
 import okhttp3.OkHttpClient;
@@ -29,8 +29,8 @@ public class WazeMapProvider extends AbstractMapProvider {
             OkHttpClient webClient,
             @Value("${maps.waze.url:https://waze.com/ul?ll={lat},{lon}&navigate=yes}") String urlTemplate,
             List<WazeCoordinateExtractor> extractors,
-            MapProviderMetrics mapProviderMetrics) {
-        super(webClient, urlTemplate, URL_PATTERN, extractors, mapProviderMetrics);
+            MapProviderTracker mapProviderTracker) {
+        super(webClient, urlTemplate, URL_PATTERN, extractors, mapProviderTracker);
     }
 
     @Override

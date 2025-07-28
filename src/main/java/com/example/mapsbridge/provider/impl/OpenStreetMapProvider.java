@@ -1,7 +1,7 @@
 package com.example.mapsbridge.provider.impl;
 
+import com.example.mapsbridge.config.metrics.tracker.MapProviderTracker;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import com.example.mapsbridge.provider.extractor.openstreet.OpenStreetMapCoordinateExtractor;
 import okhttp3.OkHttpClient;
@@ -29,8 +29,8 @@ public class OpenStreetMapProvider extends AbstractMapProvider {
             OkHttpClient httpClient,
             @Value("${maps.osm.url:https://www.openstreetmap.org/?mlat={lat}&mlon={lon}}") String urlTemplate,
             List<OpenStreetMapCoordinateExtractor> extractors,
-            MapProviderMetrics mapProviderMetrics) {
-        super(httpClient, urlTemplate, URL_PATTERN, extractors, mapProviderMetrics);
+            MapProviderTracker mapProviderTracker) {
+        super(httpClient, urlTemplate, URL_PATTERN, extractors, mapProviderTracker);
     }
 
     @Override

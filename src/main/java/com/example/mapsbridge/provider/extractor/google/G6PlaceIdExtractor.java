@@ -3,8 +3,6 @@ package com.example.mapsbridge.provider.extractor.google;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.provider.url.UrlPatternExtractor;
 import com.example.mapsbridge.service.geocoding.HybridGeocodingService;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -27,23 +25,15 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class G6PlaceIdExtractor implements GoogleCoordinateExtractor {
 
-    private static final String COUNTER_TAG_METHOD = "placeId";
-
     private final HybridGeocodingService geocodingService;
     private final UrlPatternExtractor urlPatternExtractor;
-    private final Counter placeIdExtractionCounter;
 
     @Autowired
     public G6PlaceIdExtractor(
             HybridGeocodingService geocodingService,
-            UrlPatternExtractor urlPatternExtractor,
-            Counter.Builder geocodingExtractorSuccessCounterBuilder,
-            MeterRegistry meterRegistry) {
+            UrlPatternExtractor urlPatternExtractor) {
         this.geocodingService = geocodingService;
         this.urlPatternExtractor = urlPatternExtractor;
-        this.placeIdExtractionCounter = geocodingExtractorSuccessCounterBuilder
-                .tag("method", COUNTER_TAG_METHOD)
-                .register(meterRegistry);
     }
 
     @Override
@@ -86,8 +76,6 @@ public class G6PlaceIdExtractor implements GoogleCoordinateExtractor {
 
         if (isValidLocationResult(result)) {
             log.debug("Successfully resolved place ID {}", result);
-
-            placeIdExtractionCounter.increment();
             return result;
         }
 

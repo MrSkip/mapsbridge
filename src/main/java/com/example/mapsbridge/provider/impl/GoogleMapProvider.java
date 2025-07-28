@@ -1,11 +1,9 @@
 package com.example.mapsbridge.provider.impl;
 
+import com.example.mapsbridge.config.metrics.tracker.MapProviderTracker;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import com.example.mapsbridge.provider.extractor.google.GoogleCoordinateExtractor;
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +23,6 @@ public class GoogleMapProvider extends AbstractMapProvider {
 
     private static final Pattern URL_PATTERN = Pattern.compile("https?://(www\\.)?google\\.com/maps.*|https?://maps\\.google\\.com.*|https?://maps\\.app\\.goo\\.gl/.*|https?://goo\\.gl/maps/.*");
 
-    private final Counter.Builder googleMapsExtractorCounterBuilder;
-    private final MeterRegistry meterRegistry;
-
     /**
      * Constructor with dependency injection.
      *
@@ -40,25 +35,13 @@ public class GoogleMapProvider extends AbstractMapProvider {
             OkHttpClient httpClient,
             @Value("${maps.google.url:https://www.google.com/maps?q={lat},{lon}}") String urlTemplate,
             List<GoogleCoordinateExtractor> extractors,
-            Counter.Builder googleMapsExtractorCounterBuilder,
-            MeterRegistry meterRegistry,
-            MapProviderMetrics mapProviderMetrics) {
-        super(httpClient, urlTemplate, URL_PATTERN, extractors, mapProviderMetrics);
-        this.googleMapsExtractorCounterBuilder = googleMapsExtractorCounterBuilder;
-        this.meterRegistry = meterRegistry;
+            MapProviderTracker mapProviderTracker) {
+        super(httpClient, urlTemplate, URL_PATTERN, extractors, mapProviderTracker);
     }
 
     @Override
     public MapType getType() {
         return MapType.GOOGLE;
-    }
-
-    private void trackUsage(String extractorName) {
-        // Track which extractor was used with metrics
-        googleMapsExtractorCounterBuilder
-                .tag("extractor", extractorName)
-                .register(meterRegistry)
-                .increment();
     }
 
 }

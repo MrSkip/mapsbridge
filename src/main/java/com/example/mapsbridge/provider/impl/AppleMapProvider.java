@@ -1,8 +1,8 @@
 package com.example.mapsbridge.provider.impl;
 
+import com.example.mapsbridge.config.metrics.tracker.MapProviderTracker;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.metrics.MapProviderMetrics;
 import com.example.mapsbridge.provider.AbstractMapProvider;
 import com.example.mapsbridge.provider.extractor.apple.AppleCoordinateExtractor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +42,8 @@ public class AppleMapProvider extends AbstractMapProvider {
             OkHttpClient httpClient,
             @Value("${maps.apple.url}") String urlTemplate,
             List<AppleCoordinateExtractor> extractors,
-            MapProviderMetrics mapProviderMetrics) {
-        super(httpClient, urlTemplate, URL_PATTERN, extractors, mapProviderMetrics);
+            MapProviderTracker mapProviderTracker) {
+        super(httpClient, urlTemplate, URL_PATTERN, extractors, mapProviderTracker);
     }
 
     @Override

@@ -1,5 +1,6 @@
-package com.example.mapsbridge.metrics;
+package com.example.mapsbridge.config.metrics.tracker;
 
+import com.example.mapsbridge.config.metrics.MetricTags;
 import com.example.mapsbridge.dto.MapType;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
  * Component for tracking metrics related to map providers and extractors.
  */
 @Component
-public class MapProviderMetrics {
+public class MapProviderTracker {
 
     private final MeterRegistry meterRegistry;
     private final Counter.Builder extractionSuccessCounterBuilder;
@@ -22,7 +23,7 @@ public class MapProviderMetrics {
      * @param meterRegistry The meter registry
      */
     @Autowired
-    public MapProviderMetrics(MeterRegistry meterRegistry) {
+    public MapProviderTracker(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
 
         // Create counter builders for tracking extraction success and failure

@@ -7,13 +7,259 @@
       "width": 24,
       "height": 2,
       "properties": {
-        "markdown": "# 🚀 Application & System Overview"
+        "markdown": "# Maps & Geocoding"
       }
     },
     {
       "type": "metric",
       "x": 0,
       "y": 2,
+      "width": 24,
+      "height": 6,
+      "properties": {
+        "title": "Failed Map Extractions by Provider",
+        "metrics": [
+          [
+            {
+              "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"maps.extraction.failure.count\"', 'Sum', 300)",
+              "label": "",
+              "id": "e_extraction_failure",
+              "region": "eu-north-1"
+            }
+          ]
+        ],
+        "stat": "Sum",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries",
+        "yAxis": {
+          "left": {
+            "label": "Failure Count",
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 8,
+      "width": 24,
+      "height": 6,
+      "properties": {
+        "title": "Successful Map Extractions by Provider & Extractor",
+        "metrics": [
+          [
+            {
+              "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"maps.extraction.success.count\"', 'Sum', 300)",
+              "label": "",
+              "id": "e_extraction_success",
+              "region": "eu-north-1"
+            }
+          ]
+        ],
+        "stat": "Sum",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries",
+        "yAxis": {
+          "left": {
+            "label": "Success Count",
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 14,
+      "width": 24,
+      "height": 6,
+      "properties": {
+        "title": "Geocoding Operations by Service",
+        "metrics": [
+          [
+            "mapsbridge",
+            "geocoding.operation.count",
+            "service",
+            "google",
+            "operation",
+            "reverseGeocode",
+            {
+              "region": "eu-north-1",
+              "label": "Google Reverse Geocoding"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "google",
+            ".",
+            "forwardGeocode",
+            {
+              "region": "eu-north-1",
+              "label": "Google Forward Geocoding"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "google",
+            ".",
+            "placeIdLookup",
+            {
+              "region": "eu-north-1",
+              "label": "Google Place ID Lookup"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "radar",
+            ".",
+            "reverseGeocode",
+            {
+              "region": "eu-north-1",
+              "label": "Radar Reverse Geocoding"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "radar",
+            ".",
+            "forwardGeocode",
+            {
+              "region": "eu-north-1",
+              "label": "Radar Forward Geocoding"
+            }
+          ]
+        ],
+        "stat": "Sum",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries",
+        "yAxis": {
+          "left": {
+            "label": "Operation Count",
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 20,
+      "width": 24,
+      "height": 6,
+      "properties": {
+        "title": "Map Conversion Requests by Source",
+        "metrics": [
+          [
+            "mapsbridge",
+            "maps.converter.request.source.count",
+            "source",
+            "API",
+            {
+              "region": "eu-north-1",
+              "label": "API Requests"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "WEB",
+            {
+              "region": "eu-north-1",
+              "label": "Web Requests"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "TELEGRAM",
+            {
+              "region": "eu-north-1",
+              "label": "Telegram Requests"
+            }
+          ]
+        ],
+        "stat": "Sum",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries",
+        "yAxis": {
+          "left": {
+            "label": "Request Count",
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 26,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Input Types Used",
+        "metrics": [
+          [
+            "mapsbridge",
+            "maps.input.type.count",
+            "type",
+            "coordinates",
+            {
+              "region": "eu-north-1",
+              "label": "Coordinates Input"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "url",
+            {
+              "region": "eu-north-1",
+              "label": "URL Input"
+            }
+          ]
+        ],
+        "stat": "Sum",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries",
+        "yAxis": {
+          "left": {
+            "label": "Usage Count",
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 32,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "markdown": "# 🚀 Application & System Overview"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 34,
       "width": 4,
       "height": 6,
       "properties": {
@@ -51,7 +297,7 @@
     {
       "type": "metric",
       "x": 4,
-      "y": 2,
+      "y": 34,
       "width": 5,
       "height": 6,
       "properties": {
@@ -79,7 +325,7 @@
     {
       "type": "metric",
       "x": 9,
-      "y": 2,
+      "y": 34,
       "width": 5,
       "height": 6,
       "properties": {
@@ -101,7 +347,7 @@
     {
       "type": "metric",
       "x": 14,
-      "y": 2,
+      "y": 34,
       "width": 5,
       "height": 6,
       "properties": {
@@ -123,7 +369,7 @@
     {
       "type": "metric",
       "x": 19,
-      "y": 2,
+      "y": 34,
       "width": 5,
       "height": 6,
       "properties": {
@@ -150,7 +396,7 @@
     {
       "type": "text",
       "x": 0,
-      "y": 8,
+      "y": 40,
       "width": 24,
       "height": 2,
       "properties": {
@@ -160,7 +406,7 @@
     {
       "type": "metric",
       "x": 0,
-      "y": 10,
+      "y": 42,
       "width": 8,
       "height": 6,
       "properties": {
@@ -187,7 +433,7 @@
     {
       "type": "metric",
       "x": 8,
-      "y": 10,
+      "y": 42,
       "width": 8,
       "height": 6,
       "properties": {
@@ -221,7 +467,7 @@
     {
       "type": "metric",
       "x": 16,
-      "y": 10,
+      "y": 42,
       "width": 8,
       "height": 6,
       "properties": {
@@ -260,7 +506,7 @@
     {
       "type": "text",
       "x": 0,
-      "y": 16,
+      "y": 48,
       "width": 24,
       "height": 2,
       "properties": {
@@ -270,7 +516,7 @@
     {
       "type": "metric",
       "x": 0,
-      "y": 18,
+      "y": 50,
       "width": 8,
       "height": 6,
       "properties": {
@@ -304,7 +550,7 @@
     {
       "type": "metric",
       "x": 8,
-      "y": 18,
+      "y": 50,
       "width": 8,
       "height": 6,
       "properties": {
@@ -338,7 +584,7 @@
     {
       "type": "metric",
       "x": 16,
-      "y": 18,
+      "y": 50,
       "width": 8,
       "height": 6,
       "properties": {
@@ -366,7 +612,7 @@
     {
       "type": "text",
       "x": 0,
-      "y": 24,
+      "y": 56,
       "width": 24,
       "height": 2,
       "properties": {
@@ -376,7 +622,7 @@
     {
       "type": "metric",
       "x": 0,
-      "y": 26,
+      "y": 58,
       "width": 12,
       "height": 6,
       "properties": {
@@ -398,7 +644,7 @@
     {
       "type": "metric",
       "x": 12,
-      "y": 26,
+      "y": 58,
       "width": 12,
       "height": 6,
       "properties": {
@@ -438,7 +684,7 @@
     {
       "type": "text",
       "x": 0,
-      "y": 32,
+      "y": 64,
       "width": 24,
       "height": 2,
       "properties": {
@@ -448,7 +694,7 @@
     {
       "type": "metric",
       "x": 0,
-      "y": 34,
+      "y": 66,
       "width": 12,
       "height": 6,
       "properties": {
@@ -488,7 +734,7 @@
     {
       "type": "metric",
       "x": 12,
-      "y": 34,
+      "y": 66,
       "width": 12,
       "height": 6,
       "properties": {
@@ -522,7 +768,7 @@
     {
       "type": "text",
       "x": 0,
-      "y": 40,
+      "y": 72,
       "width": 24,
       "height": 2,
       "properties": {
@@ -532,7 +778,7 @@
     {
       "type": "metric",
       "x": 0,
-      "y": 42,
+      "y": 74,
       "width": 12,
       "height": 6,
       "properties": {
@@ -593,7 +839,7 @@
     {
       "type": "metric",
       "x": 12,
-      "y": 42,
+      "y": 74,
       "width": 12,
       "height": 6,
       "properties": {
