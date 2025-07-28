@@ -24,7 +24,7 @@ import java.time.Duration;
 @Profile("prod")
 public class CloudWatchMetricsConfig {
 
-    @Value("${management.metrics.export.cloudwatch.region:${AWS_REGION:eu-north-1}}")
+    @Value("${management.metrics.export.cloudwatch.region:${AWS_REGION:eu-central-1}}")
     private String region;
 
     @Value("${management.metrics.export.cloudwatch.namespace:mapsbridge}")

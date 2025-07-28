@@ -1,6 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'CloudWatch monitoring setup for Maps Bridge application'
-
+Description: 'Infrastructure and CloudWatch monitoring setup for Maps Bridge application'
 Parameters:
   ApplicationName:
     Type: String
@@ -13,388 +12,285 @@ Parameters:
     AllowedValues: [ 'dev', 'staging', 'prod' ]
     Description: 'Environment name'
 
-  NotificationEmail:
+  CloudFrontPriceClass:
     Type: String
-    Description: 'Email address for alarm notifications'
-    Default: 'admin@example.com'
+    Default: 'PriceClass_100'
+    AllowedValues: [ 'PriceClass_100', 'PriceClass_200', 'PriceClass_All' ]
+    Description: 'CloudFront price class (PriceClass_100 is cheapest, covering North America and Europe)'
 
-  # New parameter to control log group creation
+
   CreateLogGroup:
     Type: String
     Default: 'true'
     AllowedValues: [ 'true', 'false' ]
     Description: 'Whether to create the CloudWatch log group (set to false if it already exists)'
 
+  EC2KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instance'
+
+  EC2InstanceType:
+    Type: String
+    Default: 't3.micro'
+    Description: 'EC2 instance type (t3.micro is more cost-effective than t2.micro)'
+    AllowedValues:
+      - 't3.micro'
+      - 't3.small'
+      - 't3.medium'
+      - 't2.micro'
+      - 't2.small'
+      - 't2.medium'
+
+  DBInstanceClass:
+    Type: String
+    Default: 'db.t3.micro'
+    Description: 'RDS instance class (db.t3.micro is free tier eligible)'
+    AllowedValues:
+      - 'db.t3.micro'
+      - 'db.t3.small'
+      - 'db.t3.medium'
+
+  DomainName:
+    Type: String
+    Default: 'mapsbridge.com'
+    Description: 'Domain name for the application'
+
+  CreateHostedZone:
+    Type: String
+    Default: 'false'
+    AllowedValues: [ 'true', 'false' ]
+    Description: 'Whether to create Route53 hosted zone (set to false if it already exists)'
+
+  ExistingHostedZoneId:
+    Type: String
+    Default: ''
+    Description: 'Existing Route53 Hosted Zone ID (leave empty if creating new one)'
+
+  DBName:
+    Type: String
+    Default: 'mapsbridge'
+    Description: 'Database name'
+    MinLength: 1
+    MaxLength: 64
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+
+  DBUsername:
+    Type: String
+    Default: 'mapsbridge'
+    Description: 'Database admin username'
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    NoEcho: true
+
+  DBPassword:
+    Type: String
+    Description: 'Database admin password'
+    MinLength: 8
+    MaxLength: 41
+    NoEcho: true
+
+  ApplicationPort:
+    Type: Number
+    Default: 8080
+    Description: 'Port on which the application runs'
+
 Conditions:
   ShouldCreateLogGroup: !Equals [ !Ref CreateLogGroup, 'true' ]
+  ShouldCreateHostedZone: !Equals [ !Ref CreateHostedZone, 'true' ]
 
 Resources:
-  # SNS Topic for CloudWatch Alarms
-  CloudWatchAlarmTopic:
-    Type: AWS::SNS::Topic
+  # VPC and Networking Resources
+  VPC:
+    Type: AWS::EC2::VPC
     Properties:
-      TopicName: !Sub '${ApplicationName}-${Environment}-cloudwatch-alarms'
-      DisplayName: 'Maps Bridge CloudWatch Alarms'
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-vpc'
 
-  # SNS Subscription for email notifications
-  EmailNotification:
-    Type: AWS::SNS::Subscription
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
     Properties:
-      Protocol: email
-      TopicArn: !Ref CloudWatchAlarmTopic
-      Endpoint: !Ref NotificationEmail
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-igw'
 
-  # CloudWatch Log Group (conditional creation)
-  ApplicationLogGroup:
-    Type: AWS::Logs::LogGroup
-    Condition: ShouldCreateLogGroup
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      LogGroupName: 'mapsbridge-log-group'
-      RetentionInDays: 30
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
 
-  # CloudWatch Dashboard
-  MapsBridgeDashboard:
-    Type: AWS::CloudWatch::Dashboard
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
     Properties:
-      DashboardName: !Sub '${ApplicationName}-${Environment}-monitoring'
-      DashboardBody: !Sub |
-        {
-          "widgets": [
-            {
-              "type": "metric",
-              "x": 0,
-              "y": 0,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "maps.extraction.success.count", "provider", "google" ],
-                  [ ".", ".", ".", "apple" ],
-                  [ ".", ".", ".", "bing" ],
-                  [ ".", ".", ".", "osm" ],
-                  [ ".", ".", ".", "waze" ],
-                  [ ".", "maps.extraction.failure.count", "provider", "google" ],
-                  [ ".", ".", ".", "apple" ],
-                  [ ".", ".", ".", "bing" ],
-                  [ ".", ".", ".", "osm" ],
-                  [ ".", ".", ".", "waze" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "Map Extraction Success/Failure by Provider",
-                "period": 300,
-                "stat": "Sum"
-              }
-            },
-            {
-              "type": "metric",
-              "x": 12,
-              "y": 0,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "maps.input.type", "type", "coordinates" ],
-                  [ ".", ".", ".", "url" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "Input Type Usage",
-                "period": 300,
-                "stat": "Sum"
-              }
-            },
-            {
-              "type": "metric",
-              "x": 0,
-              "y": 6,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "resilience4j.ratelimiter.available.permissions", "name", "ipRateLimiter" ],
-                  [ ".", ".", ".", "emailRateLimiter" ],
-                  [ ".", ".", ".", "geocodingIpRateLimiter" ],
-                  [ ".", ".", ".", "geocodingEmailRateLimiter" ],
-                  [ ".", ".", ".", "geocodingChatIdRateLimiter" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "Rate Limiter Available Permissions",
-                "period": 300,
-                "stat": "Average"
-              }
-            },
-            {
-              "type": "metric",
-              "x": 12,
-              "y": 6,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "jvm.memory.used", "area", "heap", "id", "G1 Old Gen" ],
-                  [ ".", ".", ".", ".", ".", "G1 Eden Space" ],
-                  [ ".", ".", ".", ".", ".", "G1 Survivor Space" ],
-                  [ ".", "jvm.memory.max", "area", "heap", "id", "G1 Old Gen" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "JVM Memory Usage",
-                "period": 300,
-                "stat": "Average"
-              }
-            },
-            {
-              "type": "metric",
-              "x": 0,
-              "y": 12,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "http.server.requests", "method", "GET", "status", "200" ],
-                  [ ".", ".", ".", "POST", ".", "." ],
-                  [ ".", ".", ".", "GET", ".", "404" ],
-                  [ ".", ".", ".", "POST", ".", "400" ],
-                  [ ".", ".", ".", "GET", ".", "500" ],
-                  [ ".", ".", ".", "POST", ".", "500" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "HTTP Requests by Method and Status",
-                "period": 300,
-                "stat": "Sum"
-              }
-            },
-            {
-              "type": "metric",
-              "x": 12,
-              "y": 12,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "jvm.gc.pause", "action", "end of minor GC", "cause", "G1 Evacuation Pause" ],
-                  [ ".", ".", ".", "end of major GC", ".", "G1 Evacuation Pause" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "JVM Garbage Collection",
-                "period": 300,
-                "stat": "Average"
-              }
-            },
-            {
-              "type": "log",
-              "x": 0,
-              "y": 18,
-              "width": 24,
-              "height": 6,
-              "properties": {
-                "query": "SOURCE 'mapsbridge-log-group' | fields @timestamp, @message\n| filter @message like /ERROR/\n| sort @timestamp desc\n| limit 100",
-                "region": "${AWS::Region}",
-                "title": "Recent Error Logs",
-                "view": "table"
-              }
-            },
-            {
-              "type": "metric",
-              "x": 0,
-              "y": 24,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "maps.google.extractor.usage", "extractor", "G2LatLon3d4dExtractor" ],
-                  [ ".", ".", ".", "G3AtSymbolExtractor" ],
-                  [ ".", ".", ".", "G4QParameterExtractor" ],
-                  [ ".", ".", ".", "G5SearchPatternExtractor" ],
-                  [ ".", ".", ".", "G6PlaceIdExtractor" ],
-                  [ ".", ".", ".", "G7AddressGeocodingExtractor" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "Google Maps Extractor Usage",
-                "period": 300,
-                "stat": "Sum"
-              }
-            },
-            {
-              "type": "metric",
-              "x": 12,
-              "y": 24,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "maps.provider.url.usage", "provider", "google" ],
-                  [ ".", ".", ".", "apple" ],
-                  [ ".", ".", ".", "bing" ],
-                  [ ".", ".", ".", "osm" ],
-                  [ ".", ".", ".", "waze" ],
-                  [ ".", ".", ".", "unknown" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "Map Provider URL Usage",
-                "period": 300,
-                "stat": "Sum"
-              }
-            },
-            {
-              "type": "metric",
-              "x": 0,
-              "y": 30,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "maps.geocoding.extractor.success", "method", "placeId" ],
-                  [ ".", ".", ".", "address" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "Geocoding Extractor Success",
-                "period": 300,
-                "stat": "Sum"
-              }
-            },
-            {
-              "type": "metric",
-              "x": 12,
-              "y": 30,
-              "width": 12,
-              "height": 6,
-              "properties": {
-                "metrics": [
-                  [ "mapsbridge", "geocoding.requests", "service", "google" ],
-                  [ ".", ".", ".", "radar" ],
-                  [ ".", ".", ".", "hybrid" ]
-                ],
-                "view": "timeSeries",
-                "stacked": false,
-                "region": "${AWS::Region}",
-                "title": "Geocoding Requests by Service",
-                "period": 300,
-                "stat": "Sum"
-              }
-            }
-          ]
-        }
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-public-subnet-1'
 
-  # Alarms for Application Health
-  HighErrorRateAlarm:
-    Type: AWS::CloudWatch::Alarm
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
     Properties:
-      AlarmName: !Sub '${ApplicationName}-${Environment}-high-error-rate'
-      AlarmDescription: 'High error rate detected'
-      MetricName: 'http.server.requests'
-      Namespace: 'mapsbridge'
-      Statistic: Sum
-      Period: 300
-      EvaluationPeriods: 2
-      Threshold: 10
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-        - Name: status
-          Value: '500'
-      AlarmActions:
-        - !Ref CloudWatchAlarmTopic
-      TreatMissingData: notBreaching
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-public-subnet-2'
 
-  HighMemoryUsageAlarm:
-    Type: AWS::CloudWatch::Alarm
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
     Properties:
-      AlarmName: !Sub '${ApplicationName}-${Environment}-high-memory-usage'
-      AlarmDescription: 'High JVM memory usage detected'
-      MetricName: 'jvm.memory.used'
-      Namespace: 'mapsbridge'
-      Statistic: Average
-      Period: 300
-      EvaluationPeriods: 3
-      Threshold: 1000000000  # 1GB in bytes
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-        - Name: area
-          Value: 'heap'
-      AlarmActions:
-        - !Ref CloudWatchAlarmTopic
-      TreatMissingData: notBreaching
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.0.3.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-private-subnet-1'
 
-  MapExtractionFailureAlarm:
-    Type: AWS::CloudWatch::Alarm
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
     Properties:
-      AlarmName: !Sub '${ApplicationName}-${Environment}-map-extraction-failures'
-      AlarmDescription: 'High number of map extraction failures'
-      MetricName: 'maps.extraction.failure'
-      Namespace: 'mapsbridge'
-      Statistic: Sum
-      Period: 600
-      EvaluationPeriods: 2
-      Threshold: 5
-      ComparisonOperator: GreaterThanThreshold
-      AlarmActions:
-        - !Ref CloudWatchAlarmTopic
-      TreatMissingData: notBreaching
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: 10.0.4.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-private-subnet-2'
 
-  RateLimiterExhaustedAlarm:
-    Type: AWS::CloudWatch::Alarm
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
     Properties:
-      AlarmName: !Sub '${ApplicationName}-${Environment}-rate-limiter-exhausted'
-      AlarmDescription: 'Rate limiter permissions exhausted'
-      MetricName: 'resilience4j.ratelimiter.available_permissions'
-      Namespace: 'mapsbridge'
-      Statistic: Minimum
-      Period: 300
-      EvaluationPeriods: 2
-      Threshold: 1
-      ComparisonOperator: LessThanThreshold
-      AlarmActions:
-        - !Ref CloudWatchAlarmTopic
-      TreatMissingData: notBreaching
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-public-rt'
 
-  # Custom Metric Filters for Log Analysis (use string reference instead of !Ref)
-  ErrorLogMetricFilter:
-    Type: AWS::Logs::MetricFilter
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
     Properties:
-      LogGroupName: 'mapsbridge-log-group'
-      FilterPattern: 'ERROR'
-      MetricTransformations:
-        - MetricNamespace: !Sub '${ApplicationName}/Logs'
-          MetricName: 'ErrorCount'
-          MetricValue: '1'
-          DefaultValue: 0
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
 
-  DatabaseConnectionErrorFilter:
-    Type: AWS::Logs::MetricFilter
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      LogGroupName: 'mapsbridge-log-group'
-      FilterPattern: '[timestamp, level="ERROR", logger, message="*database*" || message="*connection*" || message="*postgresql*"]'
-      MetricTransformations:
-        - MetricNamespace: !Sub '${ApplicationName}/Logs'
-          MetricName: 'DatabaseErrors'
-          MetricValue: '1'
-          DefaultValue: 0
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
 
-  # Composite Alarm for Application Health
-  ApplicationHealthCompositeAlarm:
-    Type: AWS::CloudWatch::CompositeAlarm
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      AlarmName: !Sub '${ApplicationName}-${Environment}-application-health'
-      AlarmDescription: 'Overall application health status'
-      AlarmRule: !Sub 'ALARM(${HighErrorRateAlarm}) OR ALARM(${HighMemoryUsageAlarm}) OR ALARM(${MapExtractionFailureAlarm})'
-      AlarmActions:
-        - !Ref CloudWatchAlarmTopic
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
+
+  PrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-private-rt'
+
+  PrivateSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet1
+
+  PrivateSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet2
+
+  # Security Groups
+  EC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for EC2 instance
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 10.0.0.0/16
+          Description: Allow SSH access from VPC
+        - IpProtocol: tcp
+          FromPort: !Ref ApplicationPort
+          ToPort: !Ref ApplicationPort
+          CidrIp: 0.0.0.0/0
+          Description: Allow application port access from CloudFront
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-ec2-sg'
+
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for RDS instance
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref EC2SecurityGroup
+          Description: Allow PostgreSQL access from EC2 instance
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-rds-sg'
+
+  # RDS Subnet Group
+  RDSSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS instance
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-rds-subnet-group'
+
+  # RDS PostgreSQL Instance
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: !Ref DBName
+      Engine: postgres
+      EngineVersion: '17.5'
+      DBInstanceClass: !Ref DBInstanceClass
+      AllocatedStorage: 20
+      StorageType: gp3
+      MaxAllocatedStorage: 100
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      DBSubnetGroupName: !Ref RDSSubnetGroup
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup
+      MultiAZ: false
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 1
+      DeleteAutomatedBackups: true
+      DeletionProtection: false
+      MonitoringInterval: 0
+      StorageEncrypted: false
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-postgres'
+    DeletionPolicy: Snapshot
 
   # IAM Role for EC2 to access CloudWatch
   CloudWatchRole:
@@ -432,7 +328,1176 @@ Resources:
       Roles:
         - !Ref CloudWatchRole
 
+  # EC2 Instance
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref EC2InstanceType
+      KeyName: !Ref EC2KeyName
+      ImageId: !FindInMap [ RegionMap, !Ref 'AWS::Region', AMI ]
+      SubnetId: !Ref PublicSubnet1
+      SecurityGroupIds:
+        - !Ref EC2SecurityGroup
+      IamInstanceProfile: !Ref CloudWatchInstanceProfile
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          # Update packages
+          yum update -y
+          
+          # Install Docker
+          amazon-linux-extras install docker -y
+          systemctl start docker
+          systemctl enable docker
+          
+          # Install CloudWatch agent
+          yum install -y amazon-cloudwatch-agent
+
+          # Create CloudWatch agent configuration
+          cat > /opt/aws/amazon-cloudwatch-agent/bin/config.json << 'EOF'
+          {
+            "agent": {
+              "metrics_collection_interval": 60
+            },
+            "metrics": {
+              "append_dimensions": {
+                "InstanceId": "${!aws:InstanceId}"
+              },
+              "metrics_collected": {
+                "mem": {
+                  "measurement": [
+                    "mem_used_percent"
+                  ]
+                },
+                "disk": {
+                  "measurement": [
+                    "used_percent"
+                  ],
+                  "resources": [
+                    "/"
+                  ]
+                }
+              }
+            },
+            "logs": {
+              "logs_collected": {
+                "files": {
+                  "collect_list": [
+                    {
+                      "file_path": "/var/log/messages",
+                      "log_group_name": "mapsbridge-log-group",
+                      "log_stream_name": "system-logs-{instance_id}"
+                    },
+                    {
+                      "file_path": "/var/log/docker",
+                      "log_group_name": "mapsbridge-log-group",
+                      "log_stream_name": "docker-logs-{instance_id}"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+          EOF
+
+          # Start CloudWatch agent
+          /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json
+
+          # Create a script to pull environment variables from SSM Parameter Store
+          cat > /usr/local/bin/update-env-vars.sh << 'EOF'
+          #!/bin/bash
+          # This script will be used to update environment variables from SSM Parameter Store
+          # It will be called by a cron job
+          echo "Environment variables updated"
+          EOF
+          
+          chmod +x /usr/local/bin/update-env-vars.sh
+          
+          # Add a cron job to update environment variables
+          echo "0 */6 * * * /usr/local/bin/update-env-vars.sh" | crontab -
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-ec2'
+
+
+
+  # CloudWatch Log Group (conditional creation)
+  ApplicationLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: ShouldCreateLogGroup
+    Properties:
+      LogGroupName: 'mapsbridge-log-group'
+      RetentionInDays: 30
+
+  # SSL Certificate
+  SSLCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      SubjectAlternativeNames:
+        - !Sub 'www.${DomainName}'
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !If [ ShouldCreateHostedZone, !Ref HostedZone, !Ref ExistingHostedZoneId ]
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-ssl-cert'
+
+  # Route53 Hosted Zone (conditional)
+  HostedZone:
+    Type: AWS::Route53::HostedZone
+    Condition: ShouldCreateHostedZone
+    Properties:
+      Name: !Ref DomainName
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-hosted-zone'
+
+  # CloudFront Distribution
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        PriceClass: !Ref CloudFrontPriceClass
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - Id: EC2Origin
+            DomainName: !GetAtt EC2Instance.PublicDnsName
+            CustomOriginConfig:
+              HTTPPort: !Ref ApplicationPort
+              HTTPSPort: 443
+              OriginProtocolPolicy: http-only
+              OriginSSLProtocols: [ TLSv1.2 ]
+        DefaultCacheBehavior:
+          TargetOriginId: EC2Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [ 'GET', 'HEAD', 'OPTIONS', 'PUT', 'POST', 'PATCH', 'DELETE' ]
+          CachedMethods: [ 'GET', 'HEAD', 'OPTIONS' ]
+          Compress: true
+          DefaultTTL: 86400  # 1 day cache for static content
+          MinTTL: 0         # No minimum cache time
+          MaxTTL: 31536000  # 1 year maximum cache time
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: all
+            Headers:
+              - Authorization
+              - Origin
+              - Access-Control-Request-Method
+              - Access-Control-Request-Headers
+        ViewerCertificate:
+          AcmCertificateArn: !Ref SSLCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Aliases:
+          - !Ref DomainName
+          - !Sub 'www.${DomainName}'
+      Tags:
+        - Key: Name
+          Value: !Sub '${ApplicationName}-${Environment}-cloudfront'
+
+  # DNS Records
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !If [ ShouldCreateHostedZone, !Ref HostedZone, !Ref ExistingHostedZoneId ]
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront's hosted zone ID is always this value
+
+  WWWDNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !If [ ShouldCreateHostedZone, !Ref HostedZone, !Ref ExistingHostedZoneId ]
+      Name: !Sub 'www.${DomainName}'
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront's hosted zone ID is always this value
+
+  # CloudWatch Dashboard
+  MapsBridgeDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardName: !Sub '${ApplicationName}-${Environment}-monitoring'
+      DashboardBody: !Sub |
+        {
+          "widgets": [
+            {
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": 24,
+              "height": 2,
+              "properties": {
+                "markdown": "# CloudFront Distribution Metrics"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 2,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                  [ "AWS/CloudFront", "Requests", "DistributionId", "${CloudFrontDistribution}", "Region", "Global" ],
+                  [ ".", "BytesDownloaded", ".", ".", ".", "." ],
+                  [ ".", "BytesUploaded", ".", ".", ".", "." ],
+                  [ ".", "TotalErrorRate", ".", ".", ".", "." ]
+                ],
+                "region": "${AWS::Region}",
+                "title": "CloudFront Traffic Metrics"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 2,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "view": "timeSeries",
+                "stacked": false,
+                "metrics": [
+                  [ "AWS/CloudFront", "4xxErrorRate", "DistributionId", "${CloudFrontDistribution}", "Region", "Global" ],
+                  [ ".", "5xxErrorRate", ".", ".", ".", "." ],
+                  [ ".", "OriginLatency", ".", ".", ".", "." ]
+                ],
+                "region": "${AWS::Region}",
+                "title": "CloudFront Error Rates and Performance"
+              }
+            },
+            {
+              "type": "text",
+              "x": 0,
+              "y": 8,
+              "width": 24,
+              "height": 2,
+              "properties": {
+                "markdown": "# Maps & Geocoding"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 2,
+              "width": 8,
+              "height": 6,
+              "properties": {
+                "title": "Failed Map Extractions by Provider",
+                "metrics": [
+                  [
+                    {
+                      "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"maps.extraction.failure.count\"', 'Sum', 300)",
+                      "label": "",
+                      "id": "e_extraction_failure",
+                      "region": "${AWS::Region}"
+                    }
+                  ]
+                ],
+                "stat": "Sum",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries",
+                "yAxis": {
+                  "left": {
+                    "label": "Failure Count",
+                    "min": 0
+                  }
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "x": 8,
+              "y": 2,
+              "width": 8,
+              "height": 6,
+              "properties": {
+                "title": "Successful Map Extractions by Provider & Extractor",
+                "metrics": [
+                  [
+                    {
+                      "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"maps.extraction.success.count\"', 'Sum', 300)",
+                      "label": "",
+                      "id": "e_extraction_success",
+                      "region": "${AWS::Region}"
+                    }
+                  ]
+                ],
+                "stat": "Sum",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries",
+                "yAxis": {
+                  "left": {
+                    "label": "Success Count",
+                    "min": 0
+                  }
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "x": 16,
+              "y": 2,
+              "width": 8,
+              "height": 6,
+              "properties": {
+                "title": "Geocoding Operations by Service",
+                "metrics": [
+                  [
+                    "mapsbridge",
+                    "geocoding.operation.count",
+                    "service",
+                    "google",
+                    "operation",
+                    "reverseGeocode",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "Google Reverse Geocoding"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "google",
+                    ".",
+                    "forwardGeocode",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "Google Forward Geocoding"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "google",
+                    ".",
+                    "placeIdLookup",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "Google Place ID Lookup"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "radar",
+                    ".",
+                    "reverseGeocode",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "Radar Reverse Geocoding"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "radar",
+                    ".",
+                    "forwardGeocode",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "Radar Forward Geocoding"
+                    }
+                  ]
+                ],
+                "stat": "Sum",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries",
+                "yAxis": {
+                  "left": {
+                    "label": "Operation Count",
+                    "min": 0
+                  }
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 8,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "Map Conversion Requests by Source",
+                "metrics": [
+                  [
+                    "mapsbridge",
+                    "maps.converter.request.source.count",
+                    "source",
+                    "API",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "API Requests"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "WEB",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "Web Requests"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "TELEGRAM",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "Telegram Requests"
+                    }
+                  ]
+                ],
+                "stat": "Sum",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries",
+                "yAxis": {
+                  "left": {
+                    "label": "Request Count",
+                    "min": 0
+                  }
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 14,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "Input Types Used",
+                "metrics": [
+                  [
+                    "mapsbridge",
+                    "maps.input.type.count",
+                    "type",
+                    "coordinates",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "Coordinates Input"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "url",
+                    {
+                      "region": "${AWS::Region}",
+                      "label": "URL Input"
+                    }
+                  ]
+                ],
+                "stat": "Sum",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries",
+                "yAxis": {
+                  "left": {
+                    "label": "Usage Count",
+                    "min": 0
+                  }
+                }
+              }
+            },
+            {
+              "type": "text",
+              "x": 0,
+              "y": 20,
+              "width": 24,
+              "height": 2,
+              "properties": {
+                "markdown": "# 🚀 Application & System Overview"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 22,
+              "width": 4,
+              "height": 6,
+              "properties": {
+                "metrics": [
+                  [
+                    {
+                      "expression": "METRICS()/3600000",
+                      "label": "Hours",
+                      "id": "e1",
+                      "region": "${AWS::Region}"
+                    }
+                  ],
+                  [
+                    "mapsbridge",
+                    "process.uptime.value",
+                    {
+                      "region": "${AWS::Region}",
+                      "id": "m1",
+                      "visible": false
+                    }
+                  ]
+                ],
+                "title": "Application Uptime (Days)",
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "singleValue",
+                "yAxis": {
+                  "left": {
+                    "label": "Days"
+                  }
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "x": 4,
+              "y": 22,
+              "width": 5,
+              "height": 6,
+              "properties": {
+                "title": "System CPU Usage",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"system.cpu.usage.value\"', 'Average', 300)",
+                    "label": "",
+                    "id": "e_sys_cpu",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries",
+                "yAxis": {
+                  "left": {
+                    "min": 0,
+                    "max": 1
+                  }
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "x": 9,
+              "y": 22,
+              "width": 5,
+              "height": 6,
+              "properties": {
+                "title": "System Load Average (1m)",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"system.load.average.1m.value\"', 'Average', 300)",
+                    "label": "",
+                    "id": "e_load",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 14,
+              "y": 22,
+              "width": 5,
+              "height": 6,
+              "properties": {
+                "title": "Process CPU Usage",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"process.cpu.usage.value\"', 'Average', 300)",
+                    "label": "",
+                    "id": "e_proc_cpu",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 19,
+              "y": 22,
+              "width": 5,
+              "height": 6,
+              "properties": {
+                "title": "Disk Free Space",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"disk.free.value\"', 'Average', 300)",
+                    "label": "",
+                    "id": "e_disk",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries",
+                "yAxis": {
+                  "left": {
+                    "label": "Bytes"
+                  }
+                }
+              }
+            },
+            {
+              "type": "text",
+              "x": 0,
+              "y": 28,
+              "width": 24,
+              "height": 2,
+              "properties": {
+                "markdown": "# 🖥️ JVM & Memory Metrics"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 30,
+              "width": 8,
+              "height": 6,
+              "properties": {
+                "title": "JVM Memory Usage by Area",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.memory.used.value\"', 'Average', 300)",
+                    "label": "",
+                    "id": "e_mem_used",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries",
+                "yAxis": {
+                  "left": {
+                    "label": "Bytes"
+                  }
+                }
+              }
+            },
+            {
+              "type": "metric",
+              "x": 8,
+              "y": 30,
+              "width": 8,
+              "height": 6,
+              "properties": {
+                "title": "JVM Threads",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.threads.live.value\"', 'Average', 300)",
+                    "label": "Live Threads",
+                    "id": "e_threads_live",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.threads.peak.value\"', 'Average', 300)",
+                    "label": "Peak Threads",
+                    "id": "e_threads_peak",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.threads.daemon.value\"', 'Average', 300)",
+                    "label": "Daemon Threads",
+                    "id": "e_threads_daemon",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 16,
+              "y": 30,
+              "width": 8,
+              "height": 6,
+              "properties": {
+                "title": "GC Memory Stats",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.gc.live.data.size.value\"', 'Average', 300)",
+                    "label": "Live Data",
+                    "id": "e_gc_live",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.gc.max.data.size.value\"', 'Average', 300)",
+                    "label": "Max Data",
+                    "id": "e_gc_max",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.gc.memory.allocated.value\"', 'Average', 300)",
+                    "label": "Allocated",
+                    "id": "e_gc_alloc",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries",
+                "yAxis": {
+                  "left": {
+                    "label": "Bytes"
+                  }
+                }
+              }
+            },
+            {
+              "type": "text",
+              "x": 0,
+              "y": 36,
+              "width": 24,
+              "height": 2,
+              "properties": {
+                "markdown": "# 🗃️ Database & Connection Pool Metrics"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 38,
+              "width": 8,
+              "height": 6,
+              "properties": {
+                "title": "HikariCP Connections",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.active.value\"', 'Average', 300)",
+                    "label": "Active",
+                    "id": "e_conn_active",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.idle.value\"', 'Average', 300)",
+                    "label": "Idle",
+                    "id": "e_conn_idle",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.max.value\"', 'Average', 300)",
+                    "label": "Max",
+                    "id": "e_conn_max",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 8,
+              "y": 38,
+              "width": 8,
+              "height": 6,
+              "properties": {
+                "title": "Connection Pool Performance",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.acquire.count\"', 'Sum', 300)",
+                    "label": "Acquire Count",
+                    "id": "e_conn_acquire",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.usage.value\"', 'Average', 300)",
+                    "label": "Usage Time",
+                    "id": "e_conn_usage",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.pending.value\"', 'Average', 300)",
+                    "label": "Pending",
+                    "id": "e_conn_pending",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 16,
+              "y": 38,
+              "width": 8,
+              "height": 6,
+              "properties": {
+                "title": "Connection Issues",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.timeout.count\"', 'Sum', 300)",
+                    "label": "Timeouts",
+                    "id": "e_conn_timeout",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.creation.count\"', 'Sum', 300)",
+                    "label": "Created",
+                    "id": "e_conn_creation",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Sum",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "text",
+              "x": 0,
+              "y": 44,
+              "width": 24,
+              "height": 2,
+              "properties": {
+                "markdown": "# 🌐 HTTP & Web Server Metrics"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 46,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "HTTP Requests by Method & Status",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"http.server.requests.count\"', 'Sum', 300)",
+                    "label": "",
+                    "id": "e_http_requests",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Sum",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 46,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "Tomcat Sessions",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.active.current.value\"', 'Average', 300)",
+                    "label": "Active Current",
+                    "id": "e_sessions_current",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.active.max.value\"', 'Average', 300)",
+                    "label": "Active Max",
+                    "id": "e_sessions_max",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.created.count\"', 'Sum', 300)",
+                    "label": "Created",
+                    "id": "e_sessions_created",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.expired.count\"', 'Sum', 300)",
+                    "label": "Expired",
+                    "id": "e_sessions_expired",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "text",
+              "x": 0,
+              "y": 52,
+              "width": 24,
+              "height": 2,
+              "properties": {
+                "markdown": "# ⚡ Thread Pool & Executor Metrics"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 54,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "Executor Pool Status",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.active.value\"', 'Average', 300)",
+                    "label": "Active",
+                    "id": "e_exec_active",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.pool.size.value\"', 'Average', 300)",
+                    "label": "Pool Size",
+                    "id": "e_exec_size",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.pool.core.value\"', 'Average', 300)",
+                    "label": "Core Size",
+                    "id": "e_exec_core",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.pool.max.value\"', 'Average', 300)",
+                    "label": "Max Size",
+                    "id": "e_exec_max",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 54,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "Executor Queue & Completion",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.queued.value\"', 'Average', 300)",
+                    "label": "Queued",
+                    "id": "e_exec_queued",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.queue.remaining.value\"', 'Average', 300)",
+                    "label": "Queue Remaining",
+                    "id": "e_exec_remaining",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.completed.count\"', 'Sum', 300)",
+                    "label": "Completed",
+                    "id": "e_exec_completed",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "text",
+              "x": 0,
+              "y": 60,
+              "width": 24,
+              "height": 2,
+              "properties": {
+                "markdown": "# 🛡️ Security & Rate Limiting"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 0,
+              "y": 62,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "Rate Limiter Available Permissions",
+                "metrics": [
+                  [
+                    "mapsbridge",
+                    "resilience4j.ratelimiter.available.permissions.value",
+                    "name",
+                    "ipRateLimiter",
+                    {
+                      "region": "${AWS::Region}"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "emailRateLimiter",
+                    {
+                      "region": "${AWS::Region}"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "geocodingIpRateLimiter",
+                    {
+                      "region": "${AWS::Region}"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "geocodingEmailRateLimiter",
+                    {
+                      "region": "${AWS::Region}"
+                    }
+                  ],
+                  [
+                    ".",
+                    ".",
+                    ".",
+                    "geocodingChatIdRateLimiter",
+                    {
+                      "region": "${AWS::Region}"
+                    }
+                  ]
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            },
+            {
+              "type": "metric",
+              "x": 12,
+              "y": 62,
+              "width": 12,
+              "height": 6,
+              "properties": {
+                "title": "Spring Security Metrics",
+                "metrics": [
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"spring.security.authorizations.count\"', 'Sum', 300)",
+                    "label": "Authorizations",
+                    "id": "e_auth",
+                    "region": "${AWS::Region}"
+                  },
+                  {
+                    "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"spring.security.filterchains.active.value\"', 'Average', 300)",
+                    "label": "Active Filter Chains",
+                    "id": "e_filterchains",
+                    "region": "${AWS::Region}"
+                  }
+                ],
+                "stat": "Average",
+                "period": 300,
+                "region": "${AWS::Region}",
+                "view": "timeSeries"
+              }
+            }
+          ]
+        }
+
+  # IAM Policy for CloudFront Invalidation
+  CloudFrontInvalidationPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: CloudFrontInvalidationPolicy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - cloudfront:CreateInvalidation
+              - cloudfront:GetInvalidation
+              - cloudfront:ListInvalidations
+            Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+      Roles:
+        - !Ref CloudWatchRole
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-0c02fb55956c7d316  # Amazon Linux 2023
+    us-west-2:
+      AMI: ami-0c2d3e23fb8b2fc87  # Amazon Linux 2023
+    eu-central-1:
+      AMI: ami-0b6acaa45fec15278  # Amazon Linux 2023
+    eu-west-1:
+      AMI: ami-0c8d4b75b5e5a1234  # Amazon Linux 2023
+    eu-central-1:
+      AMI: ami-0669b163befffbdfc  # Amazon Linux 2023
+
 Outputs:
+  EC2PublicIP:
+    Description: 'Public IP address of the EC2 instance'
+    Value: !GetAtt EC2Instance.PublicIp
+
+  EC2PublicDNS:
+    Description: 'Public DNS name of the EC2 instance'
+    Value: !GetAtt EC2Instance.PublicDnsName
+
+  ApplicationURL:
+    Description: 'URL to access the application'
+    Value: !Sub 'https://${DomainName}'
+
+  CloudFrontDomainName:
+    Description: 'CloudFront Distribution Domain Name'
+    Value: !GetAtt CloudFrontDistribution.DomainName
+
+  RDSEndpoint:
+    Description: 'Endpoint of the RDS instance'
+    Value: !GetAtt RDSInstance.Endpoint.Address
+
+  RDSPort:
+    Description: 'Port of the RDS instance'
+    Value: !GetAtt RDSInstance.Endpoint.Port
+
   DashboardURL:
     Description: 'CloudWatch Dashboard URL'
     Value: !Sub 'https://${AWS::Region}.console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards:name=${ApplicationName}-${Environment}-monitoring'
@@ -441,9 +1506,9 @@ Outputs:
     Description: 'CloudWatch Log Group Name'
     Value: 'mapsbridge-log-group'
 
-  SNSTopicArn:
-    Description: 'SNS Topic ARN for alarm notifications'
-    Value: !Ref CloudWatchAlarmTopic
+  HostedZoneId:
+    Description: 'Route53 Hosted Zone ID'
+    Value: !If [ ShouldCreateHostedZone, !Ref HostedZone, !Ref ExistingHostedZoneId ]
 
   IAMRoleArn:
     Description: 'IAM Role ARN for CloudWatch access'

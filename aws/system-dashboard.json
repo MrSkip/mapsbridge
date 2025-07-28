@@ -24,13 +24,13 @@
               "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"maps.extraction.failure.count\"', 'Sum', 300)",
               "label": "",
               "id": "e_extraction_failure",
-              "region": "eu-north-1"
+              "region": "eu-central-1"
             }
           ]
         ],
         "stat": "Sum",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries",
         "yAxis": {
           "left": {
@@ -54,13 +54,13 @@
               "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"maps.extraction.success.count\"', 'Sum', 300)",
               "label": "",
               "id": "e_extraction_success",
-              "region": "eu-north-1"
+              "region": "eu-central-1"
             }
           ]
         ],
         "stat": "Sum",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries",
         "yAxis": {
           "left": {
@@ -87,7 +87,7 @@
             "operation",
             "reverseGeocode",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "Google Reverse Geocoding"
             }
           ],
@@ -99,7 +99,7 @@
             ".",
             "forwardGeocode",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "Google Forward Geocoding"
             }
           ],
@@ -111,7 +111,7 @@
             ".",
             "placeIdLookup",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "Google Place ID Lookup"
             }
           ],
@@ -123,7 +123,7 @@
             ".",
             "reverseGeocode",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "Radar Reverse Geocoding"
             }
           ],
@@ -135,14 +135,14 @@
             ".",
             "forwardGeocode",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "Radar Forward Geocoding"
             }
           ]
         ],
         "stat": "Sum",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries",
         "yAxis": {
           "left": {
@@ -167,7 +167,7 @@
             "source",
             "API",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "API Requests"
             }
           ],
@@ -177,7 +177,7 @@
             ".",
             "WEB",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "Web Requests"
             }
           ],
@@ -187,14 +187,14 @@
             ".",
             "TELEGRAM",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "Telegram Requests"
             }
           ]
         ],
         "stat": "Sum",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries",
         "yAxis": {
           "left": {
@@ -219,7 +219,7 @@
             "type",
             "coordinates",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "Coordinates Input"
             }
           ],
@@ -229,14 +229,14 @@
             ".",
             "url",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "label": "URL Input"
             }
           ]
         ],
         "stat": "Sum",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries",
         "yAxis": {
           "left": {
@@ -269,14 +269,14 @@
               "expression": "METRICS()/3600000",
               "label": "Hours",
               "id": "e1",
-              "region": "eu-north-1"
+              "region": "eu-central-1"
             }
           ],
           [
             "mapsbridge",
             "process.uptime.value",
             {
-              "region": "eu-north-1",
+              "region": "eu-central-1",
               "id": "m1",
               "visible": false
             }
@@ -285,7 +285,7 @@
         "title": "Application Uptime (Days)",
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "singleValue",
         "yAxis": {
           "left": {
@@ -307,12 +307,12 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"system.cpu.usage.value\"', 'Average', 300)",
             "label": "",
             "id": "e_sys_cpu",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries",
         "yAxis": {
           "left": {
@@ -335,12 +335,12 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"system.load.average.1m.value\"', 'Average', 300)",
             "label": "",
             "id": "e_load",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -357,12 +357,12 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"process.cpu.usage.value\"', 'Average', 300)",
             "label": "",
             "id": "e_proc_cpu",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -379,12 +379,12 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"disk.free.value\"', 'Average', 300)",
             "label": "",
             "id": "e_disk",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries",
         "yAxis": {
           "left": {
@@ -416,12 +416,12 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.memory.used.value\"', 'Average', 300)",
             "label": "",
             "id": "e_mem_used",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries",
         "yAxis": {
           "left": {
@@ -443,24 +443,24 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.threads.live.value\"', 'Average', 300)",
             "label": "Live Threads",
             "id": "e_threads_live",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.threads.peak.value\"', 'Average', 300)",
             "label": "Peak Threads",
             "id": "e_threads_peak",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.threads.daemon.value\"', 'Average', 300)",
             "label": "Daemon Threads",
             "id": "e_threads_daemon",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -477,24 +477,24 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.gc.live.data.size.value\"', 'Average', 300)",
             "label": "Live Data",
             "id": "e_gc_live",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.gc.max.data.size.value\"', 'Average', 300)",
             "label": "Max Data",
             "id": "e_gc_max",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.gc.memory.allocated.value\"', 'Average', 300)",
             "label": "Allocated",
             "id": "e_gc_alloc",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries",
         "yAxis": {
           "left": {
@@ -526,24 +526,24 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.active.value\"', 'Average', 300)",
             "label": "Active",
             "id": "e_conn_active",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.idle.value\"', 'Average', 300)",
             "label": "Idle",
             "id": "e_conn_idle",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.max.value\"', 'Average', 300)",
             "label": "Max",
             "id": "e_conn_max",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -560,24 +560,24 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.acquire.count\"', 'Sum', 300)",
             "label": "Acquire Count",
             "id": "e_conn_acquire",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.usage.value\"', 'Average', 300)",
             "label": "Usage Time",
             "id": "e_conn_usage",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.pending.value\"', 'Average', 300)",
             "label": "Pending",
             "id": "e_conn_pending",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -594,18 +594,18 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.timeout.count\"', 'Sum', 300)",
             "label": "Timeouts",
             "id": "e_conn_timeout",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.creation.count\"', 'Sum', 300)",
             "label": "Created",
             "id": "e_conn_creation",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Sum",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -632,12 +632,12 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"http.server.requests.count\"', 'Sum', 300)",
             "label": "",
             "id": "e_http_requests",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Sum",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -654,30 +654,30 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.active.current.value\"', 'Average', 300)",
             "label": "Active Current",
             "id": "e_sessions_current",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.active.max.value\"', 'Average', 300)",
             "label": "Active Max",
             "id": "e_sessions_max",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.created.count\"', 'Sum', 300)",
             "label": "Created",
             "id": "e_sessions_created",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.expired.count\"', 'Sum', 300)",
             "label": "Expired",
             "id": "e_sessions_expired",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -704,30 +704,30 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.active.value\"', 'Average', 300)",
             "label": "Active",
             "id": "e_exec_active",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.pool.size.value\"', 'Average', 300)",
             "label": "Pool Size",
             "id": "e_exec_size",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.pool.core.value\"', 'Average', 300)",
             "label": "Core Size",
             "id": "e_exec_core",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.pool.max.value\"', 'Average', 300)",
             "label": "Max Size",
             "id": "e_exec_max",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -744,24 +744,24 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.queued.value\"', 'Average', 300)",
             "label": "Queued",
             "id": "e_exec_queued",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.queue.remaining.value\"', 'Average', 300)",
             "label": "Queue Remaining",
             "id": "e_exec_remaining",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.completed.count\"', 'Sum', 300)",
             "label": "Completed",
             "id": "e_exec_completed",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -790,7 +790,7 @@
             "name",
             "ipRateLimiter",
             {
-              "region": "eu-north-1"
+              "region": "eu-central-1"
             }
           ],
           [
@@ -799,7 +799,7 @@
             ".",
             "emailRateLimiter",
             {
-              "region": "eu-north-1"
+              "region": "eu-central-1"
             }
           ],
           [
@@ -808,7 +808,7 @@
             ".",
             "geocodingIpRateLimiter",
             {
-              "region": "eu-north-1"
+              "region": "eu-central-1"
             }
           ],
           [
@@ -817,7 +817,7 @@
             ".",
             "geocodingEmailRateLimiter",
             {
-              "region": "eu-north-1"
+              "region": "eu-central-1"
             }
           ],
           [
@@ -826,13 +826,13 @@
             ".",
             "geocodingChatIdRateLimiter",
             {
-              "region": "eu-north-1"
+              "region": "eu-central-1"
             }
           ]
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     },
@@ -849,18 +849,18 @@
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"spring.security.authorizations.count\"', 'Sum', 300)",
             "label": "Authorizations",
             "id": "e_auth",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           },
           {
             "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"spring.security.filterchains.active.value\"', 'Average', 300)",
             "label": "Active Filter Chains",
             "id": "e_filterchains",
-            "region": "eu-north-1"
+            "region": "eu-central-1"
           }
         ],
         "stat": "Average",
         "period": 300,
-        "region": "eu-north-1",
+        "region": "eu-central-1",
         "view": "timeSeries"
       }
     }

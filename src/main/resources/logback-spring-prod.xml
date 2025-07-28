@@ -8,7 +8,7 @@
     <springProperty scope="context" name="cloudwatch.log.stream" source="cloudwatch.logging.log-stream-name"
                     defaultValue="mapsbridge-stream"/>
     <springProperty scope="context" name="cloudwatch.region" source="cloudwatch.logging.region"
-                    defaultValue="eu-north-1"/>
+                    defaultValue="eu-central-1"/>
 
     <!-- Console appender -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
