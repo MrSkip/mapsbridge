@@ -1,0 +1,622 @@
+{
+  "widgets": [
+    {
+      "type": "text",
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "markdown": "# 🚀 Application & System Overview"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 2,
+      "width": 4,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            {
+              "expression": "METRICS()/3600000",
+              "label": "Hours",
+              "id": "e1",
+              "region": "eu-north-1"
+            }
+          ],
+          [
+            "mapsbridge",
+            "process.uptime.value",
+            {
+              "region": "eu-north-1",
+              "id": "m1",
+              "visible": false
+            }
+          ]
+        ],
+        "title": "Application Uptime (Days)",
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "singleValue",
+        "yAxis": {
+          "left": {
+            "label": "Days"
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 4,
+      "y": 2,
+      "width": 5,
+      "height": 6,
+      "properties": {
+        "title": "System CPU Usage",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"system.cpu.usage.value\"', 'Average', 300)",
+            "label": "",
+            "id": "e_sys_cpu",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries",
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 1
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 9,
+      "y": 2,
+      "width": 5,
+      "height": 6,
+      "properties": {
+        "title": "System Load Average (1m)",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"system.load.average.1m.value\"', 'Average', 300)",
+            "label": "",
+            "id": "e_load",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 14,
+      "y": 2,
+      "width": 5,
+      "height": 6,
+      "properties": {
+        "title": "Process CPU Usage",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"process.cpu.usage.value\"', 'Average', 300)",
+            "label": "",
+            "id": "e_proc_cpu",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 19,
+      "y": 2,
+      "width": 5,
+      "height": 6,
+      "properties": {
+        "title": "Disk Free Space",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"disk.free.value\"', 'Average', 300)",
+            "label": "",
+            "id": "e_disk",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries",
+        "yAxis": {
+          "left": {
+            "label": "Bytes"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 8,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "markdown": "# 🖥️ JVM & Memory Metrics"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 10,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "JVM Memory Usage by Area",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.memory.used.value\"', 'Average', 300)",
+            "label": "",
+            "id": "e_mem_used",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries",
+        "yAxis": {
+          "left": {
+            "label": "Bytes"
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8,
+      "y": 10,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "JVM Threads",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.threads.live.value\"', 'Average', 300)",
+            "label": "Live Threads",
+            "id": "e_threads_live",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.threads.peak.value\"', 'Average', 300)",
+            "label": "Peak Threads",
+            "id": "e_threads_peak",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.threads.daemon.value\"', 'Average', 300)",
+            "label": "Daemon Threads",
+            "id": "e_threads_daemon",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16,
+      "y": 10,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "GC Memory Stats",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.gc.live.data.size.value\"', 'Average', 300)",
+            "label": "Live Data",
+            "id": "e_gc_live",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.gc.max.data.size.value\"', 'Average', 300)",
+            "label": "Max Data",
+            "id": "e_gc_max",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"jvm.gc.memory.allocated.value\"', 'Average', 300)",
+            "label": "Allocated",
+            "id": "e_gc_alloc",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries",
+        "yAxis": {
+          "left": {
+            "label": "Bytes"
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 16,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "markdown": "# 🗃️ Database & Connection Pool Metrics"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 18,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "HikariCP Connections",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.active.value\"', 'Average', 300)",
+            "label": "Active",
+            "id": "e_conn_active",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.idle.value\"', 'Average', 300)",
+            "label": "Idle",
+            "id": "e_conn_idle",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.max.value\"', 'Average', 300)",
+            "label": "Max",
+            "id": "e_conn_max",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8,
+      "y": 18,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "Connection Pool Performance",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.acquire.count\"', 'Sum', 300)",
+            "label": "Acquire Count",
+            "id": "e_conn_acquire",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.usage.value\"', 'Average', 300)",
+            "label": "Usage Time",
+            "id": "e_conn_usage",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.pending.value\"', 'Average', 300)",
+            "label": "Pending",
+            "id": "e_conn_pending",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16,
+      "y": 18,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "title": "Connection Issues",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.timeout.count\"', 'Sum', 300)",
+            "label": "Timeouts",
+            "id": "e_conn_timeout",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"hikaricp.connections.creation.count\"', 'Sum', 300)",
+            "label": "Created",
+            "id": "e_conn_creation",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Sum",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 24,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "markdown": "# 🌐 HTTP & Web Server Metrics"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 26,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "HTTP Requests by Method & Status",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"http.server.requests.count\"', 'Sum', 300)",
+            "label": "",
+            "id": "e_http_requests",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Sum",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 26,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Tomcat Sessions",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.active.current.value\"', 'Average', 300)",
+            "label": "Active Current",
+            "id": "e_sessions_current",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.active.max.value\"', 'Average', 300)",
+            "label": "Active Max",
+            "id": "e_sessions_max",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.created.count\"', 'Sum', 300)",
+            "label": "Created",
+            "id": "e_sessions_created",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"tomcat.sessions.expired.count\"', 'Sum', 300)",
+            "label": "Expired",
+            "id": "e_sessions_expired",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 32,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "markdown": "# ⚡ Thread Pool & Executor Metrics"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 34,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Executor Pool Status",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.active.value\"', 'Average', 300)",
+            "label": "Active",
+            "id": "e_exec_active",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.pool.size.value\"', 'Average', 300)",
+            "label": "Pool Size",
+            "id": "e_exec_size",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.pool.core.value\"', 'Average', 300)",
+            "label": "Core Size",
+            "id": "e_exec_core",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.pool.max.value\"', 'Average', 300)",
+            "label": "Max Size",
+            "id": "e_exec_max",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 34,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Executor Queue & Completion",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.queued.value\"', 'Average', 300)",
+            "label": "Queued",
+            "id": "e_exec_queued",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.queue.remaining.value\"', 'Average', 300)",
+            "label": "Queue Remaining",
+            "id": "e_exec_remaining",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"executor.completed.count\"', 'Sum', 300)",
+            "label": "Completed",
+            "id": "e_exec_completed",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 40,
+      "width": 24,
+      "height": 2,
+      "properties": {
+        "markdown": "# 🛡️ Security & Rate Limiting"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 42,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Rate Limiter Available Permissions",
+        "metrics": [
+          [
+            "mapsbridge",
+            "resilience4j.ratelimiter.available.permissions.value",
+            "name",
+            "ipRateLimiter",
+            {
+              "region": "eu-north-1"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "emailRateLimiter",
+            {
+              "region": "eu-north-1"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "geocodingIpRateLimiter",
+            {
+              "region": "eu-north-1"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "geocodingEmailRateLimiter",
+            {
+              "region": "eu-north-1"
+            }
+          ],
+          [
+            ".",
+            ".",
+            ".",
+            "geocodingChatIdRateLimiter",
+            {
+              "region": "eu-north-1"
+            }
+          ]
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 42,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "title": "Spring Security Metrics",
+        "metrics": [
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"spring.security.authorizations.count\"', 'Sum', 300)",
+            "label": "Authorizations",
+            "id": "e_auth",
+            "region": "eu-north-1"
+          },
+          {
+            "expression": "SEARCH('Namespace=\"mapsbridge\" AND MetricName=\"spring.security.filterchains.active.value\"', 'Average', 300)",
+            "label": "Active Filter Chains",
+            "id": "e_filterchains",
+            "region": "eu-north-1"
+          }
+        ],
+        "stat": "Average",
+        "period": 300,
+        "region": "eu-north-1",
+        "view": "timeSeries"
+      }
+    }
+  ]
+}

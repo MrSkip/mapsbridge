@@ -68,12 +68,12 @@ Resources:
               "height": 6,
               "properties": {
                 "metrics": [
-                  [ "mapsbridge", "maps.extraction.success", "provider", "google" ],
+                  [ "mapsbridge", "maps.extraction.success.count", "provider", "google" ],
                   [ ".", ".", ".", "apple" ],
                   [ ".", ".", ".", "bing" ],
                   [ ".", ".", ".", "osm" ],
                   [ ".", ".", ".", "waze" ],
-                  [ ".", "maps.extraction.failure", "provider", "google" ],
+                  [ ".", "maps.extraction.failure.count", "provider", "google" ],
                   [ ".", ".", ".", "apple" ],
                   [ ".", ".", ".", "bing" ],
                   [ ".", ".", ".", "osm" ],
@@ -114,7 +114,7 @@ Resources:
               "height": 6,
               "properties": {
                 "metrics": [
-                  [ "mapsbridge", "resilience4j.ratelimiter.available_permissions", "name", "ipRateLimiter" ],
+                  [ "mapsbridge", "resilience4j.ratelimiter.available.permissions", "name", "ipRateLimiter" ],
                   [ ".", ".", ".", "emailRateLimiter" ],
                   [ ".", ".", ".", "geocodingIpRateLimiter" ],
                   [ ".", ".", ".", "geocodingEmailRateLimiter" ],
