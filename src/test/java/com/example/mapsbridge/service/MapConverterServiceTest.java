@@ -1,9 +1,14 @@
 package com.example.mapsbridge.service;
 
-import com.example.mapsbridge.dto.*;
+import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.LocationResult;
+import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.dto.request.ConvertRequest;
+import com.example.mapsbridge.dto.response.BaseConvertResponse;
+import com.example.mapsbridge.dto.response.WebConvertResponse;
 import com.example.mapsbridge.exception.InvalidInputException;
 import com.example.mapsbridge.provider.MapProvider;
-import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
+import com.example.mapsbridge.service.mapconverter.MapConverterServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,7 +67,7 @@ class MapConverterServiceTest {
         when(userInputProcessorService.processInput("40.6892,-74.0445")).thenReturn(expectedLocationResult);
 
         // When
-        ConvertResponse response = service.convert(request);
+        WebConvertResponse response = service.convert(request);
 
         // Then
         assertNotNull(response);
@@ -85,7 +90,7 @@ class MapConverterServiceTest {
         when(userInputProcessorService.processInput("https://maps.google.com/?q=Statue+of+Liberty")).thenReturn(expectedLocationResult);
 
         // When
-        ConvertResponse response = service.convert(request);
+        WebConvertResponse response = service.convert(request);
 
         // Then
         assertNotNull(response);

@@ -28,7 +28,7 @@ public class MapConverterRateLimitAspect {
     /**
      * Pointcut that matches the convert method in implementations of the MapConverterService interface.
      */
-    @Pointcut("execution(* com.example.mapsbridge.service.MapConverterService+.convert(..))")
+    @Pointcut("execution(* com.example.mapsbridge.service.mapconverter.MapConverterService+.convert(..))")
     public void mapConverterMethods() {
     }
 

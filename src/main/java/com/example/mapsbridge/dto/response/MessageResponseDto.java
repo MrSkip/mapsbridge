@@ -1,4 +1,4 @@
-package com.example.mapsbridge.dto;
+package com.example.mapsbridge.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

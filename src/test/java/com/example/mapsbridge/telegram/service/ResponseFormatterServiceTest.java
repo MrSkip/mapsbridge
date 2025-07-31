@@ -1,9 +1,9 @@
 package com.example.mapsbridge.telegram.service;
 
-import com.example.mapsbridge.dto.ConvertRequest;
-import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
+import com.example.mapsbridge.dto.request.ConvertRequest;
+import com.example.mapsbridge.dto.response.WebConvertResponse;
+import com.example.mapsbridge.service.mapconverter.MapConverterServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,8 +37,8 @@ class ResponseFormatterServiceTest {
         // Given
         String message = "40.6892,-74.0445";
         ConvertRequest expectedRequest = new ConvertRequest("40.6892,-74.0445");
-        
-        ConvertResponse mockResponse = new ConvertResponse();
+
+        WebConvertResponse mockResponse = new WebConvertResponse();
         Map<MapType, String> links = new HashMap<>();
         links.put(MapType.GOOGLE, "https://www.google.com/maps?q=40.6892,-74.0445");
         links.put(MapType.APPLE, "https://maps.apple.com/?ll=40.6892,-74.0445");
@@ -86,8 +86,8 @@ class ResponseFormatterServiceTest {
         // Given
         String message = "https://www.google.com/maps?q=40.6892,-74.0445";
         ConvertRequest expectedRequest = new ConvertRequest("https://www.google.com/maps?q=40.6892,-74.0445");
-        
-        ConvertResponse mockResponse = new ConvertResponse();
+
+        WebConvertResponse mockResponse = new WebConvertResponse();
         Map<MapType, String> links = new HashMap<>();
         links.put(MapType.GOOGLE, "https://www.google.com/maps?q=40.6892,-74.0445");
         links.put(MapType.APPLE, "https://maps.apple.com/?ll=40.6892,-74.0445");
@@ -123,8 +123,8 @@ class ResponseFormatterServiceTest {
         // Given
         String message = "https://www.openstreetmap.org/?mlat=40.6892&mlon=-74.0445#map=16/40.6892/-74.0445";
         ConvertRequest expectedRequest = new ConvertRequest("https://www.openstreetmap.org/?mlat=40.6892&mlon=-74.0445#map=16/40.6892/-74.0445");
-        
-        ConvertResponse mockResponse = new ConvertResponse();
+
+        WebConvertResponse mockResponse = new WebConvertResponse();
         Map<MapType, String> links = new HashMap<>();
         links.put(MapType.GOOGLE, "https://www.google.com/maps?q=40.6892,-74.0445");
         links.put(MapType.APPLE, "https://maps.apple.com/?ll=40.6892,-74.0445");
@@ -224,7 +224,7 @@ class ResponseFormatterServiceTest {
         String message = "40.6892,-74.0445";
         ConvertRequest expectedRequest = new ConvertRequest("40.6892,-74.0445");
 
-        ConvertResponse mockResponse = new ConvertResponse();
+        WebConvertResponse mockResponse = new WebConvertResponse();
         Map<MapType, String> links = new HashMap<>();
         links.put(MapType.GOOGLE, "https://www.google.com/maps?q=40.6892,-74.0445");
         mockResponse.setLinks(links);
@@ -254,7 +254,7 @@ class ResponseFormatterServiceTest {
         String message = "40.6892,-74.0445";
         ConvertRequest expectedRequest = new ConvertRequest("40.6892,-74.0445");
 
-        ConvertResponse mockResponse = new ConvertResponse();
+        WebConvertResponse mockResponse = new WebConvertResponse();
         Map<MapType, String> links = new HashMap<>();
         links.put(MapType.GOOGLE, "https://www.google.com/maps?q=40.6892,-74.0445");
         mockResponse.setLinks(links);

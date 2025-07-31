@@ -1,4 +1,4 @@
-package com.example.mapsbridge.dto;
+package com.example.mapsbridge.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

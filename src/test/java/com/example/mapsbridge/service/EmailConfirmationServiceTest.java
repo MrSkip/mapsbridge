@@ -1,7 +1,7 @@
 package com.example.mapsbridge.service;
 
-import com.example.mapsbridge.dto.ApiKeyResponseDto;
-import com.example.mapsbridge.dto.MessageResponseDto;
+import com.example.mapsbridge.dto.response.ApiKeyResponseDto;
+import com.example.mapsbridge.dto.response.MessageResponseDto;
 import com.example.mapsbridge.exception.InvalidTokenException;
 import com.example.mapsbridge.exception.TokenExpiredException;
 import com.example.mapsbridge.model.ApiKeyModel;

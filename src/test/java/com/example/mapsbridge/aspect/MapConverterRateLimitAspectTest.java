@@ -2,13 +2,13 @@ package com.example.mapsbridge.aspect;
 
 import com.example.mapsbridge.config.logging.LoggingContext;
 import com.example.mapsbridge.config.metrics.tracker.ClientTracker;
-import com.example.mapsbridge.dto.ConvertRequest;
-import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.dto.Coordinate;
+import com.example.mapsbridge.dto.request.ConvertRequest;
+import com.example.mapsbridge.dto.response.WebConvertResponse;
 import com.example.mapsbridge.exception.rate.ChatIdRateLimitExceededException;
 import com.example.mapsbridge.exception.rate.EmailRateLimitExceededException;
 import com.example.mapsbridge.exception.rate.IpRateLimitExceededException;
-import com.example.mapsbridge.service.MapConverterService;
+import com.example.mapsbridge.service.mapconverter.MapConverterService;
 import com.example.mapsbridge.service.ratelimit.MapConverterRateLimiterService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,14 +30,14 @@ public class MapConverterRateLimitAspectTest {
     @Mock
     private MapConverterRateLimiterService mapConverterRateLimiterService;
     @Mock
-    private MapConverterService mapConverterService;
+    private MapConverterService<WebConvertResponse> mapConverterService;
     @Mock
     private ClientTracker clientTracker;
 
     @InjectMocks
     private MapConverterRateLimitAspect aspect;
 
-    private MapConverterService proxiedMapConverterService;
+    private MapConverterService<WebConvertResponse> proxiedMapConverterService;
 
     @BeforeEach
     public void setUp() {
@@ -57,7 +57,7 @@ public class MapConverterRateLimitAspectTest {
     public void testConvert_WithIpAddress() {
         // Given
         ConvertRequest request = new ConvertRequest("1.0,2.0");
-        ConvertResponse expectedResponse = new ConvertResponse();
+        WebConvertResponse expectedResponse = new WebConvertResponse();
         expectedResponse.setCoordinates(new Coordinate(1.0, 2.0));
         expectedResponse.setName("Test Location");
         String ipAddress = "192.168.1.1";
@@ -69,7 +69,7 @@ public class MapConverterRateLimitAspectTest {
         when(mapConverterService.convert(request)).thenReturn(expectedResponse);
 
         // When
-        ConvertResponse result = proxiedMapConverterService.convert(request);
+        WebConvertResponse result = proxiedMapConverterService.convert(request);
 
         // Then
         assertEquals(expectedResponse, result);
@@ -81,7 +81,7 @@ public class MapConverterRateLimitAspectTest {
     public void testConvert_WithChatId() {
         // Given
         ConvertRequest request = new ConvertRequest("1.0,2.0");
-        ConvertResponse expectedResponse = new ConvertResponse();
+        WebConvertResponse expectedResponse = new WebConvertResponse();
         expectedResponse.setCoordinates(new Coordinate(1.0, 2.0));
         expectedResponse.setName("Test Location");
         String chatId = "123456789";
@@ -93,7 +93,7 @@ public class MapConverterRateLimitAspectTest {
         when(mapConverterService.convert(request)).thenReturn(expectedResponse);
 
         // When
-        ConvertResponse result = proxiedMapConverterService.convert(request);
+        WebConvertResponse result = proxiedMapConverterService.convert(request);
 
         // Then
         assertEquals(expectedResponse, result);
@@ -105,7 +105,7 @@ public class MapConverterRateLimitAspectTest {
     public void testConvert_WithEmail() {
         // Given
         ConvertRequest request = new ConvertRequest("1.0,2.0");
-        ConvertResponse expectedResponse = new ConvertResponse();
+        WebConvertResponse expectedResponse = new WebConvertResponse();
         expectedResponse.setCoordinates(new Coordinate(1.0, 2.0));
         expectedResponse.setName("Test Location");
         String email = "test@example.com";
@@ -117,7 +117,7 @@ public class MapConverterRateLimitAspectTest {
         when(mapConverterService.convert(request)).thenReturn(expectedResponse);
 
         // When
-        ConvertResponse result = proxiedMapConverterService.convert(request);
+        WebConvertResponse result = proxiedMapConverterService.convert(request);
 
         // Then
         assertEquals(expectedResponse, result);
@@ -129,7 +129,7 @@ public class MapConverterRateLimitAspectTest {
     public void testConvert_WithAllIdentifiers() {
         // Given
         ConvertRequest request = new ConvertRequest("1.0,2.0");
-        ConvertResponse expectedResponse = new ConvertResponse();
+        WebConvertResponse expectedResponse = new WebConvertResponse();
         expectedResponse.setCoordinates(new Coordinate(1.0, 2.0));
         expectedResponse.setName("Test Location");
         String ipAddress = "192.168.1.1";
@@ -145,7 +145,7 @@ public class MapConverterRateLimitAspectTest {
         when(mapConverterService.convert(request)).thenReturn(expectedResponse);
 
         // When
-        ConvertResponse result = proxiedMapConverterService.convert(request);
+        WebConvertResponse result = proxiedMapConverterService.convert(request);
 
         // Then
         assertEquals(expectedResponse, result);
@@ -226,7 +226,7 @@ public class MapConverterRateLimitAspectTest {
     public void testConvert_WithIpAndChatId() {
         // Given
         ConvertRequest request = new ConvertRequest("1.0,2.0");
-        ConvertResponse expectedResponse = new ConvertResponse();
+        WebConvertResponse expectedResponse = new WebConvertResponse();
         expectedResponse.setCoordinates(new Coordinate(1.0, 2.0));
         expectedResponse.setName("Test Location");
         String ipAddress = "192.168.1.1";
@@ -241,7 +241,7 @@ public class MapConverterRateLimitAspectTest {
         when(mapConverterService.convert(request)).thenReturn(expectedResponse);
 
         // When
-        ConvertResponse result = proxiedMapConverterService.convert(request);
+        WebConvertResponse result = proxiedMapConverterService.convert(request);
 
         // Then
         assertEquals(expectedResponse, result);
@@ -256,7 +256,7 @@ public class MapConverterRateLimitAspectTest {
     public void testConvert_WithChatIdOnly() {
         // Given
         ConvertRequest request = new ConvertRequest("1.0,2.0");
-        ConvertResponse expectedResponse = new ConvertResponse();
+        WebConvertResponse expectedResponse = new WebConvertResponse();
         expectedResponse.setCoordinates(new Coordinate(1.0, 2.0));
         expectedResponse.setName("Test Location");
         String chatId = "123456789";
@@ -270,7 +270,7 @@ public class MapConverterRateLimitAspectTest {
         when(mapConverterService.convert(request)).thenReturn(expectedResponse);
 
         // When
-        ConvertResponse result = proxiedMapConverterService.convert(request);
+        WebConvertResponse result = proxiedMapConverterService.convert(request);
 
         // Then
         assertEquals(expectedResponse, result);

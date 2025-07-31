@@ -1,10 +1,10 @@
 package com.example.mapsbridge.controller;
 
-import com.example.mapsbridge.dto.ConvertRequest;
-import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
+import com.example.mapsbridge.dto.request.ConvertRequest;
+import com.example.mapsbridge.dto.response.WebConvertResponse;
+import com.example.mapsbridge.service.mapconverter.MapConverterService;
 import com.example.mapsbridge.setup.TestAuthUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MapConverterControllerTest {
 
     @MockitoBean
-    private MapConverterServiceImpl mapConverterService;
+    private MapConverterService<WebConvertResponse> mapConverterService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -55,14 +55,14 @@ class MapConverterControllerTest {
         links.put(MapType.GOOGLE, "https://www.google.com/maps?q=40.6892,-74.0445");
         links.put(MapType.APPLE, "https://maps.apple.com/?ll=40.6892,-74.0445");
 
-        ConvertResponse response = new ConvertResponse();
+        WebConvertResponse response = new WebConvertResponse();
         response.setCoordinates(coordinate);
         response.setLinks(links);
 
         when(mapConverterService.convert(any(ConvertRequest.class))).thenReturn(response);
 
         // When/Then
-        mockMvc.perform(post("/api/convert")
+        mockMvc.perform(post("/api/web/location/convert")
                         .headers(TestAuthUtils.createMasterAuthHeaders())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -83,14 +83,14 @@ class MapConverterControllerTest {
         links.put(MapType.GOOGLE, "https://www.google.com/maps?q=40.6892,-74.0445");
         links.put(MapType.APPLE, "https://maps.apple.com/?ll=40.6892,-74.0445");
 
-        ConvertResponse response = new ConvertResponse();
+        WebConvertResponse response = new WebConvertResponse();
         response.setCoordinates(coordinate);
         response.setLinks(links);
 
         when(mapConverterService.convert(any(ConvertRequest.class))).thenReturn(response);
 
         // When/Then
-        mockMvc.perform(post("/api/convert")
+        mockMvc.perform(post("/api/web/location/convert")
                         .headers(TestAuthUtils.createMasterAuthHeaders())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -110,7 +110,7 @@ class MapConverterControllerTest {
                 .thenThrow(new IllegalArgumentException("Input must be coordinates or a valid URL"));
 
         // When/Then
-        mockMvc.perform(post("/api/convert")
+        mockMvc.perform(post("/api/web/location/convert")
                         .headers(TestAuthUtils.createMasterAuthHeaders())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -124,7 +124,7 @@ class MapConverterControllerTest {
         ConvertRequest request = new ConvertRequest("");
 
         // When/Then
-        mockMvc.perform(post("/api/convert")
+        mockMvc.perform(post("/api/web/location/convert")
                         .headers(TestAuthUtils.createMasterAuthHeaders())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

@@ -1,11 +1,11 @@
 package com.example.mapsbridge.telegram.service;
 
-import com.example.mapsbridge.dto.ConvertRequest;
-import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.dto.request.ConvertRequest;
+import com.example.mapsbridge.dto.response.WebConvertResponse;
 import com.example.mapsbridge.exception.InvalidInputException;
 import com.example.mapsbridge.exception.rate.ChatIdRateLimitExceededException;
-import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
+import com.example.mapsbridge.service.mapconverter.MapConverterServiceImpl;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
@@ -51,7 +51,7 @@ public class ResponseFormatterService {
         ConvertRequest request = new ConvertRequest(message.trim());
 
         try {
-            ConvertResponse response = mapConverterService.convert(request);
+            WebConvertResponse response = mapConverterService.convert(request);
             return formatResponse(response);
         } catch (ChatIdRateLimitExceededException e) {
             log.warn("Rate limit exceeded for chat ID: {}", e.getChatId());
@@ -65,7 +65,7 @@ public class ResponseFormatterService {
         }
     }
 
-    private String formatResponse(ConvertResponse response) {
+    private String formatResponse(WebConvertResponse response) {
         Map<String, Object> context = new HashMap<>();
 
         for (Map.Entry<MapType, String> entry : response.getLinks().entrySet()) {

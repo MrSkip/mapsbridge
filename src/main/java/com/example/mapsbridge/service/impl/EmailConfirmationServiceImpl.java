@@ -1,7 +1,7 @@
 package com.example.mapsbridge.service.impl;
 
-import com.example.mapsbridge.dto.ApiKeyResponseDto;
-import com.example.mapsbridge.dto.MessageResponseDto;
+import com.example.mapsbridge.dto.response.ApiKeyResponseDto;
+import com.example.mapsbridge.dto.response.MessageResponseDto;
 import com.example.mapsbridge.exception.InvalidTokenException;
 import com.example.mapsbridge.exception.TokenExpiredException;
 import com.example.mapsbridge.model.ApiKeyModel;
@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static java.time.ZoneOffset.UTC;
 

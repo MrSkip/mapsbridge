@@ -1,8 +1,8 @@
 package com.example.mapsbridge.controller;
 
-import com.example.mapsbridge.dto.ApiKeyResponseDto;
-import com.example.mapsbridge.dto.KeyRequestDto;
-import com.example.mapsbridge.dto.MessageResponseDto;
+import com.example.mapsbridge.dto.request.KeyRequestDto;
+import com.example.mapsbridge.dto.response.ApiKeyResponseDto;
+import com.example.mapsbridge.dto.response.MessageResponseDto;
 import com.example.mapsbridge.exception.InvalidTokenException;
 import com.example.mapsbridge.service.EmailConfirmationService;
 import com.example.mapsbridge.service.MailtrapService;

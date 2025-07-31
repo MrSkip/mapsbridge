@@ -67,7 +67,7 @@ The application uses a hierarchical security model defined in `endpoint-security
 
 2. **Authenticated Endpoints** (requires valid API key)
    - `/api/**` - All API endpoints, including:
-     - `POST /api/convert` - Convert map coordinates between providers
+       - `POST /api/web/location/convert` - Convert map coordinates between providers
 
 3. **Master-Only Endpoints** (requires master token)
    - `/admin/**` - Administrative endpoints
@@ -138,7 +138,7 @@ The `ApiKeyAuthFilter` intercepts all requests to protected endpoints and:
 
 3. **Use the API Key**:
    ```
-   POST /api/convert
+   POST /api/web/location/convert
    Content-Type: application/json
    X-API-Key: maps_live_xxxxxxxx
    

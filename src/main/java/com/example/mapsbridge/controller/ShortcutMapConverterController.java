@@ -1,9 +1,8 @@
 package com.example.mapsbridge.controller;
 
 import com.example.mapsbridge.dto.request.ConvertRequest;
-import com.example.mapsbridge.dto.response.WebConvertResponse;
+import com.example.mapsbridge.dto.response.shortcut.ShortcutBaseResponse;
 import com.example.mapsbridge.service.mapconverter.MapConverterService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,15 +11,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller for the web map link conversion API.
+ * Controller for the shortcut map link conversion API.
  */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class MapConverterController {
+public class ShortcutMapConverterController {
 
-    private final MapConverterService<WebConvertResponse> mapConverterService;
+    private final MapConverterService<ShortcutBaseResponse> mapConverterService;
 
     /**
      * Convert a map URL or coordinates to links for all supported map providers.
@@ -28,10 +27,9 @@ public class MapConverterController {
      * @param request The conversion request
      * @return The conversion response with coordinates and links
      */
-    @PostMapping("/web/location/convert")
-    public WebConvertResponse convert(@Valid @RequestBody ConvertRequest request) {
-        log.info("Converting input: {}", request.getInput());
+    @PostMapping("/shortcut/location/convert")
+    public ShortcutBaseResponse shortcutConvert(@RequestBody ConvertRequest request) {
+        log.info("Converting input for shortcut: {}", request.getInput());
         return mapConverterService.convert(request);
     }
-
 }

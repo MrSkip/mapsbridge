@@ -1,9 +1,9 @@
 package com.example.mapsbridge.integrations;
 
-import com.example.mapsbridge.dto.ConvertRequest;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.dto.request.ConvertRequest;
 import com.example.mapsbridge.provider.MapProvider;
 import com.example.mapsbridge.setup.TestAuthUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,7 +79,7 @@ class ConvertDifferentLocationsIntTest {
         // Given
         ConvertRequest request = new ConvertRequest(input);
         // When/Then
-        var resultActions = mockMvc.perform(post("/api/convert")
+        var resultActions = mockMvc.perform(post("/api/web/location/convert")
                         .headers(TestAuthUtils.createMasterAuthHeaders())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

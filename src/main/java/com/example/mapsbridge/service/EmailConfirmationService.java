@@ -1,7 +1,7 @@
 package com.example.mapsbridge.service;
 
-import com.example.mapsbridge.dto.ApiKeyResponseDto;
-import com.example.mapsbridge.dto.MessageResponseDto;
+import com.example.mapsbridge.dto.response.ApiKeyResponseDto;
+import com.example.mapsbridge.dto.response.MessageResponseDto;
 
 /**
  * Service interface for email confirmation and API key generation.

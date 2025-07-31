@@ -1,9 +1,9 @@
 package com.example.mapsbridge.service;
 
-import com.example.mapsbridge.dto.ConvertRequest;
-import com.example.mapsbridge.dto.ConvertResponse;
 import com.example.mapsbridge.dto.MapType;
-import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
+import com.example.mapsbridge.dto.request.ConvertRequest;
+import com.example.mapsbridge.dto.response.WebConvertResponse;
+import com.example.mapsbridge.service.mapconverter.MapConverterServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +26,7 @@ class MapConverterServiceIntegrationTest {
         ConvertRequest request = new ConvertRequest("40.6892,-74.0445");
 
         // When
-        ConvertResponse response = mapConverterService.convert(request);
+        WebConvertResponse response = mapConverterService.convert(request);
 
         // Then
         assertNotNull(response);
@@ -56,7 +56,7 @@ class MapConverterServiceIntegrationTest {
         ConvertRequest request = new ConvertRequest("https://www.google.com/maps?q=40.6892,-74.0445");
 
         // When
-        ConvertResponse response = mapConverterService.convert(request);
+        WebConvertResponse response = mapConverterService.convert(request);
 
         // Then
         assertNotNull(response);
@@ -78,7 +78,7 @@ class MapConverterServiceIntegrationTest {
         ConvertRequest request = new ConvertRequest("https://www.openstreetmap.org/?mlat=40.6892&mlon=-74.0445#map=16/40.6892/-74.0445");
 
         // When
-        ConvertResponse response = mapConverterService.convert(request);
+        WebConvertResponse response = mapConverterService.convert(request);
 
         // Then
         assertNotNull(response);
@@ -100,7 +100,7 @@ class MapConverterServiceIntegrationTest {
         ConvertRequest request = new ConvertRequest("https://waze.com/ul?ll=40.6892,-74.0445&navigate=yes");
 
         // When
-        ConvertResponse response = mapConverterService.convert(request);
+        WebConvertResponse response = mapConverterService.convert(request);
 
         // Then
         assertNotNull(response);

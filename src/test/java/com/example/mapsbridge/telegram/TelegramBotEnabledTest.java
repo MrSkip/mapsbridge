@@ -1,6 +1,6 @@
 package com.example.mapsbridge.telegram;
 
-import com.example.mapsbridge.service.impl.MapConverterServiceImpl;
+import com.example.mapsbridge.service.mapconverter.MapConverterServiceImpl;
 import com.example.mapsbridge.telegram.service.ResponseFormatterService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
