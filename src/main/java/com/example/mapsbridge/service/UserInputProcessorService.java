@@ -16,6 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.regex.Matcher;
+
+import static com.example.mapsbridge.util.InputPatterns.URL_EXTRACTION_PATTERN;
 
 /**
  * Service for processing input and extracting coordinates.
@@ -38,6 +41,9 @@ public class UserInputProcessorService {
      * @throws CoordinateExtractionException if location information cannot be extracted from the URL
      */
     public LocationResult processInput(String input) {
+        // Extract URL if input contains a URL embedded in text
+        input = extractUrlFromText(input);
+
         if (isCoordinateInput(input)) {
             return processCoordinateInput(input);
         } else if (isUrlInput(input)) {
@@ -102,5 +108,27 @@ public class UserInputProcessorService {
 
         LocationResult locationResult = provider.extractLocation(url);
         return (locationResult != null && locationResult.hasValidCoordinates()) ? locationResult : null;
+    }
+
+    /**
+     * Extracts a URL from a text string that may contain other content.
+     *
+     * @param text The text that may contain a URL
+     * @return The extracted URL or the original text if no URL is found
+     */
+    private String extractUrlFromText(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+
+        // Use a regex to find a URL in the text
+        Matcher matcher = URL_EXTRACTION_PATTERN.matcher(text);
+        if (matcher.find()) {
+            // Return the found URL
+            return matcher.group();
+        }
+
+        // Return original text if no URL is found
+        return text;
     }
 }

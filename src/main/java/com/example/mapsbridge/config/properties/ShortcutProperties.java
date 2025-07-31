@@ -68,13 +68,6 @@ public class ShortcutProperties {
                 }
             }
 
-            // Add any remaining entries not specified in the order
-            for (Map.Entry<MapType, V> entry : originalMap.entrySet()) {
-                if (!orderedMap.containsKey(entry.getKey())) {
-                    orderedMap.put(entry.getKey(), entry.getValue());
-                }
-            }
-
             return orderedMap;
         }
 

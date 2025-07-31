@@ -2,6 +2,7 @@ package com.example.mapsbridge.dto.response.shortcut;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Response model for the map link conversion API.
@@ -9,6 +10,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class ShortcutBadResponse extends ShortcutBaseResponse {
     private String alertTitle;
     private String alertMessage;

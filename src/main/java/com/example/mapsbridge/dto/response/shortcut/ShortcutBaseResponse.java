@@ -1,13 +1,14 @@
 package com.example.mapsbridge.dto.response.shortcut;
 
-import com.example.mapsbridge.dto.response.BaseConvertResponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ShortcutBaseResponse extends BaseConvertResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class ShortcutBaseResponse {
     private boolean success;
 }

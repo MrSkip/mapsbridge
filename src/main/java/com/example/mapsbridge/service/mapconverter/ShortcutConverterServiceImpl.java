@@ -11,6 +11,8 @@ import com.example.mapsbridge.provider.MapProvider;
 import com.example.mapsbridge.service.UserInputProcessorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -40,17 +42,24 @@ public class ShortcutConverterServiceImpl implements MapConverterService<Shortcu
     public ShortcutBaseResponse convert(ConvertRequest request) {
         try {
             String input = request.getInput().trim();
+            if (StringUtils.isBlank(input)) {
+                return createBadResponse();
+            }
             LocationResult locationResult = userInputProcessorService.processInput(input);
             return getWebConvertResponse(locationResult);
         } catch (Exception e) {
             log.error("Error converting input: {}", request, e);
-            ShortcutProperties.BadResponse badResponseProps = shortcutProperties.getBadResponse();
-            return new ShortcutBadResponse(
-                    badResponseProps.getAlertTitle(),
-                    badResponseProps.getAlertMessage(),
-                    badResponseProps.getUrl()
-            );
+            return createBadResponse();
         }
+    }
+
+    private @NotNull ShortcutBadResponse createBadResponse() {
+        ShortcutProperties.BadResponse badResponseProps = shortcutProperties.getBadResponse();
+        return new ShortcutBadResponse(
+                badResponseProps.getAlertTitle(),
+                badResponseProps.getAlertMessage(),
+                badResponseProps.getUrl()
+        );
     }
 
     private ShortcutBaseResponse getWebConvertResponse(LocationResult locationResult) {

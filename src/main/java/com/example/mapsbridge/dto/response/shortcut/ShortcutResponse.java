@@ -2,6 +2,7 @@ package com.example.mapsbridge.dto.response.shortcut;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class ShortcutResponse extends ShortcutBaseResponse {
     private Map<String, String> providers;
 

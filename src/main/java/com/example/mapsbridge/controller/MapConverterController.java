@@ -30,7 +30,7 @@ public class MapConverterController {
      */
     @PostMapping("/web/location/convert")
     public WebConvertResponse convert(@Valid @RequestBody ConvertRequest request) {
-        log.info("Converting input: {}", request.getInput());
+        log.info("Converting web input: {}", request.getInput());
         return mapConverterService.convert(request);
     }
 

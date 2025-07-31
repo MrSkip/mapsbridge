@@ -245,6 +245,21 @@
     }
   },
   {
+    "input": "Cantina Charlotta\nMap Item\nhttps://maps.apple.com/place?address=Iglinger%20Stra%C3%9Fe%201,%2086916%20Kaufering,%20Germany&coordinate=48.083965,10.858952&name=Cantina%20Charlotta&place-id=I900E8846D30A3CAF&map=explore",
+    "expected": {
+      "coordinates": {
+        "lat": 48.0839646,
+        "lon": 10.8589516
+      },
+      "name": "Cantina Charlotta",
+      "address": "Iglinger Straße 1, Kaufering"
+    },
+    "testConfig": {
+      "description": "[appleMaps][phone][place][UrlContent] - Kaufering / Cantina Charlotta",
+      "source": "apple"
+    }
+  },
+  {
     "input": "https://maps.apple.com/place?coordinate=48.061074,10.867041&name=Marked%20Location&map=explore",
     "expected": {
       "coordinates": {

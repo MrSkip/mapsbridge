@@ -22,6 +22,12 @@ public final class InputPatterns {
      */
     public static final Pattern URL_PATTERN = Pattern.compile("^https?://.*");
 
+    /**
+     * Pattern for extracting URL from text
+     * Examples: "Some text https://maps.google.com more text", "Cantina Charlotta\nMap Item\nhttps://maps.apple.com/place?address=..."
+     */
+    public static final Pattern URL_EXTRACTION_PATTERN = Pattern.compile("https?://[^\\s\\n\\r]+");
+
     // Private constructor to prevent instantiation
     private InputPatterns() {
         throw new AssertionError("Utility class should not be instantiated");
