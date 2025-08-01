@@ -1,7 +1,6 @@
 package com.example.mapsbridge.aspect;
 
 import com.example.mapsbridge.config.metrics.tracker.IpAddressTracker;
-import org.aspectj.lang.JoinPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,9 +18,6 @@ public class IpTrackingAspectTest {
 
     @Mock
     private IpAddressTracker ipAddressTracker;
-
-    @Mock
-    private JoinPoint joinPoint;
 
     @InjectMocks
     private IpTrackingAspect ipTrackingAspect;
@@ -131,7 +127,7 @@ public class IpTrackingAspectTest {
         // Given
         String xForwardedIp = "10.0.0.1";
         String proxyClientIp = "10.0.0.2";
-        String expectedIp = xForwardedIp; // Should use X-Forwarded-For
+        // Should use X-Forwarded-For
 
         request.addHeader("X-Forwarded-For", xForwardedIp);
         request.addHeader("Proxy-Client-IP", proxyClientIp);
@@ -140,7 +136,7 @@ public class IpTrackingAspectTest {
         ipTrackingAspect.trackIpAddress();
 
         // Then
-        verify(ipAddressTracker).trackIpAddress(expectedIp);
+        verify(ipAddressTracker).trackIpAddress(xForwardedIp);
     }
 
     @Test
