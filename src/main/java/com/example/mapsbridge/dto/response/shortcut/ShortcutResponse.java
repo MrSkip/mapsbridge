@@ -15,6 +15,7 @@ import java.util.List;
 @ToString(callSuper = true)
 public class ShortcutResponse extends ShortcutBaseResponse {
     private List<ProviderItem> providers;
+    private String promptTitle;
 
     public ShortcutResponse() {
         super(true);

@@ -66,6 +66,7 @@ public class ShortcutConverterServiceImpl implements MapConverterService<Shortcu
         ShortcutResponse response = new ShortcutResponse();
         Map<MapType, String> links = generateMapLinks(locationResult);
         response.setProviders(shortcutProperties.getMapProviders().createProvidersMap(links));
+        response.setPromptTitle(shortcutProperties.getPromptTitle());
         return response;
     }
 

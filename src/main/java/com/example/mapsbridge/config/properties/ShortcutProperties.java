@@ -21,6 +21,7 @@ public class ShortcutProperties {
 
     private BadResponse badResponse = new BadResponse();
     private MapProviders mapProviders = new MapProviders();
+    private String promptTitle;
 
     @Getter
     @Setter
