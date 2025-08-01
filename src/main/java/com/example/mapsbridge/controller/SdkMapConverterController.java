@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
-public class MapConverterController {
+public class SdkMapConverterController {
 
     private final MapConverterService<WebConvertResponse> mapConverterService;
 
@@ -28,7 +28,7 @@ public class MapConverterController {
      * @param request The conversion request
      * @return The conversion response with coordinates and links
      */
-    @PostMapping("/web/location/convert")
+    @PostMapping("/sdk/location/convert")
     public WebConvertResponse convert(@Valid @RequestBody ConvertRequest request) {
         log.info("Converting web input: {}", request.getInput());
         return mapConverterService.convert(request);

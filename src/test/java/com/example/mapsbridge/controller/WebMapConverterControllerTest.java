@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @MockitoSettings(strictness = Strictness.LENIENT)
 @Execution(ExecutionMode.SAME_THREAD)
-class MapConverterControllerTest {
+class WebMapConverterControllerTest {
 
     @MockitoBean
     private MapConverterService<WebConvertResponse> mapConverterService;

@@ -4,6 +4,7 @@ import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.provider.url.UrlPatternExtractor;
 import com.example.mapsbridge.service.geocoding.HybridGeocodingService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -32,7 +33,7 @@ public class G7AddressGeocodingExtractor implements GoogleCoordinateExtractor {
 
     @Override
     public @NotNull LocationResult extract(String url) {
-        if (url == null || url.trim().isEmpty()) {
+        if (StringUtils.isBlank(url)) {
             return new LocationResult();
         }
 
