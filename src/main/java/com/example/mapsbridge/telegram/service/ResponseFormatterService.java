@@ -5,7 +5,7 @@ import com.example.mapsbridge.dto.request.ConvertRequest;
 import com.example.mapsbridge.dto.response.WebConvertResponse;
 import com.example.mapsbridge.exception.InvalidInputException;
 import com.example.mapsbridge.exception.rate.ChatIdRateLimitExceededException;
-import com.example.mapsbridge.service.mapconverter.MapConverterServiceImpl;
+import com.example.mapsbridge.service.converter.MapConverterServiceImpl;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;

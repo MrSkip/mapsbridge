@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * Response model for the map link conversion API.
@@ -14,7 +14,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ShortcutResponse extends ShortcutBaseResponse {
-    private Map<String, String> providers;
+    private List<ProviderItem> providers;
 
     public ShortcutResponse() {
         super(true);

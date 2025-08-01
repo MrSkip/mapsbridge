@@ -1,6 +1,7 @@
 package com.example.mapsbridge.config.properties;
 
 import com.example.mapsbridge.dto.MapType;
+import com.example.mapsbridge.dto.response.shortcut.ProviderItem;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -83,18 +84,18 @@ public class ShortcutProperties {
         }
 
         /**
-         * Creates a map of provider names to their URLs, ordered according to the configured order.
+         * Creates a list of provider items with names and URLs, ordered according to the configured order.
          *
          * @param links Map of MapType to URL strings
-         * @return A map of provider display names to URL strings
+         * @return A list of provider items with display names and URL strings
          */
-        public Map<String, String> createProvidersMap(Map<MapType, String> links) {
+        public List<ProviderItem> createProvidersMap(Map<MapType, String> links) {
             Map<MapType, String> orderedLinks = createOrderedMap(links);
-            Map<String, String> providers = new LinkedHashMap<>();
+            List<ProviderItem> providers = new ArrayList<>();
 
             for (Map.Entry<MapType, String> entry : orderedLinks.entrySet()) {
                 String displayName = getDisplayValue(entry.getKey());
-                providers.put(displayName, entry.getValue());
+                providers.add(new ProviderItem(displayName, entry.getValue()));
             }
 
             return providers;

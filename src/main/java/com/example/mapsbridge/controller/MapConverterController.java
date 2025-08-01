@@ -2,7 +2,7 @@ package com.example.mapsbridge.controller;
 
 import com.example.mapsbridge.dto.request.ConvertRequest;
 import com.example.mapsbridge.dto.response.WebConvertResponse;
-import com.example.mapsbridge.service.mapconverter.MapConverterService;
+import com.example.mapsbridge.service.converter.MapConverterService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -3,7 +3,7 @@ package com.example.mapsbridge.service;
 import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.dto.request.ConvertRequest;
 import com.example.mapsbridge.dto.response.WebConvertResponse;
-import com.example.mapsbridge.service.mapconverter.MapConverterServiceImpl;
+import com.example.mapsbridge.service.converter.MapConverterServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

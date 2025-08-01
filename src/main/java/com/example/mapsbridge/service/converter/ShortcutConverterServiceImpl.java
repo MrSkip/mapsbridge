@@ -1,4 +1,4 @@
-package com.example.mapsbridge.service.mapconverter;
+package com.example.mapsbridge.service.converter;
 
 import com.example.mapsbridge.config.properties.ShortcutProperties;
 import com.example.mapsbridge.dto.LocationResult;

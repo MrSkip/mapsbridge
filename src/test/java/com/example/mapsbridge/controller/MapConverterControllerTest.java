@@ -4,7 +4,7 @@ import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.dto.request.ConvertRequest;
 import com.example.mapsbridge.dto.response.WebConvertResponse;
-import com.example.mapsbridge.service.mapconverter.MapConverterService;
+import com.example.mapsbridge.service.converter.MapConverterService;
 import com.example.mapsbridge.setup.TestAuthUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

@@ -3,7 +3,7 @@ package com.example.mapsbridge.telegram.service;
 import com.example.mapsbridge.dto.MapType;
 import com.example.mapsbridge.dto.request.ConvertRequest;
 import com.example.mapsbridge.dto.response.WebConvertResponse;
-import com.example.mapsbridge.service.mapconverter.MapConverterServiceImpl;
+import com.example.mapsbridge.service.converter.MapConverterServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -8,7 +8,7 @@ import com.example.mapsbridge.dto.response.WebConvertResponse;
 import com.example.mapsbridge.exception.rate.ChatIdRateLimitExceededException;
 import com.example.mapsbridge.exception.rate.EmailRateLimitExceededException;
 import com.example.mapsbridge.exception.rate.IpRateLimitExceededException;
-import com.example.mapsbridge.service.mapconverter.MapConverterService;
+import com.example.mapsbridge.service.converter.MapConverterService;
 import com.example.mapsbridge.service.ratelimit.MapConverterRateLimiterService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
