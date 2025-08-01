@@ -41,13 +41,17 @@ public class UserInputProcessorService {
      * @throws CoordinateExtractionException if location information cannot be extracted from the URL
      */
     public LocationResult processInput(String input) {
+        return processInput(input, false);
+    }
+
+    public LocationResult processInput(String input, boolean skipReverseGeocode) {
         // Extract URL if input contains a URL embedded in text
         input = extractUrlFromText(input);
 
         if (isCoordinateInput(input)) {
-            return processCoordinateInput(input);
+            return processCoordinateInput(input, skipReverseGeocode);
         } else if (isUrlInput(input)) {
-            return processUrlInput(input);
+            return processUrlInput(input, skipReverseGeocode);
         } else {
             throw new InvalidInputException("Input must be coordinates (lat,lon) or a valid URL");
         }
@@ -61,7 +65,7 @@ public class UserInputProcessorService {
         return InputPatterns.URL_PATTERN.matcher(input).matches();
     }
 
-    private LocationResult processCoordinateInput(String input) {
+    private LocationResult processCoordinateInput(String input, boolean skipReverseGeocode) {
         inputSourceTracker.trackInputType(MetricTags.COORDINATES);
 
         Coordinate coordinate = Coordinate.fromString(input.trim());
@@ -69,10 +73,14 @@ public class UserInputProcessorService {
             throw new InvalidCoordinateException("Invalid coordinates: " + input);
         }
 
-        return geocodingService.reverseGeocode(coordinate);
+        if (skipReverseGeocode) {
+            return LocationResult.fromCoordinates(coordinate);
+        } else {
+            return geocodingService.reverseGeocode(coordinate);
+        }
     }
 
-    private LocationResult processUrlInput(String input) {
+    private LocationResult processUrlInput(String input, boolean skipReverseGeocode) {
         inputSourceTracker.trackInputType(MetricTags.URL);
 
         LocationResult locationResult = extractLocationFromUrl(input);
@@ -80,11 +88,12 @@ public class UserInputProcessorService {
             throw new CoordinateExtractionException("Could not extract location information from URL: " + input);
         }
 
-        if (StringUtils.isBlank(locationResult.getAddress())) {
+        if (StringUtils.isBlank(locationResult.getAddress()) && !skipReverseGeocode) {
             LocationResult reverseGeocode = geocodingService.reverseGeocode(locationResult.getCoordinates());
             reverseGeocode.setMapSource(locationResult.getMapSource());
             return reverseGeocode;
         }
+
         return locationResult;
     }
 

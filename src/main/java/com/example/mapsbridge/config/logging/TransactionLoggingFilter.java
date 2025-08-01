@@ -1,5 +1,6 @@
 package com.example.mapsbridge.config.logging;
 
+import com.example.mapsbridge.config.utils.IpUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ public class TransactionLoggingFilter extends OncePerRequestFilter {
             LoggingContext.setTransactionId(transactionId);
 
             // Extract and store the client IP address
-            String clientIp = extractClientIp(request);
+            String clientIp = IpUtils.getClientIp(request);
             LoggingContext.setIpAddress(clientIp);
             
             // Add the transaction ID to the response headers for client tracking
@@ -60,20 +61,5 @@ public class TransactionLoggingFilter extends OncePerRequestFilter {
         }
         
         return transactionId;
-    }
-
-    /**
-     * Extract the client IP address from the request.
-     *
-     * @param request the HTTP request
-     * @return the client IP address
-     */
-    private String extractClientIp(HttpServletRequest request) {
-        String xForwardedFor = request.getHeader("X-Forwarded-For");
-        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-            // In case of multiple proxies, the first IP is the client's
-            return xForwardedFor.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
     }
 }

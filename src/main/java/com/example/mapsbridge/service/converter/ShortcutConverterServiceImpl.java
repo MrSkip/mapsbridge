@@ -45,7 +45,8 @@ public class ShortcutConverterServiceImpl implements MapConverterService<Shortcu
             if (StringUtils.isBlank(input)) {
                 return createBadResponse();
             }
-            LocationResult locationResult = userInputProcessorService.processInput(input);
+            // Skip reverse geocoding for shortcut endpoint
+            LocationResult locationResult = userInputProcessorService.processInput(input, true);
             return getWebConvertResponse(locationResult);
         } catch (Exception e) {
             log.error("Error converting input: {}", request, e);
