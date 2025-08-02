@@ -1,6 +1,7 @@
 package com.example.mapsbridge.aspect;
 
 import com.example.mapsbridge.config.logging.LoggingContext;
+import com.example.mapsbridge.config.metrics.MetricTags;
 import com.example.mapsbridge.config.metrics.tracker.ClientTracker;
 import com.example.mapsbridge.service.ratelimit.MapConverterRateLimiterService;
 import lombok.AllArgsConstructor;
@@ -12,9 +13,13 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 /**
  * Aspect to apply rate limiting to map conversion operations.
  * Checks rate limits for IP address, chat ID, and email before allowing the method execution.
+ * Also tracks requests based on the endpoint type when applicable.
  */
 @Slf4j
 @Aspect
@@ -25,6 +30,12 @@ public class MapConverterRateLimitAspect {
     private final MapConverterRateLimiterService mapConverterRateLimiterService;
     private final ClientTracker clientTracker;
 
+    private static final Map<String, Consumer<ClientTracker>> ENDPOINT_TRACKERS = Map.of(
+            MetricTags.SDK.toLowerCase(), ClientTracker::trackSdkRequest,
+            MetricTags.SHORTCUT.toLowerCase(), ClientTracker::trackShortcutRequest,
+            MetricTags.WEB.toLowerCase(), ClientTracker::trackWebRequest
+    );
+
     /**
      * Pointcut that matches the convert method in implementations of the MapConverterService interface.
      */
@@ -34,47 +45,70 @@ public class MapConverterRateLimitAspect {
 
     /**
      * Advice that checks rate limits before allowing the method execution.
-     * Checks rate limits for IP address, chat ID, and email if they are available in the LoggingContext.
-     *
-     * @param joinPoint the join point
-     * @return the result of the method execution
-     * @throws Throwable if an error occurs during method execution or if a rate limit is exceeded
+     * Priority order: email -> IP address -> chat ID
      */
     @Around("mapConverterMethods()")
     public Object checkRateLimits(ProceedingJoinPoint joinPoint) throws Throwable {
-        String methodName = joinPoint.getSignature().getName();
-        log.debug("Checking rate limits for map conversion operation: {}", methodName);
+        log.debug("Checking rate limits for map conversion operation: {}", joinPoint.getSignature().getName());
 
-        // Apply only one limit at a time based on priority:
-        // 1. If email is present, limit by email (user is using custom API call)
-        // 2. If email is not present but IP is present, limit by IP (user is using website)
-        // 3. If chatId is present, limit by chatId (user is using chat)
-
-        String email = LoggingContext.getEmail();
-        if (StringUtils.hasText(email)) {
-            // User is using custom API call
-            log.debug("Checking geocoding daily quota for email: {}", email);
-            mapConverterRateLimiterService.checkDailyQuotaForEmail(email);
-            clientTracker.trackApiRequest();
-        } else {
-            String ipAddress = LoggingContext.getIpAddress();
-            if (StringUtils.hasText(ipAddress)) {
-                // User is using website
-                log.debug("Checking geocoding daily quota for IP: {}", ipAddress);
-                mapConverterRateLimiterService.checkDailyQuotaForIp(ipAddress);
-                clientTracker.trackWebRequest();
-            } else {
-                String chatId = LoggingContext.getChatId();
-                if (StringUtils.hasText(chatId)) {
-                    // User is using chat
-                    log.debug("Checking geocoding daily quota for chat ID: {}", chatId);
-                    mapConverterRateLimiterService.checkDailyQuotaForChatId(chatId);
-                    clientTracker.trackTelegramRequest();
-                }
-            }
+        if (handleEmailRateLimit()) {
+            return joinPoint.proceed();
         }
 
-        // If rate limit check passes, proceed with the method execution
+        if (handleIpRateLimit()) {
+            return joinPoint.proceed();
+        }
+
+        handleChatRateLimit();
         return joinPoint.proceed();
+    }
+
+    private boolean handleEmailRateLimit() {
+        String email = LoggingContext.getEmail();
+        if (!StringUtils.hasText(email)) {
+            return false;
+        }
+
+        log.debug("Checking geocoding daily quota for email: {}", email);
+        mapConverterRateLimiterService.checkDailyQuotaForEmail(email);
+        clientTracker.trackApiRequest();
+        return true;
+    }
+
+    private boolean handleIpRateLimit() {
+        String ipAddress = LoggingContext.getIpAddress();
+        if (!StringUtils.hasText(ipAddress)) {
+            return false;
+        }
+
+        log.debug("Checking geocoding daily quota for IP: {}", ipAddress);
+        mapConverterRateLimiterService.checkDailyQuotaForIp(ipAddress);
+        trackEndpointRequest();
+        return true;
+    }
+
+    private void handleChatRateLimit() {
+        String chatId = LoggingContext.getChatId();
+        if (StringUtils.hasText(chatId)) {
+            log.debug("Checking geocoding daily quota for chat ID: {}", chatId);
+            mapConverterRateLimiterService.checkDailyQuotaForChatId(chatId);
+            clientTracker.trackTelegramRequest();
+        }
+    }
+
+    private void trackEndpointRequest() {
+        String endpointType = LoggingContext.getEndpointType();
+
+        if (!StringUtils.hasText(endpointType)) {
+            log.warn("Endpoint type is not set in LoggingContext, cannot track request source");
+            return;
+        }
+
+        Consumer<ClientTracker> tracker = ENDPOINT_TRACKERS.get(endpointType);
+        if (tracker != null) {
+            tracker.accept(clientTracker);
+        } else {
+            log.warn("Unknown endpoint type: {}", endpointType);
+        }
     }
 }

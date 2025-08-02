@@ -49,6 +49,16 @@ public final class MetricTags {
      */
     public static final String TELEGRAM = "TELEGRAM";
 
+    /**
+     * Tag value for SDK request source
+     */
+    public static final String SDK = "SDK";
+
+    /**
+     * Tag value for SHORTCUT request source
+     */
+    public static final String SHORTCUT = "SHORTCUT";
+
     // Private constructor to prevent instantiation
     private MetricTags() {
         throw new AssertionError("Constants class should not be instantiated");

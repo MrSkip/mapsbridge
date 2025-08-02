@@ -58,4 +58,18 @@ public class ClientTracker {
     public void trackTelegramRequest() {
         trackRequestSource(MetricTags.TELEGRAM);
     }
+
+    /**
+     * Track a request from SDK.
+     */
+    public void trackSdkRequest() {
+        trackRequestSource(MetricTags.SDK);
+    }
+
+    /**
+     * Track a request from Shortcut.
+     */
+    public void trackShortcutRequest() {
+        trackRequestSource(MetricTags.SHORTCUT);
+    }
 }

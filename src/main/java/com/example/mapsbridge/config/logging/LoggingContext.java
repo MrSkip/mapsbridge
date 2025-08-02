@@ -15,6 +15,7 @@ public class LoggingContext {
     private static final String EMAIL_KEY = "email";
     private static final String CHAT_ID_KEY = "chatId";
     private static final String IP_ADDRESS_KEY = "ipAddress";
+    private static final String ENDPOINT_TYPE_KEY = "endpointType";
 
     /**
      * Gets the transaction ID for the current thread.
@@ -89,6 +90,24 @@ public class LoggingContext {
     }
 
     /**
+     * Gets the endpoint type for the current thread.
+     *
+     * @return the endpoint type, or null if not set
+     */
+    public static String getEndpointType() {
+        return MDC.get(ENDPOINT_TYPE_KEY);
+    }
+
+    /**
+     * Sets the endpoint type for the current thread.
+     *
+     * @param endpointType the endpoint type to set
+     */
+    public static void setEndpointType(String endpointType) {
+        MDC.put(ENDPOINT_TYPE_KEY, endpointType);
+    }
+
+    /**
      * Clears all context values for the current thread.
      * This should be called at the end of request processing to prevent memory leaks.
      */
@@ -97,5 +116,6 @@ public class LoggingContext {
         MDC.remove(EMAIL_KEY);
         MDC.remove(CHAT_ID_KEY);
         MDC.remove(IP_ADDRESS_KEY);
+        MDC.remove(ENDPOINT_TYPE_KEY);
     }
 }

@@ -1,5 +1,7 @@
 package com.example.mapsbridge.controller;
 
+import com.example.mapsbridge.config.logging.LoggingContext;
+import com.example.mapsbridge.config.metrics.MetricTags;
 import com.example.mapsbridge.dto.request.ConvertRequest;
 import com.example.mapsbridge.dto.response.WebConvertResponse;
 import com.example.mapsbridge.service.converter.MapConverterService;
@@ -30,7 +32,8 @@ public class SdkMapConverterController {
      */
     @PostMapping("/sdk/location/convert")
     public WebConvertResponse convert(@Valid @RequestBody ConvertRequest request) {
-        log.info("Converting web input: {}", request.getInput());
+        LoggingContext.setEndpointType(MetricTags.SDK.toLowerCase());
+        log.info("Converting SDK input: {}", request.getInput());
         return mapConverterService.convert(request);
     }
 

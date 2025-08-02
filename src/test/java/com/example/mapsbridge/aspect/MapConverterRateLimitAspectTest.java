@@ -280,4 +280,88 @@ public class MapConverterRateLimitAspectTest {
         verify(mapConverterRateLimiterService, never()).checkDailyQuotaForIp(anyString());
         verify(mapConverterService).convert(request);
     }
+
+    @Test
+    public void testConvert_WithIpAddress_SdkEndpoint() {
+        // Given
+        ConvertRequest request = new ConvertRequest("1.0,2.0");
+        WebConvertResponse expectedResponse = new WebConvertResponse();
+        expectedResponse.setCoordinates(new Coordinate(1.0, 2.0));
+        expectedResponse.setName("Test Location");
+        String ipAddress = "192.168.1.1";
+
+        // Set up the LoggingContext
+        LoggingContext.setIpAddress(ipAddress);
+        LoggingContext.setEndpointType("sdk");
+
+        // Set up the mocks
+        when(mapConverterService.convert(request)).thenReturn(expectedResponse);
+
+        // When
+        WebConvertResponse result = proxiedMapConverterService.convert(request);
+
+        // Then
+        assertEquals(expectedResponse, result);
+        verify(mapConverterRateLimiterService).checkDailyQuotaForIp(ipAddress);
+        verify(clientTracker).trackSdkRequest();
+        verify(clientTracker, never()).trackWebRequest();
+        verify(clientTracker, never()).trackShortcutRequest();
+        verify(mapConverterService).convert(request);
+    }
+
+    @Test
+    public void testConvert_WithIpAddress_ShortcutEndpoint() {
+        // Given
+        ConvertRequest request = new ConvertRequest("1.0,2.0");
+        WebConvertResponse expectedResponse = new WebConvertResponse();
+        expectedResponse.setCoordinates(new Coordinate(1.0, 2.0));
+        expectedResponse.setName("Test Location");
+        String ipAddress = "192.168.1.1";
+
+        // Set up the LoggingContext
+        LoggingContext.setIpAddress(ipAddress);
+        LoggingContext.setEndpointType("shortcut");
+
+        // Set up the mocks
+        when(mapConverterService.convert(request)).thenReturn(expectedResponse);
+
+        // When
+        WebConvertResponse result = proxiedMapConverterService.convert(request);
+
+        // Then
+        assertEquals(expectedResponse, result);
+        verify(mapConverterRateLimiterService).checkDailyQuotaForIp(ipAddress);
+        verify(clientTracker).trackShortcutRequest();
+        verify(clientTracker, never()).trackWebRequest();
+        verify(clientTracker, never()).trackSdkRequest();
+        verify(mapConverterService).convert(request);
+    }
+
+    @Test
+    public void testConvert_WithIpAddress_WebEndpoint() {
+        // Given
+        ConvertRequest request = new ConvertRequest("1.0,2.0");
+        WebConvertResponse expectedResponse = new WebConvertResponse();
+        expectedResponse.setCoordinates(new Coordinate(1.0, 2.0));
+        expectedResponse.setName("Test Location");
+        String ipAddress = "192.168.1.1";
+
+        // Set up the LoggingContext
+        LoggingContext.setIpAddress(ipAddress);
+        LoggingContext.setEndpointType("web");
+
+        // Set up the mocks
+        when(mapConverterService.convert(request)).thenReturn(expectedResponse);
+
+        // When
+        WebConvertResponse result = proxiedMapConverterService.convert(request);
+
+        // Then
+        assertEquals(expectedResponse, result);
+        verify(mapConverterRateLimiterService).checkDailyQuotaForIp(ipAddress);
+        verify(clientTracker).trackWebRequest();
+        verify(clientTracker, never()).trackSdkRequest();
+        verify(clientTracker, never()).trackShortcutRequest();
+        verify(mapConverterService).convert(request);
+    }
 }

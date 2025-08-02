@@ -1,5 +1,7 @@
 package com.example.mapsbridge.controller;
 
+import com.example.mapsbridge.config.logging.LoggingContext;
+import com.example.mapsbridge.config.metrics.MetricTags;
 import com.example.mapsbridge.dto.request.ConvertRequest;
 import com.example.mapsbridge.dto.response.shortcut.ShortcutBaseResponse;
 import com.example.mapsbridge.service.converter.MapConverterService;
@@ -29,6 +31,7 @@ public class ShortcutMapConverterController {
      */
     @PostMapping("/shortcut/location/convert")
     public ShortcutBaseResponse shortcutConvert(@RequestBody ConvertRequest request) {
+        LoggingContext.setEndpointType(MetricTags.SHORTCUT.toLowerCase());
         log.info("Converting input for shortcut: {}", request.getInput());
         return mapConverterService.convert(request);
     }
