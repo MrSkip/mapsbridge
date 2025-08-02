@@ -59,14 +59,15 @@ class ConvertDifferentLocationsIntTest {
                 String expectedName = (String) expected.get("name");
                 String expectedAddress = (String) expected.get("address");
 
-
                 Map<String, Object> testConfig = (Map<String, Object>) testCase.get("testConfig");
                 String description = (String) testConfig.get("description");
                 MapType source = MapType.fromString((String) testConfig.get("source"));
+                String sourceUrl = (String) testConfig.get("sourceUrl");
 
-                LocationResult location = new LocationResult(source, expectedCoordinates, expectedAddress, expectedName);
+                LocationResult location = new LocationResult(source, sourceUrl, expectedCoordinates, expectedAddress, expectedName);
+                String url = sourceUrl == null ? input : sourceUrl;
 
-                return new Object[]{input, location, description};
+                return new Object[]{url, location, description};
             });
         } catch (IOException e) {
             throw new RuntimeException("Failed to load test data", e);

@@ -91,9 +91,11 @@ public class UserInputProcessorService {
         if (StringUtils.isBlank(locationResult.getAddress()) && !skipReverseGeocode) {
             LocationResult reverseGeocode = geocodingService.reverseGeocode(locationResult.getCoordinates());
             reverseGeocode.setMapSource(locationResult.getMapSource());
+            reverseGeocode.setOriginalUrl(input);
             return reverseGeocode;
         }
 
+        locationResult.setOriginalUrl(input);
         return locationResult;
     }
 

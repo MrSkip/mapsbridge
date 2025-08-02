@@ -78,7 +78,7 @@ public class G2LatLon3d4dExtractor implements GoogleCoordinateExtractor {
 
             String placeName = extractPlaceName(url);
 
-            return new LocationResult(null, coordinate, null, placeName);
+            return new LocationResult(null, null, coordinate, null, placeName);
         }
 
         return new LocationResult();

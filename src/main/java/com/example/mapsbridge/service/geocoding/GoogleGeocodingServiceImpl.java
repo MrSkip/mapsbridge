@@ -166,7 +166,7 @@ public class GoogleGeocodingServiceImpl implements GeocodingService {
             Coordinate coordinate = extractCoordinatesFromPlaceDetails(placeDetails);
             String address = placeDetails.formattedAddress;
             String placeName = placeDetails.name;
-            return new LocationResult(null, coordinate, address, placeName);
+            return new LocationResult(null, null, coordinate, address, placeName);
         }
         return null;
     }

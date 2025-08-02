@@ -74,7 +74,7 @@ public class A1UrlContentExtractor implements AppleCoordinateExtractor {
         // Don't use "Marked Location" as place name
         String placeName = "Marked Location".equals(locationInfo.placeName()) ? null : locationInfo.placeName();
 
-        LocationResult result = new LocationResult(null, coordinates, locationInfo.address(), placeName);
+        LocationResult result = new LocationResult(null, null, coordinates, locationInfo.address(), placeName);
         log.info("A1UrlContentExtractor result: coordinates={}, address='{}', placeName='{}'",
                 coordinates, locationInfo.address(), placeName);
 

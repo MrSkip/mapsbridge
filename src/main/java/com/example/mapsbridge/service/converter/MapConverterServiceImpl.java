@@ -36,23 +36,23 @@ public class MapConverterServiceImpl implements MapConverterService<WebConvertRe
     public WebConvertResponse convert(ConvertRequest request) {
         String input = request.getInput().trim();
         LocationResult locationResult = userInputProcessorService.processInput(input);
-        return getWebConvertResponse(request, locationResult);
+        return getWebConvertResponse(locationResult);
     }
 
-    private WebConvertResponse getWebConvertResponse(ConvertRequest request, LocationResult locationResult) {
+    private WebConvertResponse getWebConvertResponse(LocationResult locationResult) {
         WebConvertResponse response = new WebConvertResponse();
         response.setCoordinates(locationResult.getCoordinates());
         response.setAddress(locationResult.getAddress());
         response.setName(locationResult.getPlaceName());
-        response.setLinks(generateMapLinks(locationResult, request.getInput()));
+        response.setLinks(generateMapLinks(locationResult));
         return response;
     }
 
-    private Map<MapType, String> generateMapLinks(LocationResult locationResult, String userInput) {
+    private Map<MapType, String> generateMapLinks(LocationResult locationResult) {
         Map<MapType, String> links = new HashMap<>();
         for (MapProvider provider : mapProviders) {
             if (provider.getType().equals(locationResult.getMapSource())) {
-                links.put(provider.getType(), userInput);
+                links.put(provider.getType(), locationResult.getOriginalUrl());
                 continue;
             }
             try {

@@ -256,6 +256,7 @@
     },
     "testConfig": {
       "description": "[appleMaps][phone][place][UrlContent] - Kaufering / Cantina Charlotta",
+      "sourceUrl": "https://maps.apple.com/place?address=Iglinger%20Stra%C3%9Fe%201,%2086916%20Kaufering,%20Germany&coordinate=48.083965,10.858952&name=Cantina%20Charlotta&place-id=I900E8846D30A3CAF&map=explore",
       "source": "apple"
     }
   },
@@ -395,6 +396,22 @@
     },
     "testConfig": {
       "description": "[coordinates][radar] - Галицька вулиця 4А / біля Ратуші"
+    }
+  },
+  {
+    "input": "Use Waze to drive to Kaufering: https://waze.com/ul/hu0x9x41f4",
+    "expected": {
+      "coordinates": {
+        "lat": 48.087523,
+        "lon": 10.857003
+      },
+      "name": null,
+      "address": "Haidenbucher Straße 1, 86916 Kaufering, DE"
+    },
+    "testConfig": {
+      "description": "[coordinates][radar] - Галицька вулиця 4А / біля Ратуші",
+      "source": "waze",
+      "sourceUrl": "https://waze.com/ul/hu0x9x41f4"
     }
   }
 ]
