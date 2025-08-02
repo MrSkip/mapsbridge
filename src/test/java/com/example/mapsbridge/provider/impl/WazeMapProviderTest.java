@@ -1,10 +1,12 @@
 package com.example.mapsbridge.provider.impl;
 
+import com.example.mapsbridge.config.logging.LoggingContext;
 import com.example.mapsbridge.config.metrics.tracker.MapProviderTracker;
 import com.example.mapsbridge.dto.Coordinate;
 import com.example.mapsbridge.dto.LocationResult;
 import com.example.mapsbridge.dto.MapType;
 import okhttp3.OkHttpClient;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,8 @@ class WazeMapProviderTest {
     private MapProviderTracker mockMetrics;
 
     private WazeMapProvider target;
+    private static final String REGULAR_URL_TEMPLATE = "https://waze.com/ul?ll={lat},{lon}&navigate=yes";
+    private static final String SHORTCUT_URL_TEMPLATE = "waze://?ll={lat},{lon}";
 
     private static Stream<String> getValidUrls() {
         return Stream.of(
@@ -50,9 +54,15 @@ class WazeMapProviderTest {
         OkHttpClient httpClient = new OkHttpClient.Builder().build();
         target = new WazeMapProvider(
                 httpClient,
-                "https://waze.com/ul?ll={lat},{lon}&navigate=yes",
+                REGULAR_URL_TEMPLATE,
+                SHORTCUT_URL_TEMPLATE,
                 List.of(new com.example.mapsbridge.provider.extractor.waze.W100DefaultExtractor(httpClient)),
                 mockMetrics);
+    }
+
+    @AfterEach
+    void tearDown() {
+        LoggingContext.clear();
     }
 
     @Test
@@ -123,5 +133,38 @@ class WazeMapProviderTest {
 
         // then
         assertFalse(result);
+    }
+
+    @Test
+    void testGenerateUrlWithRegularEndpoint() {
+        // given
+        LocationResult location = new LocationResult();
+        Coordinate coordinate = new Coordinate();
+        coordinate.setLat(48.090999);
+        coordinate.setLon(10.860479);
+        location.setCoordinates(coordinate);
+
+        // when
+        String url = target.generateUrl(location);
+
+        // then
+        assertEquals("https://waze.com/ul?ll=48.090999,10.860479&navigate=yes", url);
+    }
+
+    @Test
+    void testGenerateUrlWithShortcutEndpoint() {
+        // given
+        LocationResult location = new LocationResult();
+        Coordinate coordinate = new Coordinate();
+        coordinate.setLat(48.090999);
+        coordinate.setLon(10.860479);
+        location.setCoordinates(coordinate);
+        LoggingContext.setEndpointType("shortcut");
+
+        // when
+        String url = target.generateUrl(location);
+
+        // then
+        assertEquals("waze://?ll=48.090999,10.860479", url);
     }
 }

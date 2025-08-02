@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -66,6 +67,10 @@ public abstract class AbstractMapProvider implements MapProvider {
             throw new InvalidCoordinateException("Invalid coordinates");
         }
 
+        return buildFinalUrl(location, urlTemplate);
+    }
+
+    protected @NotNull String buildFinalUrl(LocationResult location, String urlTemplate) {
         return urlTemplate
                 .replace("{lat}", String.valueOf(location.getCoordinates().getLat()))
                 .replace("{lon}", String.valueOf(location.getCoordinates().getLon()));
