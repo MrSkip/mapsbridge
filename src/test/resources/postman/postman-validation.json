@@ -413,5 +413,20 @@
       "source": "waze",
       "sourceUrl": "https://waze.com/ul/hu0x9x41f4"
     }
+  },
+  {
+    "input": "https://www.komoot.com/discover/Location/@47.7955568,10.9346165/tours?sport=jogging&map=true&startLocation=47.7955568%2C10.9346165",
+    "expected": {
+      "coordinates": {
+        "lat": 47.7955568,
+        "lon": 10.9346165
+      },
+      "name": null,
+      "address": "Lorystraße 14, 86971 Peiting, DE"
+    },
+    "testConfig": {
+      "description": "[komoot][radar] - Koomot location near Peiting",
+      "source": "komoot"
+    }
   }
 ]
