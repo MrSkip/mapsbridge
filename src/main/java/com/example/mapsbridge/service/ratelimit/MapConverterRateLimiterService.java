@@ -23,7 +23,7 @@ public class MapConverterRateLimiterService extends AbstractRateLimiterService {
 
     @Autowired
     public MapConverterRateLimiterService(RateLimiterRegistry rateLimiterRegistry) {
-        super(rateLimiterRegistry);
+        super(rateLimiterRegistry, "daily_");
     }
 
     /**

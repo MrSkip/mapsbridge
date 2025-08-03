@@ -23,6 +23,9 @@ public abstract class AbstractRateLimiterService {
 
     protected final RateLimiterRegistry rateLimiterRegistry;
 
+    // Limiter name prefix used to make identifiers unique across different rate limiter services
+    protected final String limiterNamePrefix;
+
     // Maps to track which rate limiter is used for which identifier
     protected final Map<String, RateLimiter> ipRateLimiters = new ConcurrentHashMap<>();
     protected final Map<String, RateLimiter> emailRateLimiters = new ConcurrentHashMap<>();
@@ -33,8 +36,9 @@ public abstract class AbstractRateLimiterService {
     protected final Map<String, LocalDateTime> emailLastAccessTimes = new ConcurrentHashMap<>();
     protected final Map<String, LocalDateTime> chatIdLastAccessTimes = new ConcurrentHashMap<>();
 
-    protected AbstractRateLimiterService(RateLimiterRegistry rateLimiterRegistry) {
+    protected AbstractRateLimiterService(RateLimiterRegistry rateLimiterRegistry, String limiterNamePrefix) {
         this.rateLimiterRegistry = rateLimiterRegistry;
+        this.limiterNamePrefix = limiterNamePrefix;
     }
 
     /**
@@ -141,14 +145,23 @@ public abstract class AbstractRateLimiterService {
         }
 
         try {
+            // Create a unique identifier by prefixing with the limiter name
+            String uniqueIdentifier = StringUtils.isBlank(limiterNamePrefix) ? identifier : limiterNamePrefix + identifier;
+            
             // Get or create a rate limiter for this specific identifier
-            RateLimiter limiter = rateLimiters.computeIfAbsent(identifier,
-                    k -> rateLimiterRegistry.rateLimiter(k, configName));
+            RateLimiter limiter = rateLimiters.computeIfAbsent(uniqueIdentifier,
+                    k -> {
+                        RateLimiter newLimiter = rateLimiterRegistry.rateLimiter(k, configName);
+                        log.debug("Created rate limiter for {} {}: limit={}, refresh={}",
+                                identifierType, identifier,
+                                newLimiter.getRateLimiterConfig().getLimitForPeriod(),
+                                newLimiter.getRateLimiterConfig().getLimitRefreshPeriod());
+                        return newLimiter;
+                    });
 
             // Update last access time
-            lastAccessTimes.put(identifier, LocalDateTime.now(UTC));
+            lastAccessTimes.put(uniqueIdentifier, LocalDateTime.now(UTC));
 
-            // Try to acquire permission
             if (!limiter.acquirePermission()) {
                 log.warn("Rate limit exceeded for {} {}", identifierType, identifier);
                 throw exceptionFactory.apply(identifier);
@@ -237,32 +250,5 @@ public abstract class AbstractRateLimiterService {
         }
 
         return removedCount;
-    }
-
-    /**
-     * Get the current number of active IP rate limiters.
-     *
-     * @return the number of active IP rate limiters
-     */
-    public int getActiveIpRateLimitersCount() {
-        return ipRateLimiters.size();
-    }
-
-    /**
-     * Get the current number of active email rate limiters.
-     *
-     * @return the number of active email rate limiters
-     */
-    public int getActiveEmailRateLimitersCount() {
-        return emailRateLimiters.size();
-    }
-
-    /**
-     * Get the current number of active chat ID rate limiters.
-     *
-     * @return the number of active chat ID rate limiters
-     */
-    public int getActiveChatIdRateLimitersCount() {
-        return chatIdRateLimiters.size();
     }
 }

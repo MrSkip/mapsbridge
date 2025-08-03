@@ -30,7 +30,7 @@ public class ShortcutMapConverterController {
      * @return The conversion response with coordinates and links
      */
     @PostMapping("/shortcut/location/convert")
-    public ShortcutBaseResponse shortcutConvert(@RequestBody ConvertRequest request) {
+    public ShortcutBaseResponse convert(@RequestBody ConvertRequest request) {
         LoggingContext.setEndpointType(MetricTags.SHORTCUT.toLowerCase());
         log.info("Converting input for shortcut: {}", request.getInput());
         return mapConverterService.convert(request);

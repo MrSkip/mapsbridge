@@ -44,7 +44,7 @@ public class ShortcutWebMapConverterControllerTest {
         when(mapConverterService.convert(any(ConvertRequest.class))).thenReturn(mockResponse);
 
         // Act
-        ShortcutBaseResponse response = controller.shortcutConvert(request);
+        ShortcutBaseResponse response = controller.convert(request);
 
         // Assert
         assertInstanceOf(ShortcutResponse.class, response);

@@ -5,7 +5,11 @@ package com.example.mapsbridge.exception.rate;
  * This is the base class for all rate limiting exceptions.
  */
 public class RateLimitExceededException extends RuntimeException {
-    
+
+    public RateLimitExceededException() {
+        super("Rate limit exceeded");
+    }
+
     public RateLimitExceededException(String message) {
         super(message);
     }

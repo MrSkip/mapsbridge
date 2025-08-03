@@ -1,6 +1,8 @@
 package com.example.mapsbridge.exception;
 
 import com.example.mapsbridge.exception.rate.RateLimitExceededException;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -8,9 +10,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import jakarta.validation.ConstraintViolationException;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Global exception handler for the application.
@@ -109,7 +108,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RateLimitExceededException.class)
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
     public ResponseEntity<ErrorResponse> handleRateLimitExceededException(RateLimitExceededException ex) {
-        log.error("Rate limit exceeded: {}", ex.getMessage());
+        log.error(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.TOO_MANY_REQUESTS)
                 .body(new ErrorResponse("Rate limit exceeded. Please try again later."));

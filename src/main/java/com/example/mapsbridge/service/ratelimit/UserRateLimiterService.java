@@ -24,7 +24,7 @@ public class UserRateLimiterService extends AbstractRateLimiterService {
 
     @Autowired
     public UserRateLimiterService(RateLimiterRegistry rateLimiterRegistry) {
-        super(rateLimiterRegistry);
+        super(rateLimiterRegistry, "user_");
     }
 
     /**

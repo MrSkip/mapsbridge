@@ -1,6 +1,7 @@
 package com.example.mapsbridge.task;
 
 import com.example.mapsbridge.service.ratelimit.MapConverterRateLimiterService;
+import com.example.mapsbridge.service.ratelimit.RequestThrottlingService;
 import com.example.mapsbridge.service.ratelimit.UserRateLimiterService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,33 @@ public class RateLimiterCleanupTask {
 
     private final UserRateLimiterService userRateLimiterService;
     private final MapConverterRateLimiterService mapConverterRateLimiterService;
-    
+    private final RequestThrottlingService requestThrottlingService;
+
+
     @Value("${app.rate-limiter.cleanup.max-idle-hours:24}")
     private int maxIdleHours;
 
     @Autowired
     public RateLimiterCleanupTask(UserRateLimiterService userRateLimiterService,
-                                  MapConverterRateLimiterService mapConverterRateLimiterService) {
+                                  MapConverterRateLimiterService mapConverterRateLimiterService,
+                                  RequestThrottlingService requestThrottlingService) {
         this.userRateLimiterService = userRateLimiterService;
         this.mapConverterRateLimiterService = mapConverterRateLimiterService;
+        this.requestThrottlingService = requestThrottlingService;
+    }
+
+    @Scheduled(cron = "0 0 * * * ?") // Run at the start of every hour
+    public void cleanupOldRequestThrottlingEntries() {
+        log.info("Starting hourly cleanup of old request throttling entries");
+
+        // Clean up request throttling rate limiters
+        int throttlingIpRemoved = requestThrottlingService.cleanupOldIpRateLimiters(1);
+
+        if (throttlingIpRemoved > 0) {
+            log.info("Removed {} old request throttling IP rate limiters", throttlingIpRemoved);
+        } else {
+            log.debug("No old request throttling entries to clean up");
+        }
     }
 
     /**

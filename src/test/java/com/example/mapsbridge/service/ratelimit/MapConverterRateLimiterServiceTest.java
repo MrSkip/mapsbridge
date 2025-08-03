@@ -35,27 +35,29 @@ public class MapConverterRateLimiterServiceTest {
     @BeforeEach
     public void setUp() {
         mapConverterRateLimiterService = new MapConverterRateLimiterService(rateLimiterRegistry);
+
+        // Setup default behavior for the mock - use lenient to avoid unnecessary stubbing errors
+        lenient().when(rateLimiterRegistry.rateLimiter(anyString(), anyString())).thenReturn(rateLimiter);
+        lenient().when(rateLimiter.getRateLimiterConfig()).thenReturn(mock(io.github.resilience4j.ratelimiter.RateLimiterConfig.class));
     }
 
     @Test
     public void testCheckDailyQuotaForIp_Success() {
         // Given
-        when(rateLimiterRegistry.rateLimiter(anyString(), anyString())).thenReturn(rateLimiter);
         when(rateLimiter.acquirePermission()).thenReturn(true);
         String testIp = "192.168.1.1";
 
         // When & Then
         assertDoesNotThrow(() -> mapConverterRateLimiterService.checkDailyQuotaForIp(testIp));
 
-        // Verify that the rate limiter was called
-        verify(rateLimiterRegistry).rateLimiter(testIp, "geocodingIpConfig");
+        // Verify that the rate limiter was called with the prefixed identifier
+        verify(rateLimiterRegistry).rateLimiter("daily_" + testIp, "geocodingIpConfig");
         verify(rateLimiter).acquirePermission();
     }
 
     @Test
     public void testCheckDailyQuotaForIp_ExceedsLimit() {
         // Given
-        when(rateLimiterRegistry.rateLimiter(anyString(), anyString())).thenReturn(rateLimiter);
         when(rateLimiter.acquirePermission()).thenReturn(false);
         String testIp = "192.168.1.1";
 
@@ -66,14 +68,13 @@ public class MapConverterRateLimiterServiceTest {
         );
 
         assertEquals(testIp, exception.getIp());
-        verify(rateLimiterRegistry).rateLimiter(testIp, "geocodingIpConfig");
+        verify(rateLimiterRegistry).rateLimiter("daily_" + testIp, "geocodingIpConfig");
         verify(rateLimiter).acquirePermission();
     }
 
     @Test
     public void testCheckDailyQuotaForIp_ReusesSameRateLimiterForSameIp() {
         // Given
-        when(rateLimiterRegistry.rateLimiter(anyString(), anyString())).thenReturn(rateLimiter);
         when(rateLimiter.acquirePermission()).thenReturn(true);
         String testIp = "192.168.1.1";
 
@@ -82,14 +83,13 @@ public class MapConverterRateLimiterServiceTest {
         mapConverterRateLimiterService.checkDailyQuotaForIp(testIp);
 
         // Then - should only create rate limiter once for the same IP
-        verify(rateLimiterRegistry, times(1)).rateLimiter(testIp, "geocodingIpConfig");
+        verify(rateLimiterRegistry, times(1)).rateLimiter("daily_" + testIp, "geocodingIpConfig");
         verify(rateLimiter, times(2)).acquirePermission();
     }
 
     @Test
     public void testCheckDailyQuotaForIp_HandlesException() {
         // Given
-        when(rateLimiterRegistry.rateLimiter(anyString(), anyString())).thenReturn(rateLimiter);
         when(rateLimiter.acquirePermission()).thenThrow(new RuntimeException("Test exception"));
         String testIp = "192.168.1.1";
 
@@ -100,7 +100,6 @@ public class MapConverterRateLimiterServiceTest {
     @Test
     public void testUpdatesLastAccessTimeForIp() {
         // Given
-        when(rateLimiterRegistry.rateLimiter(anyString(), anyString())).thenReturn(rateLimiter);
         when(rateLimiter.acquirePermission()).thenReturn(true);
         String testIp = "192.168.1.1";
 
@@ -112,8 +111,8 @@ public class MapConverterRateLimiterServiceTest {
                 ReflectionTestUtils.getField(mapConverterRateLimiterService, "ipLastAccessTimes");
 
         assertNotNull(ipLastAccessTimes);
-        assertTrue(ipLastAccessTimes.containsKey(testIp));
-        assertNotNull(ipLastAccessTimes.get(testIp));
+        assertTrue(ipLastAccessTimes.containsKey("daily_" + testIp));
+        assertNotNull(ipLastAccessTimes.get("daily_" + testIp));
     }
 
     @Test
@@ -156,8 +155,8 @@ public class MapConverterRateLimiterServiceTest {
         // When & Then
         assertDoesNotThrow(() -> mapConverterRateLimiterService.checkDailyQuotaForEmail(testEmail));
 
-        // Verify that the rate limiter was called
-        verify(rateLimiterRegistry).rateLimiter(testEmail, "geocodingEmailConfig");
+        // Verify that the rate limiter was called with the prefixed identifier
+        verify(rateLimiterRegistry).rateLimiter("daily_" + testEmail, "geocodingEmailConfig");
         verify(rateLimiter).acquirePermission();
     }
 
@@ -175,7 +174,7 @@ public class MapConverterRateLimiterServiceTest {
         );
 
         assertEquals(testEmail, exception.getEmail());
-        verify(rateLimiterRegistry).rateLimiter(testEmail, "geocodingEmailConfig");
+        verify(rateLimiterRegistry).rateLimiter("daily_" + testEmail, "geocodingEmailConfig");
         verify(rateLimiter).acquirePermission();
     }
 
@@ -191,7 +190,7 @@ public class MapConverterRateLimiterServiceTest {
         mapConverterRateLimiterService.checkDailyQuotaForEmail(testEmail);
 
         // Then - should only create rate limiter once for the same email
-        verify(rateLimiterRegistry, times(1)).rateLimiter(testEmail, "geocodingEmailConfig");
+        verify(rateLimiterRegistry, times(1)).rateLimiter("daily_" + testEmail, "geocodingEmailConfig");
         verify(rateLimiter, times(2)).acquirePermission();
     }
 
@@ -221,8 +220,8 @@ public class MapConverterRateLimiterServiceTest {
                 ReflectionTestUtils.getField(mapConverterRateLimiterService, "emailLastAccessTimes");
 
         assertNotNull(emailLastAccessTimes);
-        assertTrue(emailLastAccessTimes.containsKey(testEmail));
-        assertNotNull(emailLastAccessTimes.get(testEmail));
+        assertTrue(emailLastAccessTimes.containsKey("daily_" + testEmail));
+        assertNotNull(emailLastAccessTimes.get("daily_" + testEmail));
     }
 
     @Test
@@ -265,8 +264,8 @@ public class MapConverterRateLimiterServiceTest {
         // When & Then
         assertDoesNotThrow(() -> mapConverterRateLimiterService.checkDailyQuotaForChatId(testChatId));
 
-        // Verify that the rate limiter was called
-        verify(rateLimiterRegistry).rateLimiter(testChatId, "geocodingChatIdConfig");
+        // Verify that the rate limiter was called with the prefixed identifier
+        verify(rateLimiterRegistry).rateLimiter("daily_" + testChatId, "geocodingChatIdConfig");
         verify(rateLimiter).acquirePermission();
     }
 
@@ -284,7 +283,7 @@ public class MapConverterRateLimiterServiceTest {
         );
 
         assertEquals(testChatId, exception.getChatId());
-        verify(rateLimiterRegistry).rateLimiter(testChatId, "geocodingChatIdConfig");
+        verify(rateLimiterRegistry).rateLimiter("daily_" + testChatId, "geocodingChatIdConfig");
         verify(rateLimiter).acquirePermission();
     }
 
@@ -300,7 +299,7 @@ public class MapConverterRateLimiterServiceTest {
         mapConverterRateLimiterService.checkDailyQuotaForChatId(testChatId);
 
         // Then - should only create rate limiter once for the same chat ID
-        verify(rateLimiterRegistry, times(1)).rateLimiter(testChatId, "geocodingChatIdConfig");
+        verify(rateLimiterRegistry, times(1)).rateLimiter("daily_" + testChatId, "geocodingChatIdConfig");
         verify(rateLimiter, times(2)).acquirePermission();
     }
 
@@ -330,8 +329,8 @@ public class MapConverterRateLimiterServiceTest {
                 ReflectionTestUtils.getField(mapConverterRateLimiterService, "chatIdLastAccessTimes");
 
         assertNotNull(chatIdLastAccessTimes);
-        assertTrue(chatIdLastAccessTimes.containsKey(testChatId));
-        assertNotNull(chatIdLastAccessTimes.get(testChatId));
+        assertTrue(chatIdLastAccessTimes.containsKey("daily_" + testChatId));
+        assertNotNull(chatIdLastAccessTimes.get("daily_" + testChatId));
     }
 
     @Test
